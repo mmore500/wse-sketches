@@ -1,22 +1,43 @@
-from glob import glob
-
 import numpy as np
+import argparse
 
-from cerebras.elf.cs_elf_runner import CSELFRunner
+from cerebras.sdk.sdk_utils import memcpy_view
+from cerebras.sdk.runtime.sdkruntimepybind import (
+    SdkRuntime,
+    MemcpyDataType,
+    MemcpyOrder,
+)  # pylint: disable=no-name-in-module
 
-# Path to ELF and simulation output files
-elf_paths = glob("out/bin/out_*.elf")
-sim_out_path = "out-core.out"
+parser = argparse.ArgumentParser()
+parser.add_argument("--name", help="the test compile output dir")
+parser.add_argument("--cmaddr", help="IP:port for CS system")
+args = parser.parse_args()
 
 # Simulate ELF file and produce the simulation output
-runner = CSELFRunner(elf_paths)
+runner = SdkRuntime("out", cmaddr=args.cmaddr)
 
-# Proceed with simulation
-runner.connect_and_run(sim_out_path)
+runner.load()
+runner.run()
+runner.launch("dolaunch", nonblock=False)
 
-# Read a single u16 value from the address of the variable called "cycle".
-rectangle = ((0, 0), (2, 2))
-data = runner.get_symbol_rect(rectangle, "cycle", np.uint16)
+memcpy_dtype = MemcpyDataType.MEMCPY_16BIT
+out_tensors_u32 = np.zeros((2, 2), np.uint32)
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("counter"),
+    0,  # x0
+    0,  # y0
+    2,  # width
+    2,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.COL_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+
+runner.stop()
 
 # Ensure that the result matches our expectation
 print(data)

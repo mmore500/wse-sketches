@@ -1,1 +1,1 @@
-written with Cerebras SDK v0.7.0
+written with Cerebras SDK v1.0.0
