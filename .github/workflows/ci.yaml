@@ -1,0 +1,26 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-ziglib:
+    name: Test ziglib
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+            version: 0.11.0
+
+      - name: Run test script
+        run: ./ziglib/test.sh
