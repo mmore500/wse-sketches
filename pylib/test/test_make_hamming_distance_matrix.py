@@ -53,7 +53,6 @@ def test_make_hamming_distance_matrix_known_input_default_taxa():
 
 def test_make_hamming_distance_matrix_singleton():
     seq = [0b01]
-    taxa = ["A"]
     expected_distances = {
         ("A", "A"): 0,
     }
