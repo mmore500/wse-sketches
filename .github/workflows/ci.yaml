@@ -55,7 +55,7 @@ jobs:
 
       - name: Push to mirror
         run: |
-          git remote set-url origin https://x-access-token:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
+          git remote set-url origin https://mmore500:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
           git push origin master:master
         env:
           HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
