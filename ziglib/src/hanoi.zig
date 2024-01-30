@@ -8,11 +8,11 @@ const std = @import("std");
 /// is listed as [A007814](https://oeis.org/A007814) in the Online Encyclopedia
 /// of Integer Sequences. The function computes the value in constant time
 /// using a zero-based indexing convention.
-pub fn getHanoiValueAtIndex(n: u32) u32 {
+pub fn get_hanoi_value_at_index(n: u32) u32 {
     return @ctz(n + 1);
 }
 
-test "test_getHanoiValueAtIndex" {
+test "test_get_hanoi_value_at_index" {
     const A001511 = [_]u32{
         1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 5, 1, 2, 1, 3, 1, 2, 1, 4,
         1, 2, 1, 3, 1, 2, 1, 6, 1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 5,
@@ -21,6 +21,9 @@ test "test_getHanoiValueAtIndex" {
         1, 2, 1, 3, 1, 2, 1, 4, 1,
     };
     for (A001511, 0..) |v, i| {
-        try std.testing.expectEqual(v - 1, getHanoiValueAtIndex(@intCast(i)));
+        try std.testing.expectEqual(
+            v - 1,
+            get_hanoi_value_at_index(@intCast(i)),
+        );
     }
 }
