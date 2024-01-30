@@ -43,6 +43,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r pylib/requirements.txt
 
+      - name: Run test script
+        run: ./pylib/test.sh
+
   push-to-mirror:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/master' && github.event.repository.name == 'wse-sketches-mirror' }}
@@ -56,6 +59,3 @@ jobs:
           git push origin master:master
         env:
           HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
-
-      - name: Run test script
-        run: ./pylib/test.sh
