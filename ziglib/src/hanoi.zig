@@ -27,3 +27,31 @@ test "test_get_hanoi_value_at_index" {
         );
     }
 }
+
+/// How many times has the hanoi value at index `n` already been encountered?
+///
+/// Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
+/// on zero-based variant of Hanoi sequence used.
+pub fn get_hanoi_value_incidence_at_index(n: u32) u32 {
+    // equiv to n // 2 ** (get_hanoi_value_at_index(n) + 1)
+    return n >> @intCast(get_hanoi_value_at_index(n) + 1);
+}
+
+test "get_hanoi_value_incidence_at_index" {
+    var hanoi_values: [100]u32 = undefined;
+    for (0..100) |i| {
+        hanoi_values[i] = get_hanoi_value_at_index(@intCast(i));
+    }
+
+    for (0..100) |n| {
+        var count: u32 = 0;
+        for (0..n) |j| {
+            if (hanoi_values[j] == hanoi_values[n]) {
+                count += 1;
+            }
+        }
+        std.debug.assert(count == get_hanoi_value_incidence_at_index(
+            @intCast(n),
+        ));
+    }
+}
