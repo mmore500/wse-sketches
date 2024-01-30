@@ -49,7 +49,9 @@ jobs:
   test-csl:
     name: Test csl
     runs-on: ubuntu-latest
-
+    env:
+      CSLC: cslc
+      CS_PYTHON: cs_python
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -83,6 +85,11 @@ jobs:
           cs_python -h
           cs_readelf -h
           sdk_debug_shell --help
+
+      - name: Test self-driving
+        run: |
+          ./self-driving/compile.sh
+          ./self-driving/execute.sh
   push-to-mirror:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/master' && github.event.repository.name == 'wse-sketches-mirror' }}
