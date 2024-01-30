@@ -52,10 +52,10 @@ jobs:
 
       - name: Push to mirror
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/mmore500/wse-sketches.git
+          git remote set-url origin https://x-access-token:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
           git push origin master:master
         env:
-          TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
+          HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
 
       - name: Run test script
         run: ./pylib/test.sh
