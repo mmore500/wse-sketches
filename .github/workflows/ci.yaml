@@ -67,3 +67,19 @@ jobs:
       - name: Test Apptainer
         run: |
           apptainer --version
+
+      - name: Set up SDK
+        run: |
+          mkdir -p ~/cerebras/bin
+          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        env:
+          CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
+
+      - name: Test SDK
+        run: |
+          cslc -h
+          csdb --help
+          cs_python -h
+          cs_readelf -h
+          sdk_debug_shell -h
