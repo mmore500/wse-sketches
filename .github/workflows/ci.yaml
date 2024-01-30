@@ -57,6 +57,8 @@ jobs:
       - uses: fregante/setup-git-user@v2
       - name: Push to mirror
         run: |
+          git status
+          git log
           git remote set-url origin https://mmore500:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
           git push origin master:master
         env:
