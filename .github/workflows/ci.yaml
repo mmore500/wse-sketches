@@ -1,0 +1,106 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-ziglib:
+    name: Test ziglib
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+            version: 0.11.0
+
+      - name: Run test script
+        run: ./ziglib/test.sh
+
+  test-pylib:
+    name: Test pylib
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r pylib/requirements.txt
+
+      - name: Run test script
+        run: ./pylib/test.sh
+
+  test-csl:
+    name: Test csl
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
+    env:
+      CSLC: cslc
+      CS_PYTHON: cs_python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Apptainer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm2cpio
+          sudo apt-get install -y golang-go
+          mkdir -p ~/apptainer
+          # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
+          echo "$HOME/apptainer/bin" >> $GITHUB_PATH
+          curl -s https://raw.githubusercontent.com/apptainer/apptainer/d77d6f1eb099855f284a482992140d5eeb18be8a/tools/install-unprivileged.sh | bash -s - ~/apptainer
+
+      - name: Test Apptainer
+        run: |
+          apptainer --version
+
+      - name: Set up SDK
+        run: |
+          mkdir -p ~/cerebras/bin
+          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        env:
+          CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
+
+      - name: Test SDK
+        run: |
+          cslc -h
+          csdb --help
+          cs_python -h
+          cs_readelf -h
+          sdk_debug_shell --help
+  push-to-mirror:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/master' && github.event.repository.name == 'wse-sketches-mirror' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: fregante/setup-git-user@v2
+      - name: Push to mirror
+        run: |
+          git status
+          git log
+          git remote set-url origin https://mmore500:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
+          git push origin master:master
+        env:
+          HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
