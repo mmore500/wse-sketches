@@ -52,10 +52,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - uses: yesolutions/mirror-action@master
         with:
-          REMOTE: 'https://github.com/mmore500/wse-sketches.git'
-          GIT_USERNAME: mmore500
-          GIT_PASSWORD: ${{ secrets.HUBGIT_AUTH_TOKEN }}
-          PUSH_ALL_REFS: "false"
+          persist-credentials: false
+      - uses: fregante/setup-git-user@v2
+      - name: Push to mirror
+        run: |
+          git remote set-url origin https://mmore500:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
+          git push origin master:master
+        env:
+          HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
