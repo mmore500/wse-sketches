@@ -42,12 +42,14 @@ task cycleTask(data: u16) void {
     var next: u16 = data + 1;
     @mov16(outDsd, next);
   } else {
-      sys_mod.unblock_cmd_stream();
+    sys_mod.unblock_cmd_stream();
   }
   counter[0] = data;
 }
 
-fn dolaunch() void { @activate(mainTaskID); } // launched by RPC
+fn dolaunch() void { 
+  @activate(mainTaskID);       
+} // launched by RPC
 
 comptime {
   // kickoff task
