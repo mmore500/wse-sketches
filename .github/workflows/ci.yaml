@@ -108,6 +108,9 @@ jobs:
   docker-teximage-build:
     name: Docker Tex Image Build
     runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v2
         with:
@@ -125,6 +128,8 @@ jobs:
           path: ./tex/
           add_git_labels: true
   latex:
+    permissions:
+      contents: read
     name: Latex Build
     runs-on: ubuntu-20.04
     needs:
