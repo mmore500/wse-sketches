@@ -84,7 +84,12 @@ const sendDsd_N = @get_dsd(fabout_dsd, .{
 });
 task sendTask_N() void {
   @fmovs(
-    sendDsd_N, sendBufDsd_N, .{.async = true, .activate = sendFinalizeTaskID_N}
+    sendDsd_N, sendBufDsd_N,
+    .{
+      .async = true,
+      .activate = sendFinalizeTaskID_N,
+      .priority = .{ .high = true }
+    }
   );
   sendCounter_N[0] += 1;
 }
@@ -103,7 +108,12 @@ const sendDsd_S = @get_dsd(fabout_dsd, .{
 });
 task sendTask_S() void {
   @fmovs(
-    sendDsd_S, sendBufDsd_S, .{.async = true, .activate = sendFinalizeTaskID_S}
+    sendDsd_S, sendBufDsd_S,
+    .{
+      .async = true,
+      .activate = sendFinalizeTaskID_S,
+      .priority = .{ .high = true }
+    }
   );
   sendCounter_S[0] += 1;
 }
@@ -128,7 +138,12 @@ const recvDsd_N = @get_dsd(fabin_dsd, .{
 });
 task recvTask_N() void {
   @fmovs(
-    recvBufDsd_N, recvDsd_N, .{.async = true, .activate = recvFinalizeTaskID_N}
+    recvBufDsd_N, recvDsd_N,
+    .{
+      .async = true,
+      .activate = recvFinalizeTaskID_N,
+      .priority = .{ .high = true }
+    },
   );
   recvCounter_N[0] += 1;
 }
@@ -148,7 +163,12 @@ const recvDsd_S = @get_dsd(fabin_dsd, .{
 });
 task recvTask_S() void {
   @fmovs(
-    recvBufDsd_S, recvDsd_S, .{.async = true, .activate = recvFinalizeTaskID_S}
+    recvBufDsd_S, recvDsd_S,
+    .{
+      .async = true,
+      .activate = recvFinalizeTaskID_S,
+      .priority = .{ .high = true }
+    },
   );
   recvCounter_S[0] += 1;
 }
