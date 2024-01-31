@@ -278,7 +278,7 @@ comptime {
 
   @set_local_color_config(
     sendColor_N,
-    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ SOUTH } } },
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH } } },
   );
   @set_local_color_config(
     sendColor_S,
