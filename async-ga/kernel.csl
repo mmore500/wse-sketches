@@ -1,0 +1,220 @@
+// Struct containing parameters for memcpy layout
+param peId: i16;
+param sendColorValue: u16;
+param recvColor: color;
+param memcpy_params: comptime_struct;
+
+// memcpy module provides infrastructure for copying data
+// and launching functions from the host
+const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
+
+// module imports
+const math = @import_module("<math>");
+const random = @import_module("<random>");
+
+// global output variables
+var cycleCounter = @zeros([1]u16);
+var ptr_cycleCounter : [*]u16 = &cycleCounter;
+
+var recvCounter = @zeros([1]u16);
+var ptr_recvCounter : [*]u16 = &recvCounter;
+
+var sendCounter = @zeros([1]u16);
+var ptr_sendCounter : [*]u16 = &sendCounter;
+
+var genome = @zeros([1]f32);
+var ptr_genome : [*]f32 = &genome;
+
+const popSize: u16 = 64;
+var population = @zeros([popSize]f32);
+const populationDsd = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{1} -> population[i]
+});
+var ptr_population: [*]f32 = &population;
+
+// task IDs ===================================================================
+///////////////////////////////////////////////////////////////////////////////
+const sendTaskID: local_task_id = @get_local_task_id(0);
+const sendFinalizeTaskID: local_task_id = @get_local_task_id(1);
+const recvTaskID: local_task_id = @get_local_task_id(2);
+const recvFinalizeTaskID: local_task_id = @get_local_task_id(3);
+const cycleColor: color = @get_color(4);
+const cycleTaskID: data_task_id = @get_data_task_id(cycleColor);
+const mainTaskID: local_task_id = @get_local_task_id(5);
+
+// send task ==================================================================
+///////////////////////////////////////////////////////////////////////////////
+
+const sendBufSize: u16 = popSize;
+var sendBuf = @zeros([sendBufSize]f32);
+const sendBufDsd = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{sendBufSize} -> sendBuf[i]
+});
+var ptr_sendBuf: [*]f32 = &sendBuf;
+var sendFlag: u8 = 1;
+
+task sendFinalizeTask() void { sendFlag = 1; sendCounter[0] += 1; }
+
+const sendDsd = @get_dsd(fabout_dsd, .{
+  .extent = sendBufSize,
+  .fabric_color = @get_color(sendColorValue),
+  .output_queue = @get_output_queue(1)
+});
+task sendTask() void {
+  // TODO
+  // @fmovs(sendDsd, sendBufDsd, .{.async = true, .activate = sendFinalizeTaskID});
+  sendCounter[0] += 1;
+}
+
+// recv task ==================================================================
+///////////////////////////////////////////////////////////////////////////////
+
+const recvBufSize: u16 = 16;
+var recvBuf = @zeros([recvBufSize]f32);
+const recvBufDsd = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{recvBufSize} -> recvBuf[i]
+});
+var ptr_recvBuf: [*]f32 = &recvBuf;
+var recvFlag: u8 = 1;
+
+task recvFinalizeTask() void { recvFlag = 1; recvCounter[0] += 1; }
+
+const recvDsd = @get_dsd(fabin_dsd, .{
+  .fabric_color = recvColor,
+  .extent = recvBufSize,
+  .input_queue = @get_input_queue(0)
+});
+task recvTask() void {
+  // TODO
+  // @fmovs(recvBufDsd, recvDsd, .{.async = true, .activate = recvFinalizeTaskID});
+  recvCounter[0] += 1;
+}
+
+// cycle task =================================================================
+///////////////////////////////////////////////////////////////////////////////
+
+const cycleDsd = @get_dsd(fabout_dsd, .{
+    .extent = 1,
+    .fabric_color = cycleColor,
+  }
+);
+
+// self-activate with incrementing values
+// until threshold reached
+task cycleTask(data: u16) void {
+
+  if (@as(bool, sendFlag)) {
+    @fmovs(sendBufDsd, populationDsd);
+    sendFlag = 0;
+    @activate(sendTaskID);
+  }
+
+  if (@as(bool, recvFlag)) {
+    for (@range(u16, recvBufSize)) |i| {
+      const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
+      @assert(0 <= target and target < popSize);
+      population[target] = math.max(population[target], recvBuf[i]);
+    }
+    recvFlag = 0;
+    @activate(recvTaskID);
+  }
+
+  // generational turnover
+  for (@range(u16, 32)) |tournament| {
+    const parent1 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
+    // @assert(0 <= parent1 and parent1 < popSize);  // makes slow
+    const parent2 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
+    // @assert(0 <= parent2 and parent2 < popSize); // makes slow
+
+    const offspring1: f32 = population[parent1] + random.random_normal_f32();
+    const offspring2: f32 = population[parent2] + random.random_normal_f32();
+
+    const target = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
+    // @assert(0 <= target and target < popSize); // makes slow
+    population[target] = math.max(offspring1, offspring2);
+  }
+  genome[0] = population[0];
+
+  if (data < 5) {
+    const next: u16 = data + 1;
+    @mov16(cycleDsd, next);
+  } else {
+    sys_mod.unblock_cmd_stream();
+  }
+  cycleCounter[0] = data;
+}
+
+// main task ==================================================================
+///////////////////////////////////////////////////////////////////////////////
+
+task mainTask() void {
+  random.set_global_prng_seed(peId);
+  @mov16(cycleDsd, 0);
+}
+
+fn dolaunch() void { @activate(mainTaskID); } // launched by RPC
+
+// bind tasks =================================================================
+///////////////////////////////////////////////////////////////////////////////
+comptime {
+  @bind_local_task(sendTask, sendTaskID);
+  @bind_local_task(sendFinalizeTask, sendFinalizeTaskID);
+  @bind_local_task(recvTask, recvTaskID);
+  @bind_local_task(recvFinalizeTask, recvFinalizeTaskID);
+  @bind_data_task(cycleTask, cycleTaskID);
+  @bind_local_task(mainTask, mainTaskID);
+}
+
+// finalize ===================================================================
+///////////////////////////////////////////////////////////////////////////////
+comptime {
+  @set_local_color_config(
+    cycleColor,
+    .{
+      .routes = .{
+        .rx = .{ RAMP },
+        .tx = .{ RAMP },
+      }
+    }
+  );
+
+  // population recv task
+  @set_local_color_config(
+    recvColor,
+    .{
+      .routes = .{
+        .rx = .{ NORTH, SOUTH, EAST, WEST },
+        .tx = .{ RAMP },
+      }
+    }
+  );
+
+  // population send task
+  @set_local_color_config(
+    @get_color(sendColorValue),
+    .{
+      // default
+      .routes = .{
+        .rx = .{ RAMP },
+        // .tx = .{ NORTH },
+        .tx = .{ NORTH, SOUTH, EAST, WEST },
+      },
+      // .switches = .{
+      //   .pos1 = .{ .tx = WEST },
+      //   .pos2 = .{ .tx = EAST },
+      //   .pos3 = .{ .tx = SOUTH },
+      //   .current_switch_pos = 0,
+      //   .ring_mode = true,
+      // },
+    },
+  );
+
+  @export_symbol(ptr_cycleCounter, "cycleCounter");
+  @export_symbol(ptr_recvCounter, "recvCounter");
+  @export_symbol(ptr_sendCounter, "sendCounter");
+  @export_symbol(ptr_genome, "genome");
+  @export_symbol(ptr_population, "population");
+  @export_symbol(dolaunch);
+
+  @rpc(@get_data_task_id(sys_mod.LAUNCH)); // direct remote procedure calls
+}

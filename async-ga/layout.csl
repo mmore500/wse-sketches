@@ -1,0 +1,49 @@
+// Color used by memcpy for RPC mechanism
+const LAUNCH: color = @get_color(8);
+const evenColorValue: u16 = 2;
+const oddColorValue: u16 = 3;
+
+// Import memcpy layout module for 2 x 2 grid of PEs
+// This module defines parameters passed to program on the single PE
+const memcpy = @import_module("<memcpy/get_params>", .{
+  .width = 2,
+  .height = 2,
+  .LAUNCH = LAUNCH
+});
+
+layout {
+  // how many PE?
+  @set_rectangle(2, 2);
+
+  // assign code to each PE
+  var peId: u16 = 0;
+  for (@range(i32, 2)) |x| {
+    for (@range(i32, 2)) |y| {
+      var recvColorValue: u16 = evenColorValue;
+      var sendColorValue: u16 = oddColorValue;
+      if ((x + y) % 2 == 0) {
+        recvColorValue = oddColorValue;
+        sendColorValue = evenColorValue;
+      }
+
+      @set_tile_code(
+        x, y,
+        "kernel.csl",
+        .{
+          .peId = peId,
+          .sendColorValue = sendColorValue,
+          .recvColor = @get_color(recvColorValue),
+          .memcpy_params = memcpy.get_params(x),
+        }
+      );
+      peId += 1;
+    }
+  }
+
+  @export_name("cycleCounter", [*]u16, true);
+  @export_name("recvCounter", [*]u16, true);
+  @export_name("sendCounter", [*]u16, true);
+  @export_name("population", [*]f32, true);
+  @export_name("genome", [*]f32, true);
+  @export_name("dolaunch", fn()void);
+}
