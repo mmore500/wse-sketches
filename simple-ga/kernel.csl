@@ -1,0 +1,189 @@
+// module imports
+const random = @import_module("<random>");
+
+// parameter variables
+param peId: i16;
+param recvColor: color;
+param sendColorValue: u16;
+
+// global output variables
+var cycleCounter: u16 = 0;
+var recvCounter: u16 = 0;
+var genome: f32 = 0.0;
+
+// fabric colors
+const cycleColor: color = @get_color(0);
+const mainColor: color = @get_color(1);
+const evenColorValue: u16 = 2;
+const oddColorValue: u16 = 3;
+
+
+// Opcodes for potentially updating switches
+const opcode_nop = 0;
+const opcode_switch_advance = 1;
+const opcode_switch_reset = 2;
+const opcode_teardown = 3;
+
+// Helper function to construct the payload of the control wavelet.
+// args:
+//    ceFilter: a filter bit to disable transmission from the destination
+//              router to the destination CE,
+//    opcode: switching opcode (see comment above), and
+//    data: 16-bit wavelet data
+fn ctrl(ce_filter: bool, colorValue: u16, opcode: i16, data: u16) u32 {
+  const six = @as(u32, 6);
+  const eight = @as(u32, 8);
+  const sixteen = @as(u32, 16);
+
+  const hi_word = @as(u32, colorValue) |
+                  @as(u32, opcode) << six |
+                  @as(u32, ce_filter) << eight;
+
+  const lo_word = @as(u32, data);
+  return hi_word << sixteen | lo_word;
+}
+
+// self-activate with incrementing values
+// until threshold reached
+task cycleTask(data: u16) void {
+
+  const sendDsd = @get_dsd(
+    fabout_dsd,
+    .{
+      .extent = 1,
+      .fabric_color = @get_color(sendColorValue),
+    }
+  );
+  @fmovs(sendDsd, genome);
+
+  if (data < 100) {
+    const cycleDsd = @get_dsd(
+      fabout_dsd,
+      .{
+        .extent = 1,
+        .fabric_color = cycleColor,
+      }
+    );
+    var next: u16 = data + 1;
+    @mov16(cycleDsd, next);
+  }
+  cycleCounter = data;
+
+
+  const controlDsd = @get_dsd(fabout_dsd, .{
+    .extent = 1,
+    .fabric_color = @get_color(sendColorValue),
+    // Specify that this wavelet is a control wavelet
+    .control = true,
+  });
+  @mov32(
+    controlDsd,
+    comptime ctrl(false, sendColorValue, opcode_switch_advance, 0x00),
+  );
+}
+
+// kickoff task
+// dispatch cycleTask once
+task mainTask() void {
+  random.set_global_prng_seed(peId);
+
+  // The task simply updates the global variable's value.
+  const cycleDsd = @get_dsd(
+    fabout_dsd,
+    .{
+      .extent = 1,
+      .fabric_color = cycleColor,
+    }
+  );
+  @mov16(cycleDsd, 0);
+}
+
+
+// compete received genome against resident genome and mutate
+task recvTask(data: f32) void {
+  if (genome < data) {
+    genome = data;
+  }
+  genome += random.random_f32(-1.0, 1.0);
+  recvCounter += 1;
+}
+
+comptime {
+  // kickoff task
+  @bind_task(mainTask, mainColor);
+  @activate(mainColor);  // launched at startump
+
+  // self-activating task
+  @bind_task(cycleTask, cycleColor);
+  @set_local_color_config(
+    cycleColor,
+    .{
+      .routes = .{
+        .rx = .{ RAMP },
+        .tx = .{ RAMP },
+      }
+    }
+  );
+
+  // genome recv task
+  @bind_task(recvTask, recvColor);
+  @set_local_color_config(
+    recvColor,
+    .{
+      .routes = .{
+        .rx = .{ NORTH, SOUTH, EAST, WEST },
+        .tx = .{ RAMP },
+      }
+    }
+  );
+
+  // genome send task
+  @set_local_color_config(
+    @get_color(sendColorValue),
+    .{
+      // default
+      .routes = .{
+        .rx = .{ RAMP },
+        .tx = .{ NORTH },
+      },
+      .switches = .{
+        .pos1 = .{ .tx = WEST },
+        .pos2 = .{ .tx = EAST },
+        .pos3 = .{ .tx = SOUTH },
+        .current_switch_pos = 0,
+        .ring_mode = true,
+      },
+    },
+  );
+
+}
+
+layout {
+  // how many PE?
+  @set_rectangle(2, 2);
+
+  // assign code to each PE
+  var peId: u16 = 0;
+  for (@range(i32, 2)) |x| {
+    for (@range(i32, 2)) |y| {
+      var recvColorValue: u16 = evenColorValue;
+      var sendColorValue: u16 = oddColorValue;
+      if ((x + y) % 2 == 0) {
+        recvColorValue = oddColorValue;
+        sendColorValue = evenColorValue;
+      }
+
+      @set_tile_code(
+        x,
+        y,
+        "kernel.csl",
+        .{
+          .peId = peId,
+          .sendColorValue = sendColorValue,
+          .recvColor = @get_color(recvColorValue),
+        }
+      );
+      peId += 1;
+    }
+  }
+}

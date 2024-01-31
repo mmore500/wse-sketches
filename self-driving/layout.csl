@@ -1,0 +1,28 @@
+// Color used by memcpy for RPC mechanism
+const LAUNCH: color = @get_color(8);
+
+// Import memcpy layout module for 2 x 2 grid of PEs
+// This module defines parameters passed to program on the single PE
+const memcpy = @import_module("<memcpy/get_params>", .{
+  .width = 2,
+  .height = 2,
+  .LAUNCH = LAUNCH
+});
+
+layout {
+  // how many PE?
+  @set_rectangle(2, 2);
+
+  // assign code to each PE
+  for (@range(i32, 2)) |x| {
+    for (@range(i32, 2)) |y| {
+      @set_tile_code(
+        x, y,
+        "kernel.csl",
+        .{ .memcpy_params = memcpy.get_params(x) }  // x is column number
+      );
+    }
+  }
+  @export_name("counter", [*]u16, true);
+  @export_name("dolaunch", fn()void);
+}

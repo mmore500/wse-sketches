@@ -1,0 +1,71 @@
+// Struct containing parameters for memcpy layout
+param memcpy_params: comptime_struct;
+
+// memcpy module provides infrastructure for copying data
+// and launching functions from the host
+const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
+
+// global output variable
+var counter = @zeros([1]u16);
+var ptr_counter: [*]u16 = &counter;
+
+// kickoff task
+// dispatch cycleTask once
+const mainTaskID: local_task_id = @get_local_task_id(0);
+
+task mainTask() void {
+  // The task simply updates the global variable's value.
+  const outDsd = @get_dsd(
+    fabout_dsd,
+    .{
+      .extent = 1,
+      .fabric_color = cycleColor,
+    }
+  );
+  @mov16(outDsd, 0);
+}
+
+// self-activate with incrementing values
+// until threshold reached
+const cycleColor: color = @get_color(1);
+const cycleTaskID: data_task_id = @get_data_task_id(cycleColor);
+
+task cycleTask(data: u16) void {
+  if (data < 10) {
+    const outDsd = @get_dsd(
+      fabout_dsd,
+      .{
+        .extent = 1,
+        .fabric_color = cycleColor,
+      }
+    );
+    var next: u16 = data + 1;
+    @mov16(outDsd, next);
+  } else {
+      sys_mod.unblock_cmd_stream();
+  }
+  counter[0] = data;
+}
+
+fn dolaunch() void { @activate(mainTaskID); } // launched by RPC
+
+comptime {
+  // kickoff task
+  @bind_local_task(mainTask, mainTaskID);
+
+  // self-activating task
+  @bind_data_task(cycleTask, cycleTaskID);
+  @set_local_color_config(
+    cycleColor,
+    .{
+      .routes = .{
+        .rx = .{ RAMP },
+        .tx = .{ RAMP },
+      }
+    }
+  );
+
+  @export_symbol(ptr_counter, "counter");
+  @export_symbol(dolaunch);
+  @rpc(@get_data_task_id(sys_mod.LAUNCH)); // direct remote procedure calls
+}
