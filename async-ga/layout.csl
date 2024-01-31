@@ -47,5 +47,6 @@ layout {
   @export_name("sendCounter_S", [*]u16, true);
   @export_name("population", [*]f32, true);
   @export_name("genome", [*]f32, true);
+  @export_name("whoami", [*]i16, true);
   @export_name("dolaunch", fn()void);
 }

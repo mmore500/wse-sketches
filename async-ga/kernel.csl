@@ -29,6 +29,9 @@ var ptr_sendCounter_S : [*]u16 = &sendCounter_S;
 var genome = @zeros([1]f32);
 var ptr_genome : [*]f32 = &genome;
 
+var whoami = @zeros([1]i16);
+var ptr_whoami : [*]i16 = &whoami;
+
 const popSize: u16 = 64;
 var population = @zeros([popSize]f32);
 const populationDsd = @get_dsd(mem1d_dsd, .{
@@ -247,6 +250,7 @@ task cycleTask(data: u16) void {
 ///////////////////////////////////////////////////////////////////////////////
 
 task mainTask() void {
+  whoami[0] = peId;
   random.set_global_prng_seed(peId);
   @activate(recvTaskID_N);
   @activate(recvTaskID_S);
@@ -303,6 +307,7 @@ comptime {
   @export_symbol(ptr_sendCounter_S, "sendCounter_S");
   @export_symbol(ptr_genome, "genome");
   @export_symbol(ptr_population, "population");
+  @export_symbol(ptr_whoami, "whoami");
   @export_symbol(dolaunch);
 
   @rpc(@get_data_task_id(sys_mod.LAUNCH)); // direct remote procedure calls
