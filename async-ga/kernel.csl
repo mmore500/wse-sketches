@@ -280,11 +280,11 @@ comptime {
 
   @set_local_color_config(
     sendColor_N,
-    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH } } },
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH }, .color_swap_y = true } },
   );
   @set_local_color_config(
     sendColor_S,
-    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ SOUTH } } },
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ SOUTH }, .color_swap_y = true } },
   );
   @set_local_color_config(
     recvColor_N,
