@@ -49,7 +49,7 @@ jobs:
   test-csl:
     name: Test csl
     runs-on: ubuntu-latest
-    env:
+    if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}    env:
       CSLC: cslc
       CS_PYTHON: cs_python
     steps:
