@@ -1,7 +1,5 @@
 // Color used by memcpy for RPC mechanism
 const LAUNCH: color = @get_color(20);
-const evenColorValue: u16 = 2;
-const oddColorValue: u16 = 3;
 
 // Import memcpy layout module for 2 x 2 grid of PEs
 // This module defines parameters passed to program on the single PE
@@ -19,13 +17,6 @@ layout {
   var peId: u16 = 0;
   for (@range(i32, 2)) |x| {
     for (@range(i32, 2)) |y| {
-      var recvColorValue: u16 = evenColorValue;
-      var sendColorValue: u16 = oddColorValue;
-      if ((x + y) % 2 == 0) {
-        recvColorValue = oddColorValue;
-        sendColorValue = evenColorValue;
-      }
-
       @set_tile_code(
         x, y,
         "kernel.csl",
@@ -33,8 +24,6 @@ layout {
           .peId = peId,
           .x = x,
           .y = y,
-          .sendColorValue = sendColorValue,
-          .recvColor = @get_color(recvColorValue),
           .memcpy_params = memcpy.get_params(x),
         }
       );

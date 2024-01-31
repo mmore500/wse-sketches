@@ -2,8 +2,6 @@
 param peId: i16;
 param x: i16;
 param y: i16;
-param sendColorValue: u16;
-param recvColor: color;
 param memcpy_params: comptime_struct;
 
 // memcpy module provides infrastructure for copying data
