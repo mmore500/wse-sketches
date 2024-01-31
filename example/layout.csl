@@ -8,6 +8,7 @@ const LAUNCH:     color = @get_color(8); // Color used by memcpy for kernel laun
 
 // Task IDs
 const exit_task_id: local_task_id = @get_local_task_id(9); // Task ID used by local task
+const compute_task_id: local_task_id = @get_local_task_id(10);
 
 // This example only uses 2 PEs
 const memcpy = @import_module("<memcpy/get_params>", .{
@@ -27,7 +28,8 @@ layout {
     .N_per_PE = N / 2,
     .pe_id = 0,
     .send_color = send_color,
-    .exit_task_id = exit_task_id
+    .exit_task_id = exit_task_id,
+    .compute_task_id = compute_task_id
   });
 
   // Left PE sends its result to the right
@@ -40,7 +42,8 @@ layout {
     .N_per_PE = N / 2,
     .pe_id = 1,
     .send_color = send_color,
-    .exit_task_id = exit_task_id
+    .exit_task_id = exit_task_id,
+    .compute_task_id = compute_task_id
   });
 
   // Right PE receives result of left PE
