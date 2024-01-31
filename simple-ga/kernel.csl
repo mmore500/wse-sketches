@@ -112,10 +112,7 @@ task recvTask(data: f32) void {
   recvCounter[0] += 1;
 }
 
-fn dolaunch() void {
-  // sys_mod.unblock_cmd_stream();
-  @activate(mainTaskID);
-} // launched by RPC
+fn dolaunch() void { @activate(mainTaskID); } // launched by RPC
 
 
 comptime {
