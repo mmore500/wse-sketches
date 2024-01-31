@@ -105,10 +105,10 @@ task mainTask() void {
 const recvTaskID: data_task_id = @get_data_task_id(recvColor);
 
 task recvTask(data: f32) void {
-  if (genome[0] < data) {
-    genome[0] = data;
+  const mutated = data + random.random_f32(-1.0, 1.0);
+  if (genome[0] < mutated) {
+    genome[0] = mutated;
   }
-  genome[0] += random.random_f32(-1.0, 1.0);
   recvCounter[0] += 1;
 }
 
