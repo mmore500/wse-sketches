@@ -226,8 +226,8 @@ task cycleTask(data: u16) void {
 
 task mainTask() void {
   random.set_global_prng_seed(peId);
-  // @activate(recvTaskID_N);
-  // @activate(recvTaskID_S);
+  @activate(recvTaskID_N);
+  @activate(recvTaskID_S);
   @mov16(cycleDsd, 0);
 }
 
