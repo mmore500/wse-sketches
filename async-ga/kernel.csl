@@ -1,5 +1,7 @@
 // Struct containing parameters for memcpy layout
 param peId: i16;
+param x: i16;
+param y: i16;
 param sendColorValue: u16;
 param recvColor: color;
 param memcpy_params: comptime_struct;
@@ -31,6 +33,12 @@ var ptr_genome : [*]f32 = &genome;
 
 var whoami = @zeros([1]i16);
 var ptr_whoami : [*]i16 = &whoami;
+
+var whereami_x = @zeros([1]i16);
+var ptr_whereami_x : [*]i16 = &whereami_x;
+
+var whereami_y = @zeros([1]i16);
+var ptr_whereami_y : [*]i16 = &whereami_y;
 
 const popSize: u16 = 64;
 var population = @zeros([popSize]f32);
@@ -251,6 +259,8 @@ task cycleTask(data: u16) void {
 
 task mainTask() void {
   whoami[0] = peId;
+  whereami_x[0] = x;
+  whereami_y[0] = y;
   random.set_global_prng_seed(peId);
   @activate(recvTaskID_N);
   @activate(recvTaskID_S);
@@ -308,6 +318,8 @@ comptime {
   @export_symbol(ptr_genome, "genome");
   @export_symbol(ptr_population, "population");
   @export_symbol(ptr_whoami, "whoami");
+  @export_symbol(ptr_whereami_x, "whereami_x");
+  @export_symbol(ptr_whereami_y, "whereami_y");
   @export_symbol(dolaunch);
 
   @rpc(@get_data_task_id(sys_mod.LAUNCH)); // direct remote procedure calls

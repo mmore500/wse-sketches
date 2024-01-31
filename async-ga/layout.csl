@@ -31,6 +31,8 @@ layout {
         "kernel.csl",
         .{
           .peId = peId,
+          .x = x,
+          .y = y,
           .sendColorValue = sendColorValue,
           .recvColor = @get_color(recvColorValue),
           .memcpy_params = memcpy.get_params(x),
@@ -48,5 +50,7 @@ layout {
   @export_name("population", [*]f32, true);
   @export_name("genome", [*]f32, true);
   @export_name("whoami", [*]i16, true);
+  @export_name("whereami_x", [*]i16, true);
+  @export_name("whereami_y", [*]i16, true);
   @export_name("dolaunch", fn()void);
 }
