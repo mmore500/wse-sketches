@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")"
+
 echo "CSLC ${CSLC}"
 
 # target a 2x2 region of interest

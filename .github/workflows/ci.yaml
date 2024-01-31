@@ -87,6 +87,11 @@ jobs:
           cs_readelf -h
           sdk_debug_shell --help
 
+      - name: Test self-driving
+        run: |
+          ./self-driving/compile.sh
+          ./self-driving/execute.sh
+
   binder:
     runs-on: ubuntu-latest
     steps:
