@@ -128,8 +128,6 @@ jobs:
           path: ./tex/
           add_git_labels: true
   latex:
-    permissions:
-      contents: read
     name: Latex Build
     runs-on: ubuntu-20.04
     needs:
@@ -142,9 +140,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      - run: make -C /opt//${{ github.event.repository.name }}/tex
+      - run: make -C /opt/${{ github.event.repository.name }}/tex
       - name: Upload output as artifact
         uses: actions/upload-artifact@v2
         with:
           name: manuscript
-          path: /opt/wse-sketches/tex/${{ github.event.repository.name }}.pdf
+          path: /opt/${{ github.event.repository.name }}/tex/${{ github.event.repository.name }}-draft.pdf
