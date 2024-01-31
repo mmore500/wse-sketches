@@ -1,5 +1,5 @@
 // Color used by memcpy for RPC mechanism
-const LAUNCH: color = @get_color(8);
+const LAUNCH: color = @get_color(20);
 const evenColorValue: u16 = 2;
 const oddColorValue: u16 = 3;
 
@@ -41,8 +41,10 @@ layout {
   }
 
   @export_name("cycleCounter", [*]u16, true);
-  @export_name("recvCounter", [*]u16, true);
-  @export_name("sendCounter", [*]u16, true);
+  @export_name("recvCounter_N", [*]u16, true);
+  @export_name("recvCounter_S", [*]u16, true);
+  @export_name("sendCounter_N", [*]u16, true);
+  @export_name("sendCounter_S", [*]u16, true);
   @export_name("population", [*]f32, true);
   @export_name("genome", [*]f32, true);
   @export_name("dolaunch", fn()void);

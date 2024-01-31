@@ -16,11 +16,15 @@ const random = @import_module("<random>");
 var cycleCounter = @zeros([1]u16);
 var ptr_cycleCounter : [*]u16 = &cycleCounter;
 
-var recvCounter = @zeros([1]u16);
-var ptr_recvCounter : [*]u16 = &recvCounter;
+var recvCounter_N = @zeros([1]u16);
+var ptr_recvCounter_N : [*]u16 = &recvCounter_N;
+var recvCounter_S = @zeros([1]u16);
+var ptr_recvCounter_S : [*]u16 = &recvCounter_S;
 
-var sendCounter = @zeros([1]u16);
-var ptr_sendCounter : [*]u16 = &sendCounter;
+var sendCounter_N = @zeros([1]u16);
+var ptr_sendCounter_N : [*]u16 = &sendCounter_N;
+var sendCounter_S = @zeros([1]u16);
+var ptr_sendCounter_S : [*]u16 = &sendCounter_S;
 
 var genome = @zeros([1]f32);
 var ptr_genome : [*]f32 = &genome;
@@ -34,60 +38,119 @@ var ptr_population: [*]f32 = &population;
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
-const sendTaskID: local_task_id = @get_local_task_id(0);
-const sendFinalizeTaskID: local_task_id = @get_local_task_id(1);
-const recvTaskID: local_task_id = @get_local_task_id(2);
-const recvFinalizeTaskID: local_task_id = @get_local_task_id(3);
-const cycleColor: color = @get_color(4);
+const sendTaskID_N: local_task_id = @get_local_task_id(10);
+const sendTaskID_S: local_task_id = @get_local_task_id(11);
+
+const sendFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
+const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
+
+const recvTaskID_N: local_task_id = @get_local_task_id(18);
+const recvTaskID_S: local_task_id = @get_local_task_id(19);
+
+const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(0);
+const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(1);
+
+const sendColor_N: color = @get_color(0);
+const recvColor_S: color = @get_color(1);
+
+const recvColor_N: color = @get_color(4);
+const sendColor_S: color = @get_color(5);
+
+const cycleColor: color = @get_color(9);
 const cycleTaskID: data_task_id = @get_data_task_id(cycleColor);
-const mainTaskID: local_task_id = @get_local_task_id(5);
 
-// send task ==================================================================
+const mainTaskID: local_task_id = @get_local_task_id(25);
+const endTaskIDID: local_task_id = @get_local_task_id(26);
+
 ///////////////////////////////////////////////////////////////////////////////
-
+// ============================================================================
+// send tasks
+// ============================================================================
+///////////////////////////////////////////////////////////////////////////////
 const sendBufSize: u16 = popSize;
-var sendBuf = @zeros([sendBufSize]f32);
-const sendBufDsd = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{sendBufSize} -> sendBuf[i]
+const sendNum: u16 = 8;
+
+// send NORTH =================================================================
+var sendBuf_N = @zeros([sendBufSize]f32); var sendFlag_N: u8 = 1;
+const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{sendNum} -> sendBuf_N[i]
 });
-var ptr_sendBuf: [*]f32 = &sendBuf;
-var sendFlag: u8 = 1;
 
-task sendFinalizeTask() void { sendFlag = 1; sendCounter[0] += 1; }
+task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
 
-const sendDsd = @get_dsd(fabout_dsd, .{
-  .extent = sendBufSize,
-  .fabric_color = @get_color(sendColorValue),
+const sendDsd_N = @get_dsd(fabout_dsd, .{
+  .extent = sendNum, .fabric_color = sendColor_N,
+  .output_queue = @get_output_queue(0)
+});
+task sendTask_N() void {
+  @fmovs(
+    sendDsd_N, sendBufDsd_N, .{.async = true, .activate = sendFinalizeTaskID_N}
+  );
+  sendCounter_N[0] += 1;
+}
+
+// send SOUTH =================================================================
+var sendBuf_S = @zeros([sendBufSize]f32); var sendFlag_S: u8 = 1;
+const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{sendNum} -> sendBuf_S[i]
+});
+
+task sendFinalizeTask_S() void { sendFlag_S = 1; sendCounter_S[0] += 1; }
+
+const sendDsd_S = @get_dsd(fabout_dsd, .{
+  .extent = sendNum, .fabric_color = sendColor_S,
   .output_queue = @get_output_queue(1)
 });
-task sendTask() void {
-  // TODO
-  // @fmovs(sendDsd, sendBufDsd, .{.async = true, .activate = sendFinalizeTaskID});
-  sendCounter[0] += 1;
+task sendTask_S() void {
+  @fmovs(
+    sendDsd_S, sendBufDsd_S, .{.async = true, .activate = sendFinalizeTaskID_S}
+  );
+  sendCounter_S[0] += 1;
 }
 
 // recv task ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
 
 const recvBufSize: u16 = 16;
-var recvBuf = @zeros([recvBufSize]f32);
-const recvBufDsd = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{recvBufSize} -> recvBuf[i]
+
+// recv NORTH =================================================================
+var recvBuf_N = @zeros([recvBufSize]f32); var recvFlag_N: u8 = 0;
+const recvBufDsd_N = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{recvBufSize} -> recvBuf_N[i]
 });
-var ptr_recvBuf: [*]f32 = &recvBuf;
-var recvFlag: u8 = 1;
 
-task recvFinalizeTask() void { recvFlag = 1; recvCounter[0] += 1; }
+task recvFinalizeTask_N() void { recvFlag_N = 1; recvCounter_N[0] += 1; }
 
-const recvDsd = @get_dsd(fabin_dsd, .{
-  .fabric_color = recvColor,
+const recvDsd_N = @get_dsd(fabin_dsd, .{
+  .fabric_color = recvColor_N,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(0)
+  .input_queue = @get_input_queue(4)
 });
-task recvTask() void {
-  // TODO
-  // @fmovs(recvBufDsd, recvDsd, .{.async = true, .activate = recvFinalizeTaskID});
-  recvCounter[0] += 1;
+task recvTask_N() void {
+  @fmovs(
+    recvBufDsd_N, recvDsd_N, .{.async = true, .activate = recvFinalizeTaskID_N}
+  );
+  recvCounter_N[0] += 1;
+}
+
+// recv SOUTH =================================================================
+var recvBuf_S = @zeros([recvBufSize]f32); var recvFlag_S: u8 = 0;
+const recvBufDsd_S = @get_dsd(mem1d_dsd, .{
+  .tensor_access = |i|{recvBufSize} -> recvBuf_S[i]
+});
+
+task recvFinalizeTask_S() void { recvFlag_S = 1; recvCounter_S[0] += 1; }
+
+const recvDsd_S = @get_dsd(fabin_dsd, .{
+  .fabric_color = recvColor_S,
+  .extent = recvBufSize,
+  .input_queue = @get_input_queue(5)
+});
+task recvTask_S() void {
+  @fmovs(
+    recvBufDsd_S, recvDsd_S, .{.async = true, .activate = recvFinalizeTaskID_S}
+  );
+  recvCounter_S[0] += 1;
 }
 
 // cycle task =================================================================
@@ -99,24 +162,38 @@ const cycleDsd = @get_dsd(fabout_dsd, .{
   }
 );
 
+fn integrate(genome_: f32) void {
+    const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
+    // @assert(0 <= target and target < popSize);  // makes slow
+    population[target] = math.max(population[target], genome_);
+}
+
 // self-activate with incrementing values
 // until threshold reached
 task cycleTask(data: u16) void {
 
-  if (@as(bool, sendFlag)) {
-    @fmovs(sendBufDsd, populationDsd);
-    sendFlag = 0;
-    @activate(sendTaskID);
+  // handle send flags
+  if (@as(bool, sendFlag_N)) {
+    @fmovs(sendBufDsd_N, populationDsd);
+    sendFlag_N = 0;
+    // @activate(sendTaskID_N);
+  }
+  if (@as(bool, sendFlag_S)) {
+    @fmovs(sendBufDsd_S, populationDsd);
+    sendFlag_S = 0;
+    // @activate(sendTaskID_S);
   }
 
-  if (@as(bool, recvFlag)) {
-    for (@range(u16, recvBufSize)) |i| {
-      const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
-      @assert(0 <= target and target < popSize);
-      population[target] = math.max(population[target], recvBuf[i]);
-    }
-    recvFlag = 0;
-    @activate(recvTaskID);
+  // handle recv flags
+  if (@as(bool, recvFlag_N)) {
+    @map(integrate, recvBufDsd_N);
+    recvFlag_N = 0;
+    @activate(recvTaskID_N);
+  }
+  if (@as(bool, recvFlag_S)) {
+    @map(integrate, recvBufDsd_S);
+    recvFlag_S = 0;
+    @activate(recvTaskID_S);
   }
 
   // generational turnover
@@ -149,6 +226,8 @@ task cycleTask(data: u16) void {
 
 task mainTask() void {
   random.set_global_prng_seed(peId);
+  // @activate(recvTaskID_N);
+  // @activate(recvTaskID_S);
   @mov16(cycleDsd, 0);
 }
 
@@ -157,10 +236,14 @@ fn dolaunch() void { @activate(mainTaskID); } // launched by RPC
 // bind tasks =================================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
-  @bind_local_task(sendTask, sendTaskID);
-  @bind_local_task(sendFinalizeTask, sendFinalizeTaskID);
-  @bind_local_task(recvTask, recvTaskID);
-  @bind_local_task(recvFinalizeTask, recvFinalizeTaskID);
+  @bind_local_task(sendTask_N, sendTaskID_N);
+  @bind_local_task(sendTask_S, sendTaskID_S);
+  @bind_local_task(sendFinalizeTask_N, sendFinalizeTaskID_N);
+  @bind_local_task(sendFinalizeTask_S, sendFinalizeTaskID_S);
+  @bind_local_task(recvTask_N, recvTaskID_N);
+  @bind_local_task(recvTask_S, recvTaskID_S);
+  @bind_local_task(recvFinalizeTask_N, recvFinalizeTaskID_N);
+  @bind_local_task(recvFinalizeTask_S, recvFinalizeTaskID_S);
   @bind_data_task(cycleTask, cycleTaskID);
   @bind_local_task(mainTask, mainTaskID);
 }
@@ -170,48 +253,32 @@ comptime {
 comptime {
   @set_local_color_config(
     cycleColor,
-    .{
-      .routes = .{
-        .rx = .{ RAMP },
-        .tx = .{ RAMP },
-      }
-    }
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
 
-  // population recv task
   @set_local_color_config(
-    recvColor,
-    .{
-      .routes = .{
-        .rx = .{ NORTH, SOUTH, EAST, WEST },
-        .tx = .{ RAMP },
-      }
-    }
+    sendColor_N,
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ SOUTH } } },
+  );
+  @set_local_color_config(
+    sendColor_S,
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ SOUTH } } },
+  );
+  @set_local_color_config(
+    recvColor_N,
+    .{ .routes = .{ .rx = .{ NORTH }, .tx = .{ RAMP }, .color_swap_y = true } },
+  );
+  @set_local_color_config(
+    recvColor_S,
+    .{ .routes = .{ .rx = .{ SOUTH }, .tx = .{ RAMP }, .color_swap_y = true } },
   );
 
-  // population send task
-  @set_local_color_config(
-    @get_color(sendColorValue),
-    .{
-      // default
-      .routes = .{
-        .rx = .{ RAMP },
-        // .tx = .{ NORTH },
-        .tx = .{ NORTH, SOUTH, EAST, WEST },
-      },
-      // .switches = .{
-      //   .pos1 = .{ .tx = WEST },
-      //   .pos2 = .{ .tx = EAST },
-      //   .pos3 = .{ .tx = SOUTH },
-      //   .current_switch_pos = 0,
-      //   .ring_mode = true,
-      // },
-    },
-  );
 
   @export_symbol(ptr_cycleCounter, "cycleCounter");
-  @export_symbol(ptr_recvCounter, "recvCounter");
-  @export_symbol(ptr_sendCounter, "sendCounter");
+  @export_symbol(ptr_recvCounter_N, "recvCounter_N");
+  @export_symbol(ptr_recvCounter_S, "recvCounter_S");
+  @export_symbol(ptr_sendCounter_N, "sendCounter_N");
+  @export_symbol(ptr_sendCounter_S, "sendCounter_S");
   @export_symbol(ptr_genome, "genome");
   @export_symbol(ptr_population, "population");
   @export_symbol(dolaunch);
