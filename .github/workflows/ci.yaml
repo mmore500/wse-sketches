@@ -158,6 +158,7 @@ jobs:
   latex:
     name: Latex Build
     runs-on: ubuntu-20.04
+    if: false  # temporarily disable
     needs:
       - docker-teximage-build
     container:
