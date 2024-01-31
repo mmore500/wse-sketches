@@ -1,0 +1,4 @@
+[submodule "tex/binder"]
+	path = tex/binder
+	url = https://github.com/mmore500/wse-sketches.git
+	branch = binder
