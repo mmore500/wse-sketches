@@ -1,27 +1,88 @@
-from glob import glob
-
 import numpy as np
+import argparse
 
-from cerebras.elf.cs_elf_runner import CSELFRunner
+from cerebras.sdk.sdk_utils import memcpy_view
+from cerebras.sdk.runtime.sdkruntimepybind import (
+    SdkRuntime,
+    MemcpyDataType,
+    MemcpyOrder,
+)  # pylint: disable=no-name-in-module
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--name", help="the test compile output dir")
+parser.add_argument("--cmaddr", help="IP:port for CS system")
+args = parser.parse_args()
 
 # Path to ELF and simulation output files
-elf_paths = glob("out/bin/out_*.elf")
-sim_out_path = "out-core.out"
+runner = SdkRuntime("out", cmaddr=args.cmaddr)
 
-# Simulate ELF file and produce the simulation output
-runner = CSELFRunner(elf_paths)
+runner.load()
+runner.run()
+runner.launch("dolaunch", nonblock=False)
 
-# Proceed with simulation
-runner.connect_and_run(sim_out_path)
+print("cycle counter =======================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((2, 2), np.uint32)
 
-# Read a single u16 value from the address of the variable called "cycle".
-rectangle = ((0, 0), (2, 2))
-cycleCounter = runner.get_symbol_rect(rectangle, "cycleCounter", np.uint16)
-recvCounter = runner.get_symbol_rect(rectangle, "recvCounter", np.uint16)
-genome = runner.get_symbol_rect(rectangle, "genome", np.float32)
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("cycleCounter"),
+    0,  # x0
+    0,  # y0
+    2,  # width
+    2,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.COL_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(data)
+
+
+print("recv counter =========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((2, 2), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("recvCounter"),
+    0,  # x0
+    0,  # y0
+    2,  # width
+    2,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.COL_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(data)
+
+print("genome values ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((2, 2), np.float32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("genome"),
+    0,  # x0
+    0,  # y0
+    2,  # width
+    2,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.COL_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.float32))
+print(data)
+
+# runner.dump("corefile.cs1")
+runner.stop()
 
 # Ensure that the result matches our expectation
-print("cycleCounter", cycleCounter)
-print("recvCounter", recvCounter)
-print("genome", genome)
 print("SUCCESS!")
