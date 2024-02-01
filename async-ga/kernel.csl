@@ -51,7 +51,7 @@ var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 const popSize: u16 = 64;
 var population = @zeros([popSize]f32);  // holds population during simulation
 const populationDsd = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{1} -> population[i]
+  .tensor_access = |i|{1} -> population[i],
 });
 var ptr_population: [*]f32 = &population;  // unused atm, genome is convenient
 
@@ -106,7 +106,7 @@ const sendNum: u16 = 2;  // how many sends to batch together?
 var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_N = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{sendNum} -> sendBuf_N[i]
+  .tensor_access = |i|{sendNum} -> sendBuf_N[i],
 });
 
 // callback for when send is complete, set flag to trigger refill & next send
@@ -123,8 +123,8 @@ fn dispatchSend_N() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_N,  // callback on complete
-      .priority = .{ .high = true }
-    }
+      .priority = .{ .high = true },
+    },
   );
   sendCounter_N[0] += 1;  // counter only used for telemetry
 }
@@ -133,7 +133,7 @@ fn dispatchSend_N() void {
 var sendFlag_S: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_S = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{sendNum} -> sendBuf_S[i]
+  .tensor_access = |i|{sendNum} -> sendBuf_S[i],
 });
 
 // callback for when send is complete, set flag to trigger refill & next send
@@ -150,8 +150,8 @@ fn dispatchSend_S() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_S,  // callback on complete
-      .priority = .{ .high = true }
-    }
+      .priority = .{ .high = true },
+    },
   );
   sendCounter_S[0] += 1;  // counter only used for telemetry
 }
@@ -160,7 +160,7 @@ fn dispatchSend_S() void {
 var sendFlag_E: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_E = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_E = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{sendNum} -> sendBuf_E[i]
+  .tensor_access = |i|{sendNum} -> sendBuf_E[i],
 });
 
 // callback for when send is complete, set flag to trigger refill & next send
@@ -177,8 +177,8 @@ fn dispatchSend_E() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_E,  // callback on complete
-      .priority = .{ .high = true }
-    }
+      .priority = .{ .high = true },
+    },
   );
   sendCounter_E[0] += 1;  // counter only used for telemetry
 }
@@ -187,7 +187,7 @@ fn dispatchSend_E() void {
 var sendFlag_W: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_W = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{sendNum} -> sendBuf_W[i]
+  .tensor_access = |i|{sendNum} -> sendBuf_W[i],
 });
 
 // callback for when send is complete, set flag to trigger refill & next send
@@ -204,8 +204,8 @@ fn dispatchSend_W() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_W,  // callback on complete
-      .priority = .{ .high = true }
-    }
+      .priority = .{ .high = true },
+    },
   );
   sendCounter_W[0] += 1;  // counter only used for telemetry
 }
@@ -223,7 +223,7 @@ const recvBufSize: u16 = 4; // how many receives to batch together?
 var recvFlag_N: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
 var recvBuf_N = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_N = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{recvBufSize} -> recvBuf_N[i]
+  .tensor_access = |i|{recvBufSize} -> recvBuf_N[i],
 });
 
 // callback when recv is complete, set flag to
@@ -242,7 +242,7 @@ fn dispatchRecv_N() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,  // callback on complete
-      .priority = .{ .high = true }
+      .priority = .{ .high = true },
     },
   );
   recvCounter_N[0] += 1;  // counter only used for telemetry
@@ -252,7 +252,7 @@ fn dispatchRecv_N() void {
 var recvFlag_S: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
 var recvBuf_S = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_S = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{recvBufSize} -> recvBuf_S[i]
+  .tensor_access = |i|{recvBufSize} -> recvBuf_S[i],
 });
 
 // callback when recv is complete, set flag to
@@ -271,7 +271,7 @@ fn dispatchRecv_S() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,  // callback on complete
-      .priority = .{ .high = true }
+      .priority = .{ .high = true },
     },
   );
   recvCounter_S[0] += 1;  // counter only used for telemetry
@@ -281,7 +281,7 @@ fn dispatchRecv_S() void {
 var recvFlag_E: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
 var recvBuf_E = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_E = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{recvBufSize} -> recvBuf_E[i]
+  .tensor_access = |i|{recvBufSize} -> recvBuf_E[i],
 });
 
 // callback when recv is complete, set flag to
@@ -300,7 +300,7 @@ fn dispatchRecv_E() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,  // callback on complete
-      .priority = .{ .high = true }
+      .priority = .{ .high = true },
     },
   );
   recvCounter_E[0] += 1;  // counter only used for telemetry
@@ -310,7 +310,7 @@ fn dispatchRecv_E() void {
 var recvFlag_W: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
 var recvBuf_W = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_W = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{recvBufSize} -> recvBuf_W[i]
+  .tensor_access = |i|{recvBufSize} -> recvBuf_W[i],
 });
 
 // callback when recv is complete, set flag to
@@ -328,7 +328,7 @@ fn dispatchRecv_W() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,  // callback on complete
-      .priority = .{ .high = true }
+      .priority = .{ .high = true },
     },
   );
   recvCounter_W[0] += 1;  // counter only used for telemetry
