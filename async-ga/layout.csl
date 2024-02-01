@@ -1,3 +1,5 @@
+const ncycle = 10;
+
 // Color used by memcpy for RPC mechanism
 const LAUNCH: color = @get_color(20);
 
@@ -26,6 +28,7 @@ layout {
           .peId = peId,
           .x = x,
           .y = y,
+          .ncycle = ncycle,
           .nrow = nrow,
           .ncol = ncol,
           .memcpy_params = memcpy.get_params(x),
