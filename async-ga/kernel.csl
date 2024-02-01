@@ -374,6 +374,7 @@ task cycleTask(data: u16) void {
   const iseven: bool = @as(bool, data % 2 == 0);
 
   // handle recv flags, pull recv buffer into pop and start next async recv
+  // --------------------------------------------------------------------------
   if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
     @map(immigrate_into_population, recvBufDsd_N);  // incorporate into pop
     dispatchRecv_N();  // note: never-filled recv requests on PE array edges ok
@@ -395,9 +396,12 @@ task cycleTask(data: u16) void {
     recvFlag_W = 0;  // open send request has been handled, unset flag
   }
 
-  do_population_generation();  // apply replication/selection to population
+  // apply replication/selection to population
+  // --------------------------------------------------------------------------
+  do_population_generation();
 
   // handle send flags, load send buffer from pop and start next async send
+  // --------------------------------------------------------------------------
   if (iseven and @as(bool, sendFlag_N)) {
     // note: only first sendBufSize elements of buffer are actually used
     // brutish (wasteful and a biased sample), but works for now
@@ -422,12 +426,14 @@ task cycleTask(data: u16) void {
     if (x != 0) dispatchSend_W();  // except left col of PE array
   }
 
+  // trigger next cycle
+  // --------------------------------------------------------------------------
+  cycleCounter[0] = data;  // for telemetry
   if (data < ncycle) {
     @mov16(cycleDsd, data + 1);  // send wavelet to self, trigger next cycle
   } else {
     sys_mod.unblock_cmd_stream();  // terminate
   }
-  cycleCounter[0] = data;  // for telemetry
 }
 
 // launcher ===================================================================
