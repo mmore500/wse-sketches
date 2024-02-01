@@ -34,7 +34,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
@@ -54,7 +54,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
@@ -74,7 +74,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
@@ -95,7 +95,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
@@ -116,7 +116,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
@@ -136,7 +136,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
@@ -156,7 +156,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
@@ -176,7 +176,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
@@ -196,7 +196,7 @@ runner.memcpy_d2h(
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
-    order=MemcpyOrder.COL_MAJOR,
+    order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.float32))
