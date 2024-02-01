@@ -87,6 +87,11 @@ jobs:
           cs_readelf -h
           sdk_debug_shell --help
 
+      - name: Test async-ga
+        run: |
+          ./async-ga/compile.sh
+          ./async-ga/execute.sh
+
       - name: Test self-driving
         run: |
           ./self-driving/compile.sh
