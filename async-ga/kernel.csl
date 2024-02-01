@@ -107,7 +107,7 @@ const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_N[i]
 });
 
-task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
+task sendFinalizeTask_N() void { sendFlag_N = 0; sendCounter_N[0] += 1; }
 
 const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
@@ -246,7 +246,7 @@ fn recvTask_S() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,
-      // .priority = .{ .high = true }
+      .priority = .{ .high = true }
     },
   );
   recvCounter_S[0] += 1;
@@ -271,7 +271,7 @@ fn recvTask_E() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,
-      // .priority = .{ .high = true }
+      .priority = .{ .high = true }
     },
   );
   recvCounter_E[0] += 1;
@@ -296,7 +296,7 @@ fn recvTask_W() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,
-      // .priority = .{ .high = true }
+      .priority = .{ .high = true }
     },
   );
   recvCounter_W[0] += 1;
@@ -326,7 +326,7 @@ task cycleTask(data: u16) void {
     @fmovs(sendBufDsd_N, populationDsd);
     sendFlag_N = 0;
     // except top row of PE array
-    // if (y != 0) sendTask_N();
+    if (y != 0) sendTask_N();
   }
   if (@as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);
