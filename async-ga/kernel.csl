@@ -1,3 +1,23 @@
+// Distributed genetic algorithm simulations across the processing elements
+// (PEs). The kernel enables each PE to manage a local population, simulate
+// generational evolution, and migrate genomes to/from neighboring PEs.
+//
+// main program cycle:
+// 1. check N/S/E/W recv flags; for any completed,
+//    - harvest genomes from completed recv buffer into population
+//    - open new async request to recv from that neighbor into buffer
+//    - when async recv request completes, callback task sets receive flag
+// 2. elapse population generation using tournament selection; for each
+//    tournament,
+//    - sample two candidate parents
+//    - create two offspring by copying and mutating parent genomes
+//    - select the fittest offspring to replace a random population member
+// 3. check N/S/E/W send flags; for any completed,
+//    - update send buffer with genomes from current population
+//    - open new async request to send from buffer to that neighbor
+//    - when async send request completes, callback task sets send flag
+// 4. trigger next iteration of main cycle
+
 // layout parameters ==========================================================
 ///////////////////////////////////////////////////////////////////////////////
 param peId: i16;  // uid among PEs
