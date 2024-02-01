@@ -81,6 +81,18 @@ const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
 const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
 const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
 
+// task IDs ===================================================================
+///////////////////////////////////////////////////////////////////////////////
+const q_out_N: i16 = 0;
+const q_out_S: i16 = 3;
+const q_out_E: i16 = 2;
+const q_out_W: i16 = 1;
+
+const q_in_N: i16 = 7;
+const q_in_S: i16 = 6;
+const q_in_E: i16 = 5;
+const q_in_W: i16 = 4;
+
 ///////////////////////////////////////////////////////////////////////////////
 // ============================================================================
 // send tasks
@@ -99,7 +111,7 @@ task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
 
 const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
-  .output_queue = @get_output_queue(0)
+  .output_queue = @get_output_queue(q_out_N)
 });
 fn sendTask_N() void {
   @fmovs(
@@ -123,7 +135,7 @@ task sendFinalizeTask_S() void { sendFlag_S = 1; sendCounter_S[0] += 1; }
 
 const sendDsd_S = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_S,
-  .output_queue = @get_output_queue(3)
+  .output_queue = @get_output_queue(q_out_S)
 });
 fn sendTask_S() void {
   @fmovs(
@@ -147,7 +159,7 @@ task sendFinalizeTask_E() void { sendFlag_E = 1; sendCounter_E[0] += 1; }
 
 const sendDsd_E = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_E,
-  .output_queue = @get_output_queue(2)
+  .output_queue = @get_output_queue(q_out_E)
 });
 fn sendTask_E() void {
   @fmovs(
@@ -171,7 +183,7 @@ task sendFinalizeTask_W() void { sendFlag_W = 1; sendCounter_W[0] += 1; }
 
 const sendDsd_W = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_W,
-  .output_queue = @get_output_queue(1)
+  .output_queue = @get_output_queue(q_out_W)
 });
 fn sendTask_W() void {
   @fmovs(
@@ -201,7 +213,7 @@ task recvFinalizeTask_N() void { recvFlag_N = 1; recvCounter_N[0] += 1; }
 const recvDsd_N = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_N,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(7)
+  .input_queue = @get_input_queue(q_in_N)
 });
 fn recvTask_N() void {
   @fmovs(
@@ -226,7 +238,7 @@ task recvFinalizeTask_S() void { recvFlag_S = 1; recvCounter_S[0] += 1; }
 const recvDsd_S = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_S,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(6)
+  .input_queue = @get_input_queue(q_in_S)
 });
 fn recvTask_S() void {
   @fmovs(
@@ -251,7 +263,7 @@ task recvFinalizeTask_E() void { recvFlag_E = 1; recvCounter_E[0] += 1; }
 const recvDsd_E = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_E,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(5)
+  .input_queue = @get_input_queue(q_in_E)
 });
 fn recvTask_E() void {
   @fmovs(
@@ -276,7 +288,7 @@ task recvFinalizeTask_W() void { recvFlag_W = 1; recvCounter_W[0] += 1; }
 const recvDsd_W = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_W,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(4)
+  .input_queue = @get_input_queue(q_in_W)
 });
 fn recvTask_W() void {
   @fmovs(
