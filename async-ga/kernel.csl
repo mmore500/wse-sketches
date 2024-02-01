@@ -115,7 +115,7 @@ const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
   .output_queue = @get_output_queue(q_out_N)
 });
-fn sendTask_N() void {
+fn dispatchSend_N() void {
   @fmovs(
     sendDsd_N, sendBufDsd_N,
     .{
@@ -139,7 +139,7 @@ const sendDsd_S = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_S,
   .output_queue = @get_output_queue(q_out_S)
 });
-fn sendTask_S() void {
+fn dispatchSend_S() void {
   @fmovs(
     sendDsd_S, sendBufDsd_S,
     .{
@@ -163,7 +163,7 @@ const sendDsd_E = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_E,
   .output_queue = @get_output_queue(q_out_E)
 });
-fn sendTask_E() void {
+fn dispatchSend_E() void {
   @fmovs(
     sendDsd_E, sendBufDsd_E,
     .{
@@ -187,7 +187,7 @@ const sendDsd_W = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_W,
   .output_queue = @get_output_queue(q_out_W)
 });
-fn sendTask_W() void {
+fn dispatchSend_W() void {
   @fmovs(
     sendDsd_W, sendBufDsd_W,
     .{
@@ -219,7 +219,7 @@ const recvDsd_N = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_N)
 });
-fn recvTask_N() void {
+fn dispatchRecv_N() void {
   @fmovs(
     recvBufDsd_N, recvDsd_N,
     .{
@@ -244,7 +244,7 @@ const recvDsd_S = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_S)
 });
-fn recvTask_S() void {
+fn dispatchRecv_S() void {
   @fmovs(
     recvBufDsd_S, recvDsd_S,
     .{
@@ -269,7 +269,7 @@ const recvDsd_E = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_E)
 });
-fn recvTask_E() void {
+fn dispatchRecv_E() void {
   @fmovs(
     recvBufDsd_E, recvDsd_E,
     .{
@@ -294,7 +294,7 @@ const recvDsd_W = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_W)
 });
-fn recvTask_W() void {
+fn dispatchRecv_W() void {
   @fmovs(
     recvBufDsd_W, recvDsd_W,
     .{
@@ -330,22 +330,22 @@ task cycleTask(data: u16) void {
   if (@as(bool, recvFlag_N)) {
     @map(integrate, recvBufDsd_N);
     recvFlag_N = 0;
-    recvTask_N();
+    dispatchRecv_N();
   }
   if (@as(bool, recvFlag_S)) {
     @map(integrate, recvBufDsd_S);
     recvFlag_S = 0;
-    recvTask_S();
+    dispatchRecv_S();
   }
   if (@as(bool, recvFlag_E)) {
     @map(integrate, recvBufDsd_E);
     recvFlag_E = 0;
-    recvTask_E();
+    dispatchRecv_E();
   }
   if (@as(bool, recvFlag_W)) {
     @map(integrate, recvBufDsd_W);
     recvFlag_W = 0;
-    recvTask_W();
+    dispatchRecv_W();
   }
 
   // generational turnover
@@ -369,25 +369,25 @@ task cycleTask(data: u16) void {
     @fmovs(sendBufDsd_N, populationDsd);
     sendFlag_N = 0;
     // except top row of PE array
-    if (y != 0) sendTask_N();
+    if (y != 0) dispatchSend_N();
   }
   if (!iseven and @as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);
     sendFlag_S = 0;
     // except bottom row of PE array
-    if (y != nrow - 1) sendTask_S();
+    if (y != nrow - 1) dispatchSend_S();
   }
   if (iseven and @as(bool, sendFlag_E)) {
     @fmovs(sendBufDsd_E, populationDsd);
     sendFlag_E = 0;
     // except right col of PE array
-    if (x != ncol - 1) sendTask_E();
+    if (x != ncol - 1) dispatchSend_E();
   }
   if (!iseven and @as(bool, sendFlag_W)) {
     @fmovs(sendBufDsd_W, populationDsd);
     sendFlag_W = 0;
     // except left col of PE array
-    if (x != 0) sendTask_W();
+    if (x != 0) dispatchSend_W();
   }
 
   if (data < ncycle) {
@@ -406,10 +406,10 @@ fn dolaunch() void { // launched by RPC
   whereami_x[0] = x;
   whereami_y[0] = y;
   random.set_global_prng_seed(peId);
-  recvTask_N();
-  recvTask_S();
-  recvTask_E();
-  recvTask_W();
+  dispatchRecv_N();
+  dispatchRecv_S();
+  dispatchRecv_E();
+  dispatchRecv_W();
   @mov16(cycleDsd, 0);
 }
 
