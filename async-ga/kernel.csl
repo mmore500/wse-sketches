@@ -434,8 +434,7 @@ task cycleTask(cycle: u16) void {
   if (isEvenCycle and @as(bool, sendFlag_E)) {
     @map(sample_population, sendBufDsd_E);  // load up send buffer
     sendFlag_E = 0;  // open send request has been handled, unset flag
-    // except right col of PE array
-    if (x != nCol - 1) dispatchSend_E();
+    if (x != nCol - 1) dispatchSend_E();  // except right col of PE array
   }
   if (isOddCycle and @as(bool, sendFlag_W)) {
     @map(sample_population, sendBufDsd_W);  // load up send buffer
