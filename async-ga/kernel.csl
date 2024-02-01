@@ -1,21 +1,23 @@
-// Struct containing parameters for memcpy layout
+// layout parameters ==========================================================
+///////////////////////////////////////////////////////////////////////////////
 param peId: i16;
 param x: i16;
 param y: i16;
 param ncycle: u16;
 param nrow: i16;
 param ncol: i16;
-param memcpy_params: comptime_struct;
+param memcpy_params: comptime_struct; // parameters for memcpy layout
 
-// memcpy module provides infrastructure for copying data
-// and launching functions from the host
+// module imports =============================================================
+///////////////////////////////////////////////////////////////////////////////
+// memcpy module for copying data and launching functions from the host
 const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
 
-// module imports
 const math = @import_module("<math>");
 const random = @import_module("<random>");
 
-// global output variables
+// global output variables ====================================================
+///////////////////////////////////////////////////////////////////////////////
 var cycleCounter = @zeros([1]u16);
 var ptr_cycleCounter : [*]u16 = &cycleCounter;
 
@@ -197,7 +199,10 @@ fn sendTask_W() void {
   sendCounter_W[0] += 1;
 }
 
-// recv task ==================================================================
+///////////////////////////////////////////////////////////////////////////////
+// ============================================================================
+// recv tasks
+// ============================================================================
 ///////////////////////////////////////////////////////////////////////////////
 const recvBufSize: u16 = 4;
 
@@ -303,7 +308,6 @@ fn recvTask_W() void {
 
 // cycle task =================================================================
 ///////////////////////////////////////////////////////////////////////////////
-
 const cycleDsd = @get_dsd(fabout_dsd, .{
     .extent = 1,
     .fabric_color = cycleColor,
@@ -397,7 +401,6 @@ task cycleTask(data: u16) void {
 
 // launcher ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
-
 fn dolaunch() void { // launched by RPC
   whoami[0] = peId;
   whereami_x[0] = x;
@@ -424,7 +427,7 @@ comptime {
   @bind_data_task(cycleTask, cycleTaskID);
 }
 
-// finalize ===================================================================
+// wavlet routing =============================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
   @set_local_color_config(
@@ -465,8 +468,11 @@ comptime {
     recvColor_W,
     .{ .routes = .{ .rx = .{ WEST }, .tx = .{ RAMP }, .color_swap_x = true } },
   );
+}
 
-
+// symbol exports =============================================================
+///////////////////////////////////////////////////////////////////////////////
+comptime {
   @export_symbol(ptr_cycleCounter, "cycleCounter");
   @export_symbol(ptr_recvCounter_N, "recvCounter_N");
   @export_symbol(ptr_recvCounter_S, "recvCounter_S");
