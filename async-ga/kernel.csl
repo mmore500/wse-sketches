@@ -320,7 +320,7 @@ task cycleTask(data: u16) void {
     @fmovs(sendBufDsd_S, populationDsd);
     sendFlag_S = 0;
     // except bottom row of PE array
-    // if (y != nrow - 1) sendTask_S();
+    if (y != nrow - 1) sendTask_S();
   }
   if (@as(bool, sendFlag_E)) {
     @fmovs(sendBufDsd_E, populationDsd);
