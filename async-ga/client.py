@@ -52,7 +52,7 @@ runner.memcpy_d2h(
     0,  # x0
     0,  # y0
     nCol,  # width
-    nrow,  # height
+    nRow,  # height
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
@@ -72,7 +72,7 @@ runner.memcpy_d2h(
     0,  # x0
     0,  # y0
     nCol,  # width
-    nrow,  # height
+    nRow,  # height
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
@@ -93,7 +93,7 @@ runner.memcpy_d2h(
     0,  # x0
     0,  # y0
     nCol,  # width
-    nrow,  # height
+    nRow,  # height
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
@@ -114,7 +114,7 @@ runner.memcpy_d2h(
     0,  # x0
     0,  # y0
     nCol,  # width
-    nrow,  # height
+    nRow,  # height
     1,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,

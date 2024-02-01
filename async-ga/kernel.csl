@@ -1,3 +1,23 @@
+// Distributed genetic algorithm simulations across the processing elements
+// (PEs). The kernel enables each PE to manage a local population, simulate
+// generational evolution, and migrate genomes to/from neighboring PEs.
+//
+// main program cycle:
+// 1. check N/S/E/W recv flags; for any completed,
+//    - harvest genomes from completed recv buffer into population
+//    - open new async request to recv from that neighbor into buffer
+//    - when async recv request completes, callback task sets receive flag
+// 2. elapse population generation using tournament selection; for each
+//    tournament,
+//    - sample two candidate parents
+//    - create two offspring by copying and mutating parent genomes
+//    - select the fittest offspring to replace a random population member
+// 3. check N/S/E/W send flags; for any completed,
+//    - update send buffer with genomes from current population
+//    - open new async request to send from buffer to that neighbor
+//    - when async send request completes, callback task sets send flag
+// 4. trigger next iteration of main cycle
+
 // layout parameters ==========================================================
 ///////////////////////////////////////////////////////////////////////////////
 param peId: i16;  // uid among PEs
@@ -10,10 +30,9 @@ param memcpy_params: comptime_struct; // parameters for memcpy layout
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
-// memcpy module for copying data and launching functions from the host
-const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
-
 const math = @import_module("<math>");
+// memcpy module for copying data and launching functions from the host
+const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
 
 // global output variables ====================================================
@@ -71,15 +90,15 @@ const cycleColor: color = @get_color(8);
 const cycleTaskID: data_task_id = @get_data_task_id(cycleColor);
 // color 9 is used by RPC launcher
 
-const sendFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
-const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
-const sendFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
-const sendFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
+const sendFinalizeTaskID_N: local_task_id = @get_local_task_id(10);
+const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
+const sendFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
+const sendFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
 
-const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(10);
-const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
-const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
-const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
+const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
+const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
+const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
+const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
 
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,8 +118,8 @@ const q_in_W: i16 = 4;
 // ============================================================================
 // asynchronously send genomes sampled from population to neighbors
 ///////////////////////////////////////////////////////////////////////////////
-const sendBufSize: u16 = popSize;
 const sendNum: u16 = 2;  // how many sends to batch together?
+const sendBufSize: u16 = sendNum;
 
 // send NORTH =================================================================
 var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
@@ -118,8 +137,7 @@ const sendDsd_N = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_N() void {
-  @fmovs(
-    sendDsd_N, sendBufDsd_N,
+  @fmovs(sendDsd_N, sendBufDsd_N,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_N,  // callback on complete
@@ -145,8 +163,7 @@ const sendDsd_S = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_S() void {
-  @fmovs(
-    sendDsd_S, sendBufDsd_S,
+  @fmovs(sendDsd_S, sendBufDsd_S,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_S,  // callback on complete
@@ -172,8 +189,7 @@ const sendDsd_E = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_E() void {
-  @fmovs(
-    sendDsd_E, sendBufDsd_E,
+  @fmovs(sendDsd_E, sendBufDsd_E,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_E,  // callback on complete
@@ -199,8 +215,7 @@ const sendDsd_W = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_W() void {
-  @fmovs(
-    sendDsd_W, sendBufDsd_W,
+  @fmovs(sendDsd_W, sendBufDsd_W,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_W,  // callback on complete
@@ -237,8 +252,7 @@ const recvDsd_N = @get_dsd(fabin_dsd, .{
 });
 // open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_N() void {
-  @fmovs(
-    recvBufDsd_N, recvDsd_N,
+  @fmovs(recvBufDsd_N, recvDsd_N,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,  // callback on complete
@@ -266,8 +280,7 @@ const recvDsd_S = @get_dsd(fabin_dsd, .{
 });
 // open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_S() void {
-  @fmovs(
-    recvBufDsd_S, recvDsd_S,
+  @fmovs(recvBufDsd_S, recvDsd_S,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,  // callback on complete
@@ -295,8 +308,7 @@ const recvDsd_E = @get_dsd(fabin_dsd, .{
 });
 // open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_E() void {
-  @fmovs(
-    recvBufDsd_E, recvDsd_E,
+  @fmovs(recvBufDsd_E, recvDsd_E,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,  // callback on complete
@@ -323,8 +335,7 @@ const recvDsd_W = @get_dsd(fabin_dsd, .{
   .input_queue = @get_input_queue(q_in_W)
 });
 fn dispatchRecv_W() void {
-  @fmovs(
-    recvBufDsd_W, recvDsd_W,
+  @fmovs(recvBufDsd_W, recvDsd_W,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,  // callback on complete
@@ -360,6 +371,12 @@ fn do_population_generation() void {
   genome[0] = population[0];  // sample 0th element of population for telemetry
 }
 
+fn sample_population() f32 {
+  const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
+  // @assert(0 <= target and target < popSize);  // makes slow
+  return population[target];
+}
+
 // cycle task =================================================================
 // main program loop: self-activate with incrementing values until nCycle
 ///////////////////////////////////////////////////////////////////////////////
@@ -369,7 +386,7 @@ const cycleDsd = @get_dsd(fabout_dsd, .{
   },
 );
 
-task cycleTask(data: u16) void {
+task cycleTask(cycle: u16) void {
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
   if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
@@ -402,39 +419,36 @@ task cycleTask(data: u16) void {
   // must stagger send requests, or else hardware simulation hangs
   // (but only when both vertical AND horizontal exchange enabled)
   // don't know why, but this is a workaround...
-  const isEvenCycle: bool = @as(bool, data % 2 == 0);
+  const isEvenCycle: bool = @as(bool, cycle % 2 == 0);
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
-    // note: only first sendBufSize elements of buffer are actually used
-    // brutish (wasteful and a biased sample), but works for now
-    @fmovs(sendBufDsd_N, populationDsd);  // load up send buffer
+    @map(sample_population, sendBufDsd_N);  // load up send buffer
     if (y != 0) dispatchSend_N();  // except top row of PE array
     sendFlag_N = 0;  // open send request has been handled, unset flag
   }
   if (isOddCycle and @as(bool, sendFlag_S)) {
-    @fmovs(sendBufDsd_S, populationDsd);  // load up send buffer
+    @map(sample_population, sendBufDsd_S);  // load up send buffer
     if (y != nRow - 1) dispatchSend_S();  // except bottom row of PE array
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
   if (isEvenCycle and @as(bool, sendFlag_E)) {
-    @fmovs(sendBufDsd_E, populationDsd);  // load up send buffer
+    @map(sample_population, sendBufDsd_E);  // load up send buffer
     sendFlag_E = 0;  // open send request has been handled, unset flag
-    // except right col of PE array
-    if (x != nCol - 1) dispatchSend_E();
+    if (x != nCol - 1) dispatchSend_E();  // except right col of PE array
   }
   if (isOddCycle and @as(bool, sendFlag_W)) {
-    @fmovs(sendBufDsd_W, populationDsd);  // load up send buffer
+    @map(sample_population, sendBufDsd_W);  // load up send buffer
     sendFlag_W = 0;  // open send request has been handled, unset flag
     if (x != 0) dispatchSend_W();  // except left col of PE array
   }
 
   // trigger next cycle
   // --------------------------------------------------------------------------
-  cycleCounter[0] = data;  // for telemetry
-  if (data < nCycle) {
-    @mov16(cycleDsd, data + 1);  // send wavelet to self, trigger next cycle
+  cycleCounter[0] = cycle;  // for telemetry
+  if (cycle < nCycle) {
+    @mov16(cycleDsd, cycle + 1);  // send wavelet to self, trigger next cycle
   } else {
-    sys_mod.unblock_cmd_stream();  // terminate
+    memcpy.unblock_cmd_stream();  // terminate
   }
 }
 
@@ -469,15 +483,14 @@ comptime {
 // wavlet routing =============================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
+  // RAMP means send from router into the computing elmeent or vice versa
   @set_local_color_config(  // make cycle task wavelet bounce back from router
     cycleColor,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
 
-  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
-  // here, RAMP means send from router into the computing elmeent or vice versa
-
   // NORTH / SOUTH (vertical)
+  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
   @set_local_color_config(
     sendColor_N,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH }, .color_swap_y = true } },
@@ -496,6 +509,7 @@ comptime {
   );
 
   // EAST / WEST (horizontal)
+  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
   @set_local_color_config(
     sendColor_E,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ EAST }, .color_swap_x = true } },
@@ -533,5 +547,5 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_whereami_y, "whereami_y");
   @export_symbol(dolaunch);
 
-  @rpc(@get_data_task_id(sys_mod.LAUNCH)); // direct remote procedure calls
+  @rpc(@get_data_task_id(memcpy.LAUNCH)); // direct remote procedure calls
 }
