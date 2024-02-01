@@ -1,4 +1,6 @@
 const ncycle = 10;
+const nrow = 2;
+const ncol = 2;
 
 // Color used by memcpy for RPC mechanism
 const LAUNCH: color = @get_color(20);
@@ -6,19 +8,17 @@ const LAUNCH: color = @get_color(20);
 // Import memcpy layout module for 2 x 2 grid of PEs
 // This module defines parameters passed to program on the single PE
 const memcpy = @import_module("<memcpy/get_params>", .{
-  .width = 2,
-  .height = 2,
+  .width = ncol,
+  .height = nrow,
   .LAUNCH = LAUNCH
 });
 
 layout {
   // how many PE?
-  @set_rectangle(2, 2);
+  @set_rectangle(ncol, nrow);
 
   // assign code to each PE
   var peId: u16 = 0;
-  const nrow = 2;
-  const ncol = 2;
   for (@range(i32, ncol)) |x| {
     for (@range(i32, nrow)) |y| {
       @set_tile_code(
