@@ -137,8 +137,7 @@ const sendDsd_N = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_N() void {
-  @fmovs(
-    sendDsd_N, sendBufDsd_N,
+  @fmovs(sendDsd_N, sendBufDsd_N,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_N,  // callback on complete
@@ -164,8 +163,7 @@ const sendDsd_S = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_S() void {
-  @fmovs(
-    sendDsd_S, sendBufDsd_S,
+  @fmovs(sendDsd_S, sendBufDsd_S,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_S,  // callback on complete
@@ -191,8 +189,7 @@ const sendDsd_E = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_E() void {
-  @fmovs(
-    sendDsd_E, sendBufDsd_E,
+  @fmovs(sendDsd_E, sendBufDsd_E,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_E,  // callback on complete
@@ -218,8 +215,7 @@ const sendDsd_W = @get_dsd(fabout_dsd, .{
 });
 // open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_W() void {
-  @fmovs(
-    sendDsd_W, sendBufDsd_W,
+  @fmovs(sendDsd_W, sendBufDsd_W,
     .{
       .async = true,
       .activate = sendFinalizeTaskID_W,  // callback on complete
@@ -256,8 +252,7 @@ const recvDsd_N = @get_dsd(fabin_dsd, .{
 });
 // open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_N() void {
-  @fmovs(
-    recvBufDsd_N, recvDsd_N,
+  @fmovs(recvBufDsd_N, recvDsd_N,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,  // callback on complete
@@ -285,8 +280,7 @@ const recvDsd_S = @get_dsd(fabin_dsd, .{
 });
 // open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_S() void {
-  @fmovs(
-    recvBufDsd_S, recvDsd_S,
+  @fmovs(recvBufDsd_S, recvDsd_S,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,  // callback on complete
@@ -314,8 +308,7 @@ const recvDsd_E = @get_dsd(fabin_dsd, .{
 });
 // open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_E() void {
-  @fmovs(
-    recvBufDsd_E, recvDsd_E,
+  @fmovs(recvBufDsd_E, recvDsd_E,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,  // callback on complete
@@ -342,8 +335,7 @@ const recvDsd_W = @get_dsd(fabin_dsd, .{
   .input_queue = @get_input_queue(q_in_W)
 });
 fn dispatchRecv_W() void {
-  @fmovs(
-    recvBufDsd_W, recvDsd_W,
+  @fmovs(recvBufDsd_W, recvDsd_W,
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,  // callback on complete
