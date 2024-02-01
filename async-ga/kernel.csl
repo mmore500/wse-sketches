@@ -366,13 +366,10 @@ fn do_population_generation() void {
 const cycleDsd = @get_dsd(fabout_dsd, .{
     .extent = 1,
     .fabric_color = cycleColor,
-  }
+  },
 );
 
 task cycleTask(data: u16) void {
-
-  const iseven: bool = @as(bool, data % 2 == 0);
-
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
   if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
@@ -402,25 +399,30 @@ task cycleTask(data: u16) void {
 
   // handle send flags, load send buffer from pop and start next async send
   // --------------------------------------------------------------------------
-  if (iseven and @as(bool, sendFlag_N)) {
+  // must stagger send requests, or else hardware simulation hangs
+  // (but only when both vertical AND horizontal exchange enabled)
+  // don't know why, but this is a workaround...
+  const isEvenCycle: bool = @as(bool, data % 2 == 0);
+  const isOddCycle: bool = !isEvenCycle;
+  if (isEvenCycle and @as(bool, sendFlag_N)) {
     // note: only first sendBufSize elements of buffer are actually used
     // brutish (wasteful and a biased sample), but works for now
     @fmovs(sendBufDsd_N, populationDsd);  // load up send buffer
     if (y != 0) dispatchSend_N();  // except top row of PE array
     sendFlag_N = 0;  // open send request has been handled, unset flag
   }
-  if (!iseven and @as(bool, sendFlag_S)) {
+  if (isOddCycle and @as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);  // load up send buffer
     if (y != nrow - 1) dispatchSend_S();  // except bottom row of PE array
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
-  if (iseven and @as(bool, sendFlag_E)) {
+  if (isEvenCycle and @as(bool, sendFlag_E)) {
     @fmovs(sendBufDsd_E, populationDsd);  // load up send buffer
     sendFlag_E = 0;  // open send request has been handled, unset flag
     // except right col of PE array
     if (x != ncol - 1) dispatchSend_E();
   }
-  if (!iseven and @as(bool, sendFlag_W)) {
+  if (isOddCycle and @as(bool, sendFlag_W)) {
     @fmovs(sendBufDsd_W, populationDsd);  // load up send buffer
     sendFlag_W = 0;  // open send request has been handled, unset flag
     if (x != 0) dispatchSend_W();  // except left col of PE array
