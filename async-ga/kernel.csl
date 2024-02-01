@@ -71,15 +71,15 @@ const cycleColor: color = @get_color(8);
 const cycleTaskID: data_task_id = @get_data_task_id(cycleColor);
 // color 9 is used by RPC launcher
 
-const sendFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
-const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
-const sendFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
-const sendFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
+const sendFinalizeTaskID_N: local_task_id = @get_local_task_id(10);
+const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
+const sendFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
+const sendFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
 
-const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(10);
-const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
-const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
-const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
+const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
+const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
+const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
+const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
 
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
