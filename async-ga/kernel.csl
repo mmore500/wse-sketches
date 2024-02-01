@@ -143,8 +143,7 @@ const sendBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_E[i]
 });
 
-// TODO
-task sendFinalizeTask_E() void { sendFlag_E = 0; sendCounter_E[0] += 1; }
+task sendFinalizeTask_E() void { sendFlag_E = 1; sendCounter_E[0] += 1; }
 
 const sendDsd_E = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_E,
