@@ -3,7 +3,7 @@ const nrow = 3;
 const ncol = 3;
 
 // Color used by memcpy for RPC mechanism
-const LAUNCH: color = @get_color(20);
+const LAUNCH: color = @get_color(9);
 
 // Import memcpy layout module for 2 x 2 grid of PEs
 // This module defines parameters passed to program on the single PE
@@ -41,8 +41,12 @@ layout {
   @export_name("cycleCounter", [*]u16, true);
   @export_name("recvCounter_N", [*]u16, true);
   @export_name("recvCounter_S", [*]u16, true);
+  @export_name("recvCounter_E", [*]u16, true);
+  @export_name("recvCounter_W", [*]u16, true);
   @export_name("sendCounter_N", [*]u16, true);
   @export_name("sendCounter_S", [*]u16, true);
+  @export_name("sendCounter_E", [*]u16, true);
+  @export_name("sendCounter_W", [*]u16, true);
   @export_name("population", [*]f32, true);
   @export_name("genome", [*]f32, true);
   @export_name("whoami", [*]i16, true);

@@ -144,6 +144,46 @@ runner.memcpy_d2h(
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
 print(data)
 
+print("recv counter E ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((ncol, nrow), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("recvCounter_E"),
+    0,  # x0
+    0,  # y0
+    ncol,  # width
+    nrow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(data)
+
+print("recv counter W ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((ncol, nrow), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("recvCounter_W"),
+    0,  # x0
+    0,  # y0
+    ncol,  # width
+    nrow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(data)
+
 print("send counter N ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((ncol, nrow), np.uint32)
@@ -171,6 +211,46 @@ out_tensors_u32 = np.zeros((ncol, nrow), np.uint32)
 runner.memcpy_d2h(
     out_tensors_u32,
     runner.get_id("sendCounter_S"),
+    0,  # x0
+    0,  # y0
+    ncol,  # width
+    nrow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(data)
+
+print("send counter E ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((ncol, nrow), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("sendCounter_E"),
+    0,  # x0
+    0,  # y0
+    ncol,  # width
+    nrow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(data)
+
+print("send counter W ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((ncol, nrow), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("sendCounter_W"),
     0,  # x0
     0,  # y0
     ncol,  # width
