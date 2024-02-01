@@ -389,7 +389,7 @@ const cycleDsd = @get_dsd(fabout_dsd, .{
   },
 );
 
-task cycleTask(data: u16) void {
+task cycleTask(cycle: u16) void {
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
   if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
@@ -422,7 +422,7 @@ task cycleTask(data: u16) void {
   // must stagger send requests, or else hardware simulation hangs
   // (but only when both vertical AND horizontal exchange enabled)
   // don't know why, but this is a workaround...
-  const isEvenCycle: bool = @as(bool, data % 2 == 0);
+  const isEvenCycle: bool = @as(bool, cycle % 2 == 0);
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
     // note: only first sendBufSize elements of buffer are actually used
@@ -450,9 +450,9 @@ task cycleTask(data: u16) void {
 
   // trigger next cycle
   // --------------------------------------------------------------------------
-  cycleCounter[0] = data;  // for telemetry
-  if (data < nCycle) {
-    @mov16(cycleDsd, data + 1);  // send wavelet to self, trigger next cycle
+  cycleCounter[0] = cycle;  // for telemetry
+  if (cycle < nCycle) {
+    @mov16(cycleDsd, cycle + 1);  // send wavelet to self, trigger next cycle
   } else {
     sys_mod.unblock_cmd_stream();  // terminate
   }
