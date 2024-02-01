@@ -1,6 +1,6 @@
 const ncycle = 10;
-const nrow = 2;
-const ncol = 2;
+const nrow = 3;
+const ncol = 3;
 
 // Color used by memcpy for RPC mechanism
 const LAUNCH: color = @get_color(20);

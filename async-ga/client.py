@@ -8,7 +8,7 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
     MemcpyOrder,
 )  # pylint: disable=no-name-in-module
 
-nrow, ncol = 2, 2
+nrow, ncol = 3, 3
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir")
