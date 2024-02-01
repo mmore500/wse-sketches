@@ -81,7 +81,7 @@ const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
 const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
 const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
 
-// task IDs ===================================================================
+// queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
 const q_out_N: i16 = 0;
 const q_out_S: i16 = 3;
