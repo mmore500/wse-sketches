@@ -15,8 +15,10 @@ layout {
 
   // assign code to each PE
   var peId: u16 = 0;
-  for (@range(i32, 2)) |x| {
-    for (@range(i32, 2)) |y| {
+  const nrow = 2;
+  const ncol = 2;
+  for (@range(i32, ncol)) |x| {
+    for (@range(i32, nrow)) |y| {
       @set_tile_code(
         x, y,
         "kernel.csl",
@@ -24,6 +26,8 @@ layout {
           .peId = peId,
           .x = x,
           .y = y,
+          .nrow = nrow,
+          .ncol = ncol,
           .memcpy_params = memcpy.get_params(x),
         }
       );

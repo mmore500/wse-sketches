@@ -2,6 +2,8 @@
 param peId: i16;
 param x: i16;
 param y: i16;
+param nrow: i16;
+param ncol: i16;
 param memcpy_params: comptime_struct;
 
 // memcpy module provides infrastructure for copying data
@@ -205,14 +207,14 @@ task cycleTask(data: u16) void {
   if (@as(bool, sendFlag_N)) {
     @fmovs(sendBufDsd_N, populationDsd);
     sendFlag_N = 0;
-    // bottom half of PE array (assuming 2x2)
-    if (y == 1) @activate(sendTaskID_N);
+    // except top row of PE array
+    if (y != 0) @activate(sendTaskID_N);
   }
   if (@as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);
     sendFlag_S = 0;
-    // top half of PE array (assuming 2x2)
-    if (y == 0) @activate(sendTaskID_S);
+    // except bottom row of PE array
+    if (y != nrow - 1) @activate(sendTaskID_S);
   }
 
   // handle recv flags
