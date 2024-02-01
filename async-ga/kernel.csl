@@ -76,10 +76,10 @@ const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
 const sendFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
 const sendFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
 
-const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(25);
-const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(26);
-const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(10);
-const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(11);
+const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(10);
+const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(11);
+const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(12);
+const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
 
 ///////////////////////////////////////////////////////////////////////////////
 // ============================================================================
@@ -99,7 +99,7 @@ task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
 
 const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
-  .output_queue = @get_output_queue(2)
+  .output_queue = @get_output_queue(0)
 });
 fn sendTask_N() void {
   @fmovs(
@@ -123,7 +123,7 @@ task sendFinalizeTask_S() void { sendFlag_S = 1; sendCounter_S[0] += 1; }
 
 const sendDsd_S = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_S,
-  .output_queue = @get_output_queue(1)
+  .output_queue = @get_output_queue(3)
 });
 fn sendTask_S() void {
   @fmovs(
@@ -147,7 +147,7 @@ task sendFinalizeTask_E() void { sendFlag_E = 1; sendCounter_E[0] += 1; }
 
 const sendDsd_E = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_E,
-  .output_queue = @get_output_queue(3)
+  .output_queue = @get_output_queue(2)
 });
 fn sendTask_E() void {
   @fmovs(
@@ -167,12 +167,11 @@ const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_W[i]
 });
 
-// TODO
-task sendFinalizeTask_W() void { sendFlag_W = 0; sendCounter_W[0] += 1; }
+task sendFinalizeTask_W() void { sendFlag_W = 1; sendCounter_W[0] += 1; }
 
 const sendDsd_W = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_W,
-  .output_queue = @get_output_queue(0)
+  .output_queue = @get_output_queue(1)
 });
 fn sendTask_W() void {
   @fmovs(
@@ -202,7 +201,7 @@ task recvFinalizeTask_N() void { recvFlag_N = 1; recvCounter_N[0] += 1; }
 const recvDsd_N = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_N,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(4)
+  .input_queue = @get_input_queue(7)
 });
 fn recvTask_N() void {
   @fmovs(
@@ -210,7 +209,7 @@ fn recvTask_N() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,
-      .priority = .{ .high = true }
+      // .priority = .{ .high = true }
     },
   );
   recvCounter_N[0] += 1;
@@ -227,7 +226,7 @@ task recvFinalizeTask_S() void { recvFlag_S = 1; recvCounter_S[0] += 1; }
 const recvDsd_S = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_S,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(5)
+  .input_queue = @get_input_queue(6)
 });
 fn recvTask_S() void {
   @fmovs(
@@ -235,7 +234,7 @@ fn recvTask_S() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,
-      .priority = .{ .high = true }
+      // .priority = .{ .high = true }
     },
   );
   recvCounter_S[0] += 1;
@@ -252,7 +251,7 @@ task recvFinalizeTask_E() void { recvFlag_E = 1; recvCounter_E[0] += 1; }
 const recvDsd_E = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_E,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(7)
+  .input_queue = @get_input_queue(5)
 });
 fn recvTask_E() void {
   @fmovs(
@@ -260,7 +259,7 @@ fn recvTask_E() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,
-      .priority = .{ .high = true }
+      // .priority = .{ .high = true }
     },
   );
   recvCounter_E[0] += 1;
@@ -277,7 +276,7 @@ task recvFinalizeTask_W() void { recvFlag_W = 1; recvCounter_W[0] += 1; }
 const recvDsd_W = @get_dsd(fabin_dsd, .{
   .fabric_color = recvColor_W,
   .extent = recvBufSize,
-  .input_queue = @get_input_queue(6)
+  .input_queue = @get_input_queue(4)
 });
 fn recvTask_W() void {
   @fmovs(
@@ -285,7 +284,7 @@ fn recvTask_W() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,
-      .priority = .{ .high = true }
+      // .priority = .{ .high = true }
     },
   );
   recvCounter_W[0] += 1;
@@ -315,13 +314,13 @@ task cycleTask(data: u16) void {
     @fmovs(sendBufDsd_N, populationDsd);
     sendFlag_N = 0;
     // except top row of PE array
-    if (y != 0) sendTask_N();
+    // if (y != 0) sendTask_N();
   }
   if (@as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);
     sendFlag_S = 0;
     // except bottom row of PE array
-    if (y != nrow - 1) sendTask_S();
+    // if (y != nrow - 1) sendTask_S();
   }
   if (@as(bool, sendFlag_E)) {
     @fmovs(sendBufDsd_E, populationDsd);
