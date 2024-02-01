@@ -1,23 +1,21 @@
-// layout parameters ==========================================================
-///////////////////////////////////////////////////////////////////////////////
+// Struct containing parameters for memcpy layout
 param peId: i16;
 param x: i16;
 param y: i16;
 param ncycle: u16;
 param nrow: i16;
 param ncol: i16;
-param memcpy_params: comptime_struct; // parameters for memcpy layout
+param memcpy_params: comptime_struct;
 
-// module imports =============================================================
-///////////////////////////////////////////////////////////////////////////////
-// memcpy module for copying data and launching functions from the host
+// memcpy module provides infrastructure for copying data
+// and launching functions from the host
 const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
 
+// module imports
 const math = @import_module("<math>");
 const random = @import_module("<random>");
 
-// global output variables ====================================================
-///////////////////////////////////////////////////////////////////////////////
+// global output variables
 var cycleCounter = @zeros([1]u16);
 var ptr_cycleCounter : [*]u16 = &cycleCounter;
 
@@ -426,7 +424,7 @@ comptime {
   @bind_data_task(cycleTask, cycleTaskID);
 }
 
-// wavlet routing =============================================================
+// finalize ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
   @set_local_color_config(
@@ -467,11 +465,8 @@ comptime {
     recvColor_W,
     .{ .routes = .{ .rx = .{ WEST }, .tx = .{ RAMP }, .color_swap_x = true } },
   );
-}
 
-// symbol exports =============================================================
-///////////////////////////////////////////////////////////////////////////////
-comptime {
+
   @export_symbol(ptr_cycleCounter, "cycleCounter");
   @export_symbol(ptr_recvCounter_N, "recvCounter_N");
   @export_symbol(ptr_recvCounter_S, "recvCounter_S");
