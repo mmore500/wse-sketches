@@ -1,4 +1,4 @@
-const ncycle = 4;
+const ncycle = 20;
 const nrow = 3;
 const ncol = 3;
 
