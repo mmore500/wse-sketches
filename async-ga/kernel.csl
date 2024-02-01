@@ -111,7 +111,7 @@ const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
   .output_queue = @get_output_queue(2)
 });
-task sendTask_N() void {
+fn sendTask_N() void {
   @fmovs(
     sendDsd_N, sendBufDsd_N,
     .{
@@ -135,7 +135,7 @@ const sendDsd_S = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_S,
   .output_queue = @get_output_queue(1)
 });
-task sendTask_S() void {
+fn sendTask_S() void {
   @fmovs(
     sendDsd_S, sendBufDsd_S,
     .{
@@ -213,7 +213,7 @@ const recvDsd_N = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(4)
 });
-task recvTask_N() void {
+fn recvTask_N() void {
   @fmovs(
     recvBufDsd_N, recvDsd_N,
     .{
@@ -238,7 +238,7 @@ const recvDsd_S = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(5)
 });
-task recvTask_S() void {
+fn recvTask_S() void {
   @fmovs(
     recvBufDsd_S, recvDsd_S,
     .{
@@ -324,13 +324,13 @@ task cycleTask(data: u16) void {
     @fmovs(sendBufDsd_N, populationDsd);
     sendFlag_N = 0;
     // except top row of PE array
-    if (y != 0) @activate(sendTaskID_N);
+    if (y != 0) sendTask_N();
   }
   if (@as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);
     sendFlag_S = 0;
     // except bottom row of PE array
-    if (y != nrow - 1) @activate(sendTaskID_S);
+    if (y != nrow - 1) sendTask_S();
   }
   // if (@as(bool, sendFlag_E)) {
   //   @fmovs(sendBufDsd_E, populationDsd);
@@ -349,12 +349,12 @@ task cycleTask(data: u16) void {
   if (@as(bool, recvFlag_N)) {
     @map(integrate, recvBufDsd_N);
     recvFlag_N = 0;
-    @activate(recvTaskID_N);
+    recvTask_N();
   }
   if (@as(bool, recvFlag_S)) {
     @map(integrate, recvBufDsd_S);
     recvFlag_S = 0;
-    @activate(recvTaskID_S);
+    recvTask_S();
   }
   // if (@as(bool, recvFlag_E)) {
   //   @map(integrate, recvBufDsd_E);
@@ -400,8 +400,10 @@ fn dolaunch() void { // launched by RPC
   whereami_x[0] = x;
   whereami_y[0] = y;
   random.set_global_prng_seed(peId);
-  @activate(recvTaskID_N);
-  @activate(recvTaskID_S);
+  recvTask_N();
+  recvTask_S();
+  // @activate(recvTaskID_N);
+  // @activate(recvTaskID_S);
   // @activate(recvTaskID_E);
   // @activate(recvTaskID_W);
   @mov16(cycleDsd, 0);
@@ -410,16 +412,16 @@ fn dolaunch() void { // launched by RPC
 // bind tasks =================================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
-  @bind_local_task(sendTask_N, sendTaskID_N);
-  @bind_local_task(sendTask_S, sendTaskID_S);
+  // @bind_local_task(sendTask_N, sendTaskID_N);
+  // @bind_local_task(sendTask_S, sendTaskID_S);
   // @bind_local_task(sendTask_E, sendTaskID_E);
   // @bind_local_task(sendTask_W, sendTaskID_W);
   @bind_local_task(sendFinalizeTask_N, sendFinalizeTaskID_N);
   @bind_local_task(sendFinalizeTask_S, sendFinalizeTaskID_S);
   // @bind_local_task(sendFinalizeTask_E, sendFinalizeTaskID_E);
   // @bind_local_task(sendFinalizeTask_W, sendFinalizeTaskID_W);
-  @bind_local_task(recvTask_N, recvTaskID_N);
-  @bind_local_task(recvTask_S, recvTaskID_S);
+  // @bind_local_task(recvTask_N, recvTaskID_N);
+  // @bind_local_task(recvTask_S, recvTaskID_S);
   // @bind_local_task(recvTask_E, recvTaskID_E);
   // @bind_local_task(recvTask_W, recvTaskID_W);
   @bind_local_task(recvFinalizeTask_N, recvFinalizeTaskID_N);
