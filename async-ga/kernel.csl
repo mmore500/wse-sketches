@@ -225,7 +225,7 @@ fn dispatchRecv_N() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,
-      // .priority = .{ .high = true }
+      .priority = .{ .high = true }
     },
   );
   recvCounter_N[0] += 1;
