@@ -59,8 +59,8 @@ const recvTaskID_S: local_task_id = @get_local_task_id(19);
 const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(0);
 const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(1);
 
-const sendColor_N: color = @get_color(0);
-const recvColor_S: color = @get_color(1);
+const sendColor_N: color = @get_color(2);
+const recvColor_S: color = @get_color(3);
 
 const recvColor_N: color = @get_color(4);
 const sendColor_S: color = @get_color(5);
@@ -89,7 +89,7 @@ task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
 
 const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
-  .output_queue = @get_output_queue(0)
+  .output_queue = @get_output_queue(2)
 });
 task sendTask_N() void {
   @fmovs(
@@ -206,7 +206,7 @@ task cycleTask(data: u16) void {
     @fmovs(sendBufDsd_N, populationDsd);
     sendFlag_N = 0;
     // bottom half of PE array (assuming 2x2)
-    // if (y == 1) @activate(sendTaskID_N);
+    if (y == 1) @activate(sendTaskID_N);
   }
   if (@as(bool, sendFlag_S)) {
     @fmovs(sendBufDsd_S, populationDsd);
