@@ -30,10 +30,9 @@ param memcpy_params: comptime_struct; // parameters for memcpy layout
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
-// memcpy module for copying data and launching functions from the host
-const sys_mod = @import_module("<memcpy/memcpy>", memcpy_params);
-
 const math = @import_module("<math>");
+// memcpy module for copying data and launching functions from the host
+const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
 
 // global output variables ====================================================
@@ -454,7 +453,7 @@ task cycleTask(cycle: u16) void {
   if (cycle < nCycle) {
     @mov16(cycleDsd, cycle + 1);  // send wavelet to self, trigger next cycle
   } else {
-    sys_mod.unblock_cmd_stream();  // terminate
+    memcpy.unblock_cmd_stream();  // terminate
   }
 }
 
@@ -553,5 +552,5 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_whereami_y, "whereami_y");
   @export_symbol(dolaunch);
 
-  @rpc(@get_data_task_id(sys_mod.LAUNCH)); // direct remote procedure calls
+  @rpc(@get_data_task_id(memcpy.LAUNCH)); // direct remote procedure calls
 }
