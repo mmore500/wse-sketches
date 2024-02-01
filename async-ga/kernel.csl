@@ -1,10 +1,10 @@
 // layout parameters ==========================================================
 ///////////////////////////////////////////////////////////////////////////////
-param peId: i16;
-param x: i16;
+param peId: i16;  // uid among PEs
+param x: i16;  // position within PE array
 param y: i16;
-param ncycle: u16;
-param nrow: i16;
+param ncycle: u16;  // how many self-activation cycles to run for?
+param nrow: i16;  // how big is PE array?
 param ncol: i16;
 param memcpy_params: comptime_struct; // parameters for memcpy layout
 
@@ -17,11 +17,12 @@ const math = @import_module("<math>");
 const random = @import_module("<random>");
 
 // global output variables ====================================================
+// for end-state telemetry, ptrs are necessary for memcpy infrastructure
 ///////////////////////////////////////////////////////////////////////////////
-var cycleCounter = @zeros([1]u16);
+var cycleCounter = @zeros([1]u16);  // how many self-activations cycles elapse?
 var ptr_cycleCounter : [*]u16 = &cycleCounter;
 
-var recvCounter_N = @zeros([1]u16);
+var recvCounter_N = @zeros([1]u16);  // number recv's opened + number filled
 var ptr_recvCounter_N : [*]u16 = &recvCounter_N;
 var recvCounter_S = @zeros([1]u16);
 var ptr_recvCounter_S : [*]u16 = &recvCounter_S;
@@ -30,7 +31,7 @@ var ptr_recvCounter_E : [*]u16 = &recvCounter_E;
 var recvCounter_W = @zeros([1]u16);
 var ptr_recvCounter_W : [*]u16 = &recvCounter_W;
 
-var sendCounter_N = @zeros([1]u16);
+var sendCounter_N = @zeros([1]u16);  // number send's opened + number filled
 var ptr_sendCounter_N : [*]u16 = &sendCounter_N;
 var sendCounter_S = @zeros([1]u16);
 var ptr_sendCounter_S : [*]u16 = &sendCounter_S;
@@ -39,24 +40,20 @@ var ptr_sendCounter_E : [*]u16 = &sendCounter_E;
 var sendCounter_W = @zeros([1]u16);
 var ptr_sendCounter_W : [*]u16 = &sendCounter_W;
 
-var genome = @zeros([1]f32);
+var genome = @zeros([1]f32);  // samples 0th poopulation element (convenient)
 var ptr_genome : [*]f32 = &genome;
 
-var whoami = @zeros([1]i16);
-var ptr_whoami : [*]i16 = &whoami;
-
-var whereami_x = @zeros([1]i16);
-var ptr_whereami_x : [*]i16 = &whereami_x;
-
-var whereami_y = @zeros([1]i16);
-var ptr_whereami_y : [*]i16 = &whereami_y;
+// report back layout params (sanity check)
+var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
+var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
+var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 
 const popSize: u16 = 64;
-var population = @zeros([popSize]f32);
+var population = @zeros([popSize]f32);  // holds population during simulation
 const populationDsd = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{1} -> population[i]
 });
-var ptr_population: [*]f32 = &population;
+var ptr_population: [*]f32 = &population;  // unused atm, genome is convenient
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,6 +69,7 @@ const sendColor_W: color = @get_color(7);
 
 const cycleColor: color = @get_color(8);
 const cycleTaskID: data_task_id = @get_data_task_id(cycleColor);
+// color 9 is used by RPC launcher
 
 const sendFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
 const sendFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
@@ -85,10 +83,10 @@ const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(13);
 
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
-const q_out_N: i16 = 0;
-const q_out_S: i16 = 3;
-const q_out_E: i16 = 2;
-const q_out_W: i16 = 1;
+const q_out_N: i16 = 0;  // input/output queue allocations are kind of fiddly
+const q_out_S: i16 = 3;  // some hardware queues listed in docs seem to be
+const q_out_E: i16 = 2;  // already in use (maybe by memcpy?)
+const q_out_W: i16 = 1;  // but these seem to work
 
 const q_in_N: i16 = 7;
 const q_in_S: i16 = 6;
@@ -99,119 +97,137 @@ const q_in_W: i16 = 4;
 // ============================================================================
 // send tasks
 // ============================================================================
+// asynchronously send genomes sampled from population to neighbors
 ///////////////////////////////////////////////////////////////////////////////
 const sendBufSize: u16 = popSize;
-const sendNum: u16 = 2;
+const sendNum: u16 = 2;  // how many sends to batch together?
 
 // send NORTH =================================================================
-var sendBuf_N = @zeros([sendBufSize]f32); var sendFlag_N: u8 = 1;
+var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendBuf_N = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_N[i]
 });
 
+// callback for when send is complete, set flag to trigger refill & next send
 task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
 
 const sendDsd_N = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_N,
   .output_queue = @get_output_queue(q_out_N)
 });
+// open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_N() void {
   @fmovs(
     sendDsd_N, sendBufDsd_N,
     .{
       .async = true,
-      .activate = sendFinalizeTaskID_N,
+      .activate = sendFinalizeTaskID_N,  // callback on complete
       .priority = .{ .high = true }
     }
   );
-  sendCounter_N[0] += 1;
+  sendCounter_N[0] += 1;  // counter only used for telemetry
 }
 
 // send SOUTH =================================================================
-var sendBuf_S = @zeros([sendBufSize]f32); var sendFlag_S: u8 = 1;
+var sendFlag_S: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendBuf_S = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_S[i]
 });
 
+// callback for when send is complete, set flag to trigger refill & next send
 task sendFinalizeTask_S() void { sendFlag_S = 1; sendCounter_S[0] += 1; }
 
 const sendDsd_S = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_S,
   .output_queue = @get_output_queue(q_out_S)
 });
+// open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_S() void {
   @fmovs(
     sendDsd_S, sendBufDsd_S,
     .{
       .async = true,
-      .activate = sendFinalizeTaskID_S,
+      .activate = sendFinalizeTaskID_S,  // callback on complete
       .priority = .{ .high = true }
     }
   );
-  sendCounter_S[0] += 1;
+  sendCounter_S[0] += 1;  // counter only used for telemetry
 }
 
 // send EAST =================================================================
-var sendBuf_E = @zeros([sendBufSize]f32); var sendFlag_E: u8 = 1;
+var sendFlag_E: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendBuf_E = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_E[i]
 });
 
+// callback for when send is complete, set flag to trigger refill & next send
 task sendFinalizeTask_E() void { sendFlag_E = 1; sendCounter_E[0] += 1; }
 
 const sendDsd_E = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_E,
   .output_queue = @get_output_queue(q_out_E)
 });
+// open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_E() void {
   @fmovs(
     sendDsd_E, sendBufDsd_E,
     .{
       .async = true,
-      .activate = sendFinalizeTaskID_E,
+      .activate = sendFinalizeTaskID_E,  // callback on complete
       .priority = .{ .high = true }
     }
   );
-  sendCounter_E[0] += 1;
+  sendCounter_E[0] += 1;  // counter only used for telemetry
 }
 
 // send WEST =================================================================
-var sendBuf_W = @zeros([sendBufSize]f32); var sendFlag_W: u8 = 1;
+var sendFlag_W: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendBuf_W = @zeros([sendBufSize]f32);  // hold genomes being sent
 const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_W[i]
 });
 
+// callback for when send is complete, set flag to trigger refill & next send
 task sendFinalizeTask_W() void { sendFlag_W = 1; sendCounter_W[0] += 1; }
 
 const sendDsd_W = @get_dsd(fabout_dsd, .{
   .extent = sendNum, .fabric_color = sendColor_W,
   .output_queue = @get_output_queue(q_out_W)
 });
+// open an async microthread to send from sendBuf to neighbor
 fn dispatchSend_W() void {
   @fmovs(
     sendDsd_W, sendBufDsd_W,
     .{
       .async = true,
-      .activate = sendFinalizeTaskID_W,
+      .activate = sendFinalizeTaskID_W,  // callback on complete
       .priority = .{ .high = true }
     }
   );
-  sendCounter_W[0] += 1;
+  sendCounter_W[0] += 1;  // counter only used for telemetry
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ============================================================================
 // recv tasks
 // ============================================================================
+// asynchronously accept genomes from neighbors,
+// which are then harvested from buffer & immigrated into the population
 ///////////////////////////////////////////////////////////////////////////////
-const recvBufSize: u16 = 4;
+const recvBufSize: u16 = 4; // how many receives to batch together?
 
 // recv NORTH =================================================================
-var recvBuf_N = @zeros([recvBufSize]f32); var recvFlag_N: u8 = 0;
+var recvFlag_N: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvBuf_N = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_N[i]
 });
 
+// callback when recv is complete, set flag to
+// 1) trigger immigration from recv buffer into pop and 2) open next recv
 task recvFinalizeTask_N() void { recvFlag_N = 1; recvCounter_N[0] += 1; }
 
 const recvDsd_N = @get_dsd(fabin_dsd, .{
@@ -219,24 +235,28 @@ const recvDsd_N = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_N)
 });
+// open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_N() void {
   @fmovs(
     recvBufDsd_N, recvDsd_N,
     .{
       .async = true,
-      .activate = recvFinalizeTaskID_N,
-      // .priority = .{ .high = true }
+      .activate = recvFinalizeTaskID_N,  // callback on complete
+      .priority = .{ .high = true }
     },
   );
-  recvCounter_N[0] += 1;
+  recvCounter_N[0] += 1;  // counter only used for telemetry
 }
 
 // recv SOUTH =================================================================
-var recvBuf_S = @zeros([recvBufSize]f32); var recvFlag_S: u8 = 0;
+var recvFlag_S: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvBuf_S = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_S[i]
 });
 
+// callback when recv is complete, set flag to
+// 1) trigger immigration from recv buffer into pop and 2) open next recv
 task recvFinalizeTask_S() void { recvFlag_S = 1; recvCounter_S[0] += 1; }
 
 const recvDsd_S = @get_dsd(fabin_dsd, .{
@@ -244,24 +264,28 @@ const recvDsd_S = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_S)
 });
+// open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_S() void {
   @fmovs(
     recvBufDsd_S, recvDsd_S,
     .{
       .async = true,
-      .activate = recvFinalizeTaskID_S,
+      .activate = recvFinalizeTaskID_S,  // callback on complete
       .priority = .{ .high = true }
     },
   );
-  recvCounter_S[0] += 1;
+  recvCounter_S[0] += 1;  // counter only used for telemetry
 }
 
 // recv EAST ==================================================================
-var recvBuf_E = @zeros([recvBufSize]f32); var recvFlag_E: u8 = 0;
+var recvFlag_E: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvBuf_E = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_E[i]
 });
 
+// callback when recv is complete, set flag to
+// 1) trigger immigration from recv buffer into pop and 2) open next recv
 task recvFinalizeTask_E() void { recvFlag_E = 1; recvCounter_E[0] += 1; }
 
 const recvDsd_E = @get_dsd(fabin_dsd, .{
@@ -269,24 +293,28 @@ const recvDsd_E = @get_dsd(fabin_dsd, .{
   .extent = recvBufSize,
   .input_queue = @get_input_queue(q_in_E)
 });
+// open an async microthread to recv from neighbor into recvBuf
 fn dispatchRecv_E() void {
   @fmovs(
     recvBufDsd_E, recvDsd_E,
     .{
       .async = true,
-      .activate = recvFinalizeTaskID_E,
+      .activate = recvFinalizeTaskID_E,  // callback on complete
       .priority = .{ .high = true }
     },
   );
-  recvCounter_E[0] += 1;
+  recvCounter_E[0] += 1;  // counter only used for telemetry
 }
 
 // recv WEST ==================================================================
-var recvBuf_W = @zeros([recvBufSize]f32); var recvFlag_W: u8 = 0;
+var recvFlag_W: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvBuf_W = @zeros([recvBufSize]f32);  // hold genomes being received
 const recvBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_W[i]
 });
 
+// callback when recv is complete, set flag to
+// 1) trigger immigration from recv buffer into pop and 2) open next recv
 task recvFinalizeTask_W() void { recvFlag_W = 1; recvCounter_W[0] += 1; }
 
 const recvDsd_W = @get_dsd(fabin_dsd, .{
@@ -299,57 +327,24 @@ fn dispatchRecv_W() void {
     recvBufDsd_W, recvDsd_W,
     .{
       .async = true,
-      .activate = recvFinalizeTaskID_W,
+      .activate = recvFinalizeTaskID_W,  // callback on complete
       .priority = .{ .high = true }
     },
   );
-  recvCounter_W[0] += 1;
+  recvCounter_W[0] += 1;  // counter only used for telemetry
 }
 
-// cycle task =================================================================
+// population update ops ======================================================
 ///////////////////////////////////////////////////////////////////////////////
-const cycleDsd = @get_dsd(fabout_dsd, .{
-    .extent = 1,
-    .fabric_color = cycleColor,
-  }
-);
-
-fn integrate(genome_: f32) void {
-    const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
-    // @assert(0 <= target and target < popSize);  // makes slow
-    population[target] = math.max(population[target], genome_);
+fn immigrate_into_population(genome_: f32) void {
+  const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
+  // @assert(0 <= target and target < popSize);  // makes slow
+  population[target] = math.max(population[target], genome_);
 }
 
-// self-activate with incrementing values
-// until threshold reached
-task cycleTask(data: u16) void {
-
-  const iseven: bool = @as(bool, data % 2 == 0);
-
-  // handle recv flags
-  if (@as(bool, recvFlag_N)) {
-    @map(integrate, recvBufDsd_N);
-    recvFlag_N = 0;
-    dispatchRecv_N();
-  }
-  if (@as(bool, recvFlag_S)) {
-    @map(integrate, recvBufDsd_S);
-    recvFlag_S = 0;
-    dispatchRecv_S();
-  }
-  if (@as(bool, recvFlag_E)) {
-    @map(integrate, recvBufDsd_E);
-    recvFlag_E = 0;
-    dispatchRecv_E();
-  }
-  if (@as(bool, recvFlag_W)) {
-    @map(integrate, recvBufDsd_W);
-    recvFlag_W = 0;
-    dispatchRecv_W();
-  }
-
-  // generational turnover
-  for (@range(u16, 32)) |tournament| {
+// generational turnover
+fn do_population_generation() void {
+  for (@range(u16, 32)) |tournament| {  // each loop is one tournament
     const parent1 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
     // @assert(0 <= parent1 and parent1 < popSize);  // makes slow
     const parent2 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
@@ -360,57 +355,99 @@ task cycleTask(data: u16) void {
 
     const target = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
     // @assert(0 <= target and target < popSize); // makes slow
-    population[target] = math.max(offspring1, offspring2);
+    population[target] = math.max(offspring1, offspring2);  // tourn size 2
   }
-  genome[0] = population[0];
+  genome[0] = population[0];  // sample 0th element of population for telemetry
+}
 
-  // handle send flags
+// cycle task =================================================================
+// main program loop: self-activate with incrementing values until ncycle
+///////////////////////////////////////////////////////////////////////////////
+const cycleDsd = @get_dsd(fabout_dsd, .{
+    .extent = 1,
+    .fabric_color = cycleColor,
+  }
+);
+
+task cycleTask(data: u16) void {
+
+  const iseven: bool = @as(bool, data % 2 == 0);
+
+  // handle recv flags, pull recv buffer into pop and start next async recv
+  // --------------------------------------------------------------------------
+  if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
+    @map(immigrate_into_population, recvBufDsd_N);  // incorporate into pop
+    dispatchRecv_N();  // note: never-filled recv requests on PE array edges ok
+    recvFlag_N = 0;  // open send request has been handled, unset flag
+  }
+  if (@as(bool, recvFlag_S)) {
+    @map(immigrate_into_population, recvBufDsd_S);  // incorporate into pop
+    dispatchRecv_S();
+    recvFlag_S = 0;  // open send request has been handled, unset flag
+  }
+  if (@as(bool, recvFlag_E)) {
+    @map(immigrate_into_population, recvBufDsd_E);  // incorporate into pop
+    dispatchRecv_E();
+    recvFlag_E = 0;  // open send request has been handled, unset flag
+  }
+  if (@as(bool, recvFlag_W)) {
+    @map(immigrate_into_population, recvBufDsd_W);  // incorporate into pop
+    dispatchRecv_W();
+    recvFlag_W = 0;  // open send request has been handled, unset flag
+  }
+
+  // apply replication/selection to population
+  // --------------------------------------------------------------------------
+  do_population_generation();
+
+  // handle send flags, load send buffer from pop and start next async send
+  // --------------------------------------------------------------------------
   if (iseven and @as(bool, sendFlag_N)) {
-    @fmovs(sendBufDsd_N, populationDsd);
-    sendFlag_N = 0;
-    // except top row of PE array
-    if (y != 0) dispatchSend_N();
+    // note: only first sendBufSize elements of buffer are actually used
+    // brutish (wasteful and a biased sample), but works for now
+    @fmovs(sendBufDsd_N, populationDsd);  // load up send buffer
+    if (y != 0) dispatchSend_N();  // except top row of PE array
+    sendFlag_N = 0;  // open send request has been handled, unset flag
   }
   if (!iseven and @as(bool, sendFlag_S)) {
-    @fmovs(sendBufDsd_S, populationDsd);
-    sendFlag_S = 0;
-    // except bottom row of PE array
-    if (y != nrow - 1) dispatchSend_S();
+    @fmovs(sendBufDsd_S, populationDsd);  // load up send buffer
+    if (y != nrow - 1) dispatchSend_S();  // except bottom row of PE array
+    sendFlag_S = 0;  // open send request has been handled, unset flag
   }
   if (iseven and @as(bool, sendFlag_E)) {
-    @fmovs(sendBufDsd_E, populationDsd);
-    sendFlag_E = 0;
+    @fmovs(sendBufDsd_E, populationDsd);  // load up send buffer
+    sendFlag_E = 0;  // open send request has been handled, unset flag
     // except right col of PE array
     if (x != ncol - 1) dispatchSend_E();
   }
   if (!iseven and @as(bool, sendFlag_W)) {
-    @fmovs(sendBufDsd_W, populationDsd);
-    sendFlag_W = 0;
-    // except left col of PE array
-    if (x != 0) dispatchSend_W();
+    @fmovs(sendBufDsd_W, populationDsd);  // load up send buffer
+    sendFlag_W = 0;  // open send request has been handled, unset flag
+    if (x != 0) dispatchSend_W();  // except left col of PE array
   }
 
+  // trigger next cycle
+  // --------------------------------------------------------------------------
+  cycleCounter[0] = data;  // for telemetry
   if (data < ncycle) {
-    const next: u16 = data + 1;
-    @mov16(cycleDsd, next);
+    @mov16(cycleDsd, data + 1);  // send wavelet to self, trigger next cycle
   } else {
-    sys_mod.unblock_cmd_stream();
+    sys_mod.unblock_cmd_stream();  // terminate
   }
-  cycleCounter[0] = data;
 }
 
 // launcher ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
-fn dolaunch() void { // launched by RPC
-  whoami[0] = peId;
+fn dolaunch() void { // launched by RPC (remote procedure call)
+  whoami[0] = peId;  // record layout params for telemetry
   whereami_x[0] = x;
   whereami_y[0] = y;
   random.set_global_prng_seed(peId);
-  dispatchRecv_N();
-  dispatchRecv_S();
+  dispatchRecv_N();  // open initial recv requests
+  dispatchRecv_S();  // note: never-filled recv requests on PE array edges ok
   dispatchRecv_E();
   dispatchRecv_W();
-  @mov16(cycleDsd, 0);
+  @mov16(cycleDsd, 0);  // send wavelet to self, trigger first cycle
 }
 
 // bind tasks =================================================================
@@ -430,11 +467,15 @@ comptime {
 // wavlet routing =============================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
-  @set_local_color_config(
+  @set_local_color_config(  // make cycle task wavelet bounce back from router
     cycleColor,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
 
+  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
+  // here, RAMP means send from router into the computing elmeent or vice versa
+
+  // NORTH / SOUTH (vertical)
   @set_local_color_config(
     sendColor_N,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH }, .color_swap_y = true } },
@@ -452,6 +493,7 @@ comptime {
     .{ .routes = .{ .rx = .{ SOUTH }, .tx = .{ RAMP }, .color_swap_y = true } },
   );
 
+  // EAST / WEST (horizontal)
   @set_local_color_config(
     sendColor_E,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ EAST }, .color_swap_x = true } },
@@ -472,7 +514,7 @@ comptime {
 
 // symbol exports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
-comptime {
+comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_cycleCounter, "cycleCounter");
   @export_symbol(ptr_recvCounter_N, "recvCounter_N");
   @export_symbol(ptr_recvCounter_S, "recvCounter_S");
