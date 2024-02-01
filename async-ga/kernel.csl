@@ -488,15 +488,14 @@ comptime {
 // wavlet routing =============================================================
 ///////////////////////////////////////////////////////////////////////////////
 comptime {
+  // RAMP means send from router into the computing elmeent or vice versa
   @set_local_color_config(  // make cycle task wavelet bounce back from router
     cycleColor,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
 
-  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
-  // here, RAMP means send from router into the computing elmeent or vice versa
-
   // NORTH / SOUTH (vertical)
+  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
   @set_local_color_config(
     sendColor_N,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH }, .color_swap_y = true } },
@@ -515,6 +514,7 @@ comptime {
   );
 
   // EAST / WEST (horizontal)
+  // note use of color swaps: neighbor's outgoing color -> PE's incoming color
   @set_local_color_config(
     sendColor_E,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ EAST }, .color_swap_x = true } },
