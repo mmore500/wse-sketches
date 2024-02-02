@@ -1,7 +1,7 @@
 const std = @import("std");
 const pylib = @import("pylib.zig");
 
-test "positive dividend and power of 2" {
+test "fast_pow2_mod tests" {
     // positive dividend and power of 2
     try std.testing.expectEqual(pylib.fast_pow2_mod(16, 1), 0);
     try std.testing.expectEqual(pylib.fast_pow2_mod(17, 1), 0);
