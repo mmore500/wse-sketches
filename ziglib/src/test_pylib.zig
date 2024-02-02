@@ -47,3 +47,21 @@ test "bit_ceil test cases" {
     try std.testing.expect(pylib.bit_ceil(65536) == 65536);
     try std.testing.expect(pylib.bit_ceil(255) == 256);
 }
+
+test "bit_encode_gray tests" {
+    try std.testing.expect(pylib.bit_encode_gray(0) == 0);
+    try std.testing.expect(pylib.bit_encode_gray(1) == 1);
+    try std.testing.expect(pylib.bit_encode_gray(2) == 3);
+    try std.testing.expect(pylib.bit_encode_gray(3) == 2);
+    try std.testing.expect(pylib.bit_encode_gray(4) == 6);
+    try std.testing.expect(pylib.bit_encode_gray(5) == 7);
+    try std.testing.expect(pylib.bit_encode_gray(6) == 5);
+    try std.testing.expect(pylib.bit_encode_gray(7) == 4);
+    try std.testing.expect(pylib.bit_encode_gray(8) == 12);
+    try std.testing.expect(pylib.bit_encode_gray(9) == 13);
+    try std.testing.expect(pylib.bit_encode_gray(10) == 15);
+    try std.testing.expect(pylib.bit_encode_gray(255) == 128);
+    try std.testing.expect(pylib.bit_encode_gray(256) == 384);
+    try std.testing.expect(pylib.bit_encode_gray(257) == 385);
+    try std.testing.expect(pylib.bit_encode_gray(1234567890) == 1834812347);
+}

@@ -44,3 +44,7 @@ pub fn bit_ceil(n: u32) u32 {
     }
     return @as(u32, 1) << exp;
 }
+
+pub fn bit_encode_gray(n: u32) u32 {
+    return n ^ (n >> 1);
+}
