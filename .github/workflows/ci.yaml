@@ -89,13 +89,13 @@ jobs:
 
       - name: Test async-ga
         run: |
-          ./async-ga/compile.sh
-          ./async-ga/execute.sh
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
 
       - name: Test self-driving
         run: |
-          ./self-driving/compile.sh
-          ./self-driving/execute.sh
+          ./kernel-self-driving/compile.sh
+          ./kernel-self-driving/execute.sh
 
   binder:
     runs-on: ubuntu-latest
