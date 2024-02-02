@@ -31,3 +31,16 @@ pub fn bit_reverse(n: u32) u32 {
     }
     return res;
 }
+
+pub fn bit_ceil(n: u32) u32 {
+    std.debug.assert(n >= 0);
+
+    if (n == 0) return 1;
+    var m = n - 1;
+    var exp: u5 = 0;
+    while (m != 0) {
+        exp += 1;
+        m >>= 1;
+    }
+    return @as(u32, 1) << exp;
+}

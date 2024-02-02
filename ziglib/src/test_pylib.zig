@@ -33,3 +33,17 @@ test "bit_reverse tests" {
     try std.testing.expect(pylib.bit_reverse(257) == 257);
     try std.testing.expect(pylib.bit_reverse(1234567890) == 631256265);
 }
+
+test "bit_ceil test cases" {
+    try std.testing.expect(pylib.bit_ceil(0) == 1);
+    try std.testing.expect(pylib.bit_ceil(1) == 1);
+    try std.testing.expect(pylib.bit_ceil(2) == 2);
+    try std.testing.expect(pylib.bit_ceil(3) == 4);
+    try std.testing.expect(pylib.bit_ceil(4) == 4);
+    try std.testing.expect(pylib.bit_ceil(5) == 8);
+    try std.testing.expect(pylib.bit_ceil(1000) == 1024);
+    try std.testing.expect(pylib.bit_ceil(64) == 64);
+    try std.testing.expect(pylib.bit_ceil(65534) == 65536);
+    try std.testing.expect(pylib.bit_ceil(65536) == 65536);
+    try std.testing.expect(pylib.bit_ceil(255) == 256);
+}
