@@ -21,3 +21,13 @@ pub fn fast_pow2_mod(dividend: i32, divisor: i32) i32 {
     const absVal = std.math.absInt(dividend * divisor) catch unreachable;
     return (dividend + absVal) & (divisor - 1);
 }
+
+pub fn bit_reverse(n: u32) u32 {
+    var res: u32 = 0;
+    var temp: u32 = n;
+    while (temp > 0) {
+        res = (res << 1) | (temp & 1);
+        temp >>= 1;
+    }
+    return res;
+}
