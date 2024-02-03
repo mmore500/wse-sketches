@@ -97,6 +97,11 @@ jobs:
           ./kernel-self-driving/compile.sh
           ./kernel-self-driving/execute.sh
 
+      - name: Test cerebraslib
+        run: |
+          ./kernel-test-cerebraslib/compile.sh
+          ./kernel-test-cerebraslib/execute.sh
+
   binder:
     runs-on: ubuntu-latest
     steps:
