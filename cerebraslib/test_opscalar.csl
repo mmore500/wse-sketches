@@ -1,3 +1,5 @@
+const random = @import_module("<random>");
+
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 
 
@@ -40,9 +42,20 @@ fn test_incr32() void {
     @assert(opscalar.incr32(65538) == 65539);
 }
 
+
+fn test_unif16() void {
+    @assert(opscalar.unif16(0) == 0);
+    @assert(opscalar.unif16(1) == 0);
+    for (@range(u16, 20)) |i| { @assert(opscalar.unif16(2) < 2); }
+    for (@range(u16, 20)) |i| { @assert(opscalar.unif16(3) < 3); }
+    random.set_global_prng_seed(1);
+    @assert(opscalar.unif16(10000) != opscalar.unif16(10000));
+}
+
 fn do_test() void {
     test_as();
     test_ctz();
     test_ctz32();
     test_incr32();
+    test_unif16();
 }

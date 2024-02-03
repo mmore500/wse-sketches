@@ -1,3 +1,6 @@
+const math = @import_module("<math>");
+const random = @import_module("<random>");
+
 var _as16 = [2]u16{0, 0};  // csl requires global access for dsd
 const _dsd_as16 = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{2} -> _as16[i],
@@ -13,3 +16,12 @@ fn ctz32(n: u32) u32 {
 
 /// Increment a 32-bit integer by one
 fn incr32(a: u32) u32 { return a + 1; }
+
+/// Draw a random 16-bit integer from a uniform distribution, with a given
+/// upper bound (exclusive).
+fn unif16(upper: u16) u16 {
+    return math.min( // explicitly enforce bounds RE float precision
+        @as(u16, random.random_f32(0.0, @as(f32, upper))),
+        upper - 1,
+    );
+}
