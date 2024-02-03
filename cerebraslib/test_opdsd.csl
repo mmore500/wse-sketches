@@ -1,0 +1,39 @@
+const opdsd = @import_module("cerebraslib/opdsd.csl");
+
+var _buf1 = @zeros([1]u32);
+const _buf1dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{1} -> _buf1[i] });
+var _buf2 = @zeros([2]u32);
+const _buf2dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{2} -> _buf2[i] });
+var _buf7 = @zeros([7]u32);
+const _buf7dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{7} -> _buf7[i] });
+var _buf8 = @zeros([8]u32);
+const _buf8dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{8} -> _buf8[i] });
+fn test_iota32() void {
+    opdsd.iota32(_buf1dsd);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+    @mov32(_buf1dsd, 1);
+    opdsd.iota32(_buf1dsd);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+
+    opdsd.iota32(_buf2dsd);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == i); }
+    @mov32(_buf2dsd, 1);
+    opdsd.iota32(_buf2dsd);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == i); }
+
+    opdsd.iota32(_buf7dsd);
+    for (@range(u32, 7)) |i| { @assert(_buf7[i] == i); }
+    @mov32(_buf7dsd, 3);
+    opdsd.iota32(_buf7dsd);
+    for (@range(u32, 7)) |i| { @assert(_buf7[i] == i); }
+
+    opdsd.iota32(_buf8dsd);
+    for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
+    @mov32(_buf8dsd, 2);
+    opdsd.iota32(_buf8dsd);
+    for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
+}
+
+fn do_test() void {
+    test_iota32();
+}

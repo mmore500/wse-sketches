@@ -5,10 +5,12 @@ param memcpy_params: comptime_struct;
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 
 const test_hanoi = @import_module("cerebraslib/test_hanoi.csl");
+const test_opdsd = @import_module("cerebraslib/test_opdsd.csl");
 const test_opscalar = @import_module("cerebraslib/test_opscalar.csl");
 
 fn dolaunch() void {
     test_hanoi.do_test();
+    test_opdsd.do_test();
     test_opscalar.do_test();
     memcpy.unblock_cmd_stream();  // terminate
 }
