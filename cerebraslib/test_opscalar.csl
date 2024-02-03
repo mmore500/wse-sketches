@@ -1,0 +1,48 @@
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+
+
+fn test_as() void {
+    var val = @as(u32, 65536);
+    @assert(0 == @as(u16, val));
+}
+
+var out = [1]u16{0};
+const out_dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{1} -> out[0] });
+fn test_ctz() void {
+    @ctz(out_dsd, 0);
+    @assert(out[0] == 16);
+}
+
+fn test_ctz32() void {
+    @assert(opscalar.ctz32(0) == 32);
+    @assert(opscalar.ctz32(1) == 0);
+    @assert(opscalar.ctz32(2) == 1);
+    @assert(opscalar.ctz32(3) == 0);
+    @assert(opscalar.ctz32(32768) == 15);
+    @assert(opscalar.ctz32(65534) == 1);
+    @assert(opscalar.ctz32(65535) == 0);
+    @assert(opscalar.ctz32(65536) == 16);
+    @assert(opscalar.ctz32(65537) == 0);
+    @assert(opscalar.ctz32(65538) == 1);
+}
+
+
+fn test_incr32() void {
+    @assert(opscalar.incr32(0) == 1);
+    @assert(opscalar.incr32(1) == 2);
+    @assert(opscalar.incr32(2) == 3);
+    @assert(opscalar.incr32(3) == 4);
+    @assert(opscalar.incr32(32768) == 32769);
+    @assert(opscalar.incr32(65534) == 65535);
+    @assert(opscalar.incr32(65535) == 65536);
+    @assert(opscalar.incr32(65536) == 65537);
+    @assert(opscalar.incr32(65537) == 65538);
+    @assert(opscalar.incr32(65538) == 65539);
+}
+
+fn do_test() void {
+    test_as();
+    test_ctz();
+    test_ctz32();
+    test_incr32();
+}
