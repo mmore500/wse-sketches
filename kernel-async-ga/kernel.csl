@@ -68,11 +68,11 @@ var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
 var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 
 const popSize: u16 = 64;
-var population = @zeros([popSize]f32);  // holds population during simulation
+var population = @zeros([popSize]u32);  // holds population during simulation
 const populationDsd = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{1} -> population[i],
 });
-var ptr_population: [*]f32 = &population;  // unused atm, genome is convenient
+var ptr_population: [*]u32 = &population;  // unused atm, genome is convenient
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ const sendBufSize: u16 = sendNum;
 
 // send NORTH =================================================================
 var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
-var sendBuf_N = @zeros([sendBufSize]f32);  // hold genomes being sent
+var sendBuf_N = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_N[i],
 });
@@ -149,7 +149,7 @@ fn dispatchSend_N() void {
 
 // send SOUTH =================================================================
 var sendFlag_S: u8 = 1;  // need refill? initialize 1 to trigger first fill
-var sendBuf_S = @zeros([sendBufSize]f32);  // hold genomes being sent
+var sendBuf_S = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_S[i],
 });
@@ -175,7 +175,7 @@ fn dispatchSend_S() void {
 
 // send EAST =================================================================
 var sendFlag_E: u8 = 1;  // need refill? initialize 1 to trigger first fill
-var sendBuf_E = @zeros([sendBufSize]f32);  // hold genomes being sent
+var sendBuf_E = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_E[i],
 });
@@ -201,7 +201,7 @@ fn dispatchSend_E() void {
 
 // send WEST =================================================================
 var sendFlag_W: u8 = 1;  // need refill? initialize 1 to trigger first fill
-var sendBuf_W = @zeros([sendBufSize]f32);  // hold genomes being sent
+var sendBuf_W = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendNum} -> sendBuf_W[i],
 });
@@ -236,7 +236,7 @@ const recvBufSize: u16 = 4; // how many receives to batch together?
 
 // recv NORTH =================================================================
 var recvFlag_N: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
-var recvBuf_N = @zeros([recvBufSize]f32);  // hold genomes being received
+var recvBuf_N = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_N[i],
 });
@@ -264,7 +264,7 @@ fn dispatchRecv_N() void {
 
 // recv SOUTH =================================================================
 var recvFlag_S: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
-var recvBuf_S = @zeros([recvBufSize]f32);  // hold genomes being received
+var recvBuf_S = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_S[i],
 });
@@ -292,7 +292,7 @@ fn dispatchRecv_S() void {
 
 // recv EAST ==================================================================
 var recvFlag_E: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
-var recvBuf_E = @zeros([recvBufSize]f32);  // hold genomes being received
+var recvBuf_E = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_E[i],
 });
@@ -320,7 +320,7 @@ fn dispatchRecv_E() void {
 
 // recv WEST ==================================================================
 var recvFlag_W: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
-var recvBuf_W = @zeros([recvBufSize]f32);  // hold genomes being received
+var recvBuf_W = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_W[i],
 });
@@ -347,10 +347,16 @@ fn dispatchRecv_W() void {
 
 // population update ops ======================================================
 ///////////////////////////////////////////////////////////////////////////////
-fn immigrate_into_population(genome_: f32) void {
+fn immigrate_into_population(genome_: u32) void {
   const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
   // @assert(0 <= target and target < popSize);  // makes slow
-  population[target] = math.max(population[target], genome_);
+  population[target] = @bitcast(
+    u32,
+    math.max(
+      @bitcast(f32, population[target]),
+      @bitcast(f32, genome_),
+    ),
+  );
 }
 
 // generational turnover
@@ -361,17 +367,23 @@ fn do_population_generation() void {
     const parent2 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
     // @assert(0 <= parent2 and parent2 < popSize); // makes slow
 
-    const offspring1: f32 = population[parent1] + random.random_normal_f32();
-    const offspring2: f32 = population[parent2] + random.random_normal_f32();
+    const offspring1: f32 = (
+      @bitcast(f32, population[parent1]) + random.random_normal_f32()
+    );
+    const offspring2: f32 = (
+      @bitcast(f32, population[parent2]) + random.random_normal_f32()
+    );
 
     const target = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
     // @assert(0 <= target and target < popSize); // makes slow
-    population[target] = math.max(offspring1, offspring2);  // tourn size 2
+    // tourn size 2
+    population[target] = @bitcast(u32, math.max(offspring1, offspring2));
   }
-  genome[0] = population[0];  // sample 0th element of population for telemetry
+  // sample 0th element of population for telemetry
+  genome[0] = @bitcast(f32, population[0]);
 }
 
-fn sample_population() f32 {
+fn sample_population() u32 {
   const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
   // @assert(0 <= target and target < popSize);  // makes slow
   return population[target];
