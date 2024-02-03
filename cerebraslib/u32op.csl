@@ -1,4 +1,4 @@
-var _as16 = [2]u16{0, 0};  // csl requires constant
+var _as16 = [2]u16{0, 0};  // csl requires global access for dsd
 const _dsd_as16 = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{2} -> _as16[i],
 });
