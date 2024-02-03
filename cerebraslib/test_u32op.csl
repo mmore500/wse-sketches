@@ -1,0 +1,32 @@
+const u32op = @import_module("cerebraslib/u32op.csl");
+
+
+fn test_as() void {
+    var val = @as(u32, 65536);
+    @assert(0 == @as(u16, val));
+}
+
+var out = [1]u16{0};
+const out_dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{1} -> out[0] });
+fn test_ctz() void {
+    @ctz(out_dsd, 0);
+    @assert(out[0] == 16);
+}
+
+fn test_ctz32() void {
+    @assert(u32op.ctz32(0) == 32);
+    @assert(u32op.ctz32(1) == 0);
+    @assert(u32op.ctz32(2) == 1);
+    @assert(u32op.ctz32(3) == 0);
+    @assert(u32op.ctz32(32768) == 15);
+    @assert(u32op.ctz32(65534) == 1);
+    @assert(u32op.ctz32(65535) == 0);
+    @assert(u32op.ctz32(65536) == 16);
+    @assert(u32op.ctz32(65537) == 0);
+    @assert(u32op.ctz32(65538) == 1);
+}
+
+fn do_test() void {
+    test_ctz();
+    test_ctz32();
+}

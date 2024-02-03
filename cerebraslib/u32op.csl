@@ -1,0 +1,12 @@
+var _as16 = [2]u16{0, 0};  // csl requires constant
+const _dsd_as16 = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{2} -> _as16[i],
+});
+
+/// Count trailing zeros in a 32-bit integer.
+fn ctz32(n: u32) u32 {
+    _as16[0] = @as(u16, n);
+    _as16[1] = @as(u16, n >> 16);
+    @ctz(_dsd_as16, _dsd_as16);
+    return @as(u32, _as16[0] + (_as16[1] * @as(u16, _as16[0] == 16)));
+}
