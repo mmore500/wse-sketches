@@ -26,8 +26,23 @@ fn test_ctz32() void {
     @assert(u32op.ctz32(65538) == 1);
 }
 
+
+fn test_incr32() void {
+    @assert(u32op.incr32(0) == 1);
+    @assert(u32op.incr32(1) == 2);
+    @assert(u32op.incr32(2) == 3);
+    @assert(u32op.incr32(3) == 4);
+    @assert(u32op.incr32(32768) == 32769);
+    @assert(u32op.incr32(65534) == 65535);
+    @assert(u32op.incr32(65535) == 65536);
+    @assert(u32op.incr32(65536) == 65537);
+    @assert(u32op.incr32(65537) == 65538);
+    @assert(u32op.incr32(65538) == 65539);
+}
+
 fn do_test() void {
     test_as();
     test_ctz();
     test_ctz32();
+    test_incr32();
 }

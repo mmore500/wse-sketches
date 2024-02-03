@@ -10,3 +10,6 @@ fn ctz32(n: u32) u32 {
     @ctz(_dsd_as16, _dsd_as16);
     return @as(u32, _as16[0] + (_as16[1] * @as(u16, _as16[0] == 16)));
 }
+
+/// Increment a 32-bit integer by one
+fn incr32(a: u32) u32 { return a + 1; }
