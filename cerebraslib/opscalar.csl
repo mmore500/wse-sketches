@@ -20,6 +20,13 @@ fn ctz32(n: u32) u32 {
 /// Increment a 32-bit integer by one
 fn incr32(a: u32) u32 { return a + 1; }
 
+/// Increment a 32-bit integer by one, modulo a given value.
+fn incrmod32(val: u32, mod: u32) u32 {
+    const res = val + 1;
+    const correction = @as(u32, res < mod);
+    return res * correction;
+}
+
 /// Draw a random 16-bit integer from a uniform distribution, with a given
 /// upper bound (exclusive).
 fn unif16(upper: u16) u16 {

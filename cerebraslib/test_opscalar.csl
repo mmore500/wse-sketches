@@ -52,6 +52,16 @@ fn test_incr32() void {
     @assert(opscalar.incr32(65538) == 65539);
 }
 
+fn test_incrmod32() void {
+    @assert(opscalar.incrmod32(0, 0) == 0);
+    @assert(opscalar.incrmod32(0, 1) == 0);
+    @assert(opscalar.incrmod32(0, 2) == 1);
+    @assert(opscalar.incrmod32(1, 2) == 0);
+    @assert(opscalar.incrmod32(0, 3) == 1);
+    @assert(opscalar.incrmod32(1, 3) == 2);
+    @assert(opscalar.incrmod32(2, 3) == 0);
+}
+
 
 fn test_unif16() void {
     @assert(opscalar.unif16(0) == 0);
@@ -68,5 +78,6 @@ fn do_test() void {
     test_ctz();
     test_ctz32();
     test_incr32();
+    test_incrmod32();
     test_unif16();
 }
