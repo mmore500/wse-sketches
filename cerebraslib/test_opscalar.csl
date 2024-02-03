@@ -3,6 +3,16 @@ const random = @import_module("<random>");
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 
 
+fn test_add32() void {
+    @assert(opscalar.add32(0, 0) == 0);
+    @assert(opscalar.add32(0, 1) == 1);
+    @assert(opscalar.add32(1, 0) == 1);
+    @assert(opscalar.add32(1, 1) == 2);
+    @assert(opscalar.add32(1, 2) == 3);
+    @assert(opscalar.add32(138, 4) == 142);
+    @assert(opscalar.add32(138, 0) == 138);
+}
+
 fn test_as() void {
     var val = @as(u32, 65536);
     @assert(0 == @as(u16, val));
@@ -53,6 +63,7 @@ fn test_unif16() void {
 }
 
 fn do_test() void {
+    test_add32();
     test_as();
     test_ctz();
     test_ctz32();

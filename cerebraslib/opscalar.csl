@@ -6,6 +6,9 @@ const _dsd_as16 = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{2} -> _as16[i],
 });
 
+/// Add two 32-bit integers.
+fn add32(a: u32, b: u32) u32 { return a + b; }
+
 /// Count trailing zeros in a 32-bit integer.
 fn ctz32(n: u32) u32 {
     _as16[0] = @as(u16, n);
