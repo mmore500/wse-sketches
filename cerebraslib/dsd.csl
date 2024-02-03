@@ -1,0 +1,15 @@
+var _repeatBuf16: [1]u16;
+fn get_dsd_repeat16(value: u16) mem1d_dsd {
+    _repeatBuf16[0] = value;
+    return @get_dsd(mem1d_dsd, .{
+        .tensor_access = |i|{65535} -> _repeatBuf16[0]
+    });
+}
+
+var _repeatBuf32: [1]u32;
+fn get_dsd_repeat32(value: u32) mem1d_dsd {
+    _repeatBuf32[0] = value;
+    return @get_dsd(mem1d_dsd, .{
+        .tensor_access = |i|{65535} -> _repeatBuf32[0]
+    });
+}
