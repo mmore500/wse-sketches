@@ -27,6 +27,7 @@ fn test_ctz32() void {
 }
 
 fn do_test() void {
+    test_as();
     test_ctz();
     test_ctz32();
 }
