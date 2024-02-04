@@ -1,3 +1,4 @@
+const dsd = @import_module("cerebraslib/dsd.csl");
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 
 
@@ -7,4 +8,14 @@ fn iota32(dest_dsd: mem1d_dsd) void {
 
     const body_dsd = @increment_dsd_offset(dest_dsd, 1, u32);
     @map(opscalar.incr32, dest_dsd, body_dsd);
+}
+
+
+fn iotamod32(dest_dsd: mem1d_dsd, mod: u32) void {
+    const head_dsd = @set_dsd_length(dest_dsd, 1);
+    @mov32(head_dsd, 0);
+
+    const body_dsd = @increment_dsd_offset(dest_dsd, 1, u32);
+    const mod_dsd = dsd.get_dsd_repeat32(mod);
+    @map(opscalar.incrmod32, dest_dsd, mod_dsd, body_dsd);
 }

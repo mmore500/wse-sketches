@@ -34,6 +34,36 @@ fn test_iota32() void {
     for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
 }
 
+
+fn test_iotamod32() void {
+    opdsd.iotamod32(_buf1dsd, 4);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+    @mov32(_buf1dsd, 1);
+    opdsd.iotamod32(_buf1dsd, 4);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+
+    opdsd.iotamod32(_buf2dsd, 3);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == i); }
+    @mov32(_buf2dsd, 1);
+    opdsd.iotamod32(_buf2dsd, 1);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == 0); }
+
+    // modulus % isn't linking correctly, so specify expected values manually
+    opdsd.iotamod32(_buf7dsd, 2);
+    for ([7]u32{0, 1, 0, 1, 0, 1, 0}) |v, i| { @assert(_buf7[i] == v); }
+    @mov32(_buf7dsd, 3);
+    opdsd.iotamod32(_buf7dsd, 3);
+    for ([7]u32{0, 1, 2, 0, 1, 2, 0}) |v, i| { @assert(_buf7[i] == v); }
+
+    // modulus % isn't linking correctly, so specify expected values manually
+    opdsd.iotamod32(_buf8dsd, 5);
+    for ([8]u32{0, 1, 2, 3, 4, 0, 1, 2}) |v, i| { @assert(_buf8[i] == v); }
+    @mov32(_buf8dsd, 2);
+    opdsd.iotamod32(_buf8dsd, 15);
+    for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
+}
+
 fn do_test() void {
     test_iota32();
+    test_iotamod32();
 }
