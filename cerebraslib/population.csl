@@ -77,9 +77,9 @@ fn do_selection() void {
     @map(get_swap_word, indexBufDsd, bufferDsd);
 }
 
-fn do_generation() void () {
+fn do_generation() void {
     do_selection();
-    opdsd.iota(indexBufDsd);
+    opdsd.iota32(indexBufDsd);
     @map(do_mutation, indexBufDsd);
 }
 
