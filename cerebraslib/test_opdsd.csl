@@ -63,7 +63,50 @@ fn test_iotamod32() void {
     for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
 }
 
+var _buf1_ = @zeros([1]u16);
+const _buf1dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{1} -> _buf1_[i]
+});
+var _buf2_ = @zeros([2]u16);
+const _buf2dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{2} -> _buf2_[i]
+});
+var _buf7_ = @zeros([7]u16);
+const _buf7dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{7} -> _buf7_[i]
+});
+var _buf8_ = @zeros([8]u16);
+const _buf8dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{8} -> _buf8_[i]
+});
+fn test_iota16() void {
+    opdsd.iota16(_buf1dsd_);
+    for (@range(u16, 1)) |i| { @assert(_buf1_[i] == i); }
+    @mov16(_buf1dsd_, 1);
+    opdsd.iota16(_buf1dsd_);
+    for (@range(u16, 1)) |i| { @assert(_buf1_[i] == i); }
+
+    opdsd.iota16(_buf2dsd_);
+    for (@range(u16, 2)) |i| { @assert(_buf2_[i] == i); }
+    @mov16(_buf2dsd_, 1);
+    opdsd.iota16(_buf2dsd_);
+    for (@range(u16, 2)) |i| { @assert(_buf2_[i] == i); }
+
+    opdsd.iota16(_buf7dsd_);
+    for (@range(u16, 7)) |i| { @assert(_buf7_[i] == i); }
+    @mov16(_buf7dsd_, 3);
+    opdsd.iota16(_buf7dsd_);
+    for (@range(u16, 7)) |i| { @assert(_buf7_[i] == i); }
+
+    opdsd.iota16(_buf8dsd_);
+    for (@range(u16, 8)) |i| { @assert(_buf8_[i] == i); }
+    @mov16(_buf8dsd_, 2);
+    opdsd.iota16(_buf8dsd_);
+    for (@range(u16, 8)) |i| { @assert(_buf8_[i] == i); }
+}
+
 fn do_test() void {
+    test_iota16();
     test_iota32();
     test_iotamod32();
 }

@@ -18,6 +18,9 @@ fn ctz32(n: u32) u32 {
 }
 
 /// Increment a 32-bit integer by one
+fn incr16(a: u16) u16 { return a + 1; }
+
+/// Increment a 32-bit integer by one
 fn incr32(a: u32) u32 { return a + 1; }
 
 /// Increment a 32-bit integer by one, modulo a given value.
