@@ -84,6 +84,13 @@ fn test_unif16() void {
     @assert(opscalar.unif16(10000) != opscalar.unif16(10000));
 }
 
+
+fn test_unifbool() void {
+    while (opscalar.unifbool()) {}
+    while (!opscalar.unifbool()) {}
+}
+
+
 fn do_test() void {
     test_add32();
     test_as();
@@ -93,4 +100,5 @@ fn do_test() void {
     test_incrmod32();
     test_mul32();
     test_unif16();
+    test_unifbool();
 }

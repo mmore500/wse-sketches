@@ -38,3 +38,6 @@ fn unif16(upper: u16) u16 {
         upper - 1,
     );
 }
+
+/// Draw a random boolean value (even coin flip)..
+fn unifbool() bool { return unif16(2) == 0; }
