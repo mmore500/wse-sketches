@@ -10,6 +10,8 @@ fn test_calc_fitness() void { population.calc_fitness(0); }
 
 fn test_do_mutation() void { population.do_mutation(0); }
 
+fn test_do_selection() void { population.do_selection(); }
+
 fn test_eval_fitnesses() void { population.eval_fitnesses(); }
 
 fn test_sample_tournament_winner() void {
@@ -31,6 +33,7 @@ fn test_do_swap() void { population.do_swap(); }
 fn do_test() void {
     test_calc_fitness();
     test_do_mutation();
+    test_do_selection();
     test_eval_fitnesses();
     // test_sample_n();
     test_sample_tournament_winner();
