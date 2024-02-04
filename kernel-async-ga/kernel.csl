@@ -36,6 +36,10 @@ const math = @import_module("<math>");
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
 
+const population_ = @import_module("cerebraslib/population.csl", .{
+  .popSize = popSize, .genomeWords = 1,
+});
+
 // global output variables ====================================================
 // for end-state telemetry, ptrs are necessary for memcpy infrastructure
 ///////////////////////////////////////////////////////////////////////////////
