@@ -1,7 +1,13 @@
+const genome = @import_module("cerebraslib/genome_bitdrift.csl");
 const population = @import_module("cerebraslib/population.csl", .{
-    .popSize = 100, .genomeWords = 3,
+    .popSize = 100, .genomeWords = genome.genomeWords,
+    .fitFun = genome.calc_fitness, .mutFun = genome.apply_mutation,
 });
 
+
+fn test_calc_fitness() void {
+    population.calc_fitness(0);
+}
 
 fn test_sample_n() void {
     population.sample_n(1);
@@ -18,6 +24,7 @@ fn test_do_swap() void {
 
 
 fn do_test() void {
+    test_calc_fitness();
     test_sample_n();
     test_do_swap();
 }
