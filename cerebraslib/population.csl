@@ -92,7 +92,8 @@ fn put_population_word(data: u32, loc: u16) void { buffer[loc] = data; }
 
 fn immigrate_genomes(fromDsd: mem1d_dsd, nGenomes: u16) void {
     sample_n(nGenomes);
-    @map(put_population_word, fromDsd, swapDsd);
+    const swapDsd_ = @set_dsd_length(swapDsd, sampleWords);
+    @map(put_population_word, fromDsd, swapDsd_);
 }
 
 fn emigrate_genomes(toDsd: mem1d_dsd, nGenomes: u16) void {

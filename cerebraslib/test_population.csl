@@ -52,16 +52,16 @@ fn test_do_swap() void { population.do_swap(); }
 
 fn do_test() void {
     test_calc_fitness();
-    // test_do_generation();
+    test_do_generation();
     test_do_mutation();
     test_do_selection();
-    // test_emigrate_genomes();
-    // test_immigrate_genomes();
+    test_emigrate_genomes();
+    test_immigrate_genomes();
     test_eval_fitnesses();
     test_get_genome();
     test_get_population_word();
     test_get_swap_word();
-    // test_sample_n();
+    test_sample_n();
     test_sample_tournament_winner();
     test_do_swap();
 }
