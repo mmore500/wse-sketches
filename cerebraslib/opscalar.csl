@@ -30,6 +30,11 @@ fn incrmod32(val: u32, mod: u32) u32 {
 /// Multiply two 32-bit integers.
 fn mul32(a: u32, b: u32) u32 { return a * b; }
 
+// Sample a coin flip with probability p.
+fn p(probability: f32) bool {
+    return random.random_f32(0.0, 1.0) < probability;
+}
+
 /// Draw a random 16-bit integer from a uniform distribution, with a given
 /// upper bound (exclusive).
 fn unif16(upper: u16) u16 {
@@ -40,4 +45,4 @@ fn unif16(upper: u16) u16 {
 }
 
 /// Draw a random boolean value (even coin flip)..
-fn unifbool() bool { return unif16(2) == 0; }
+fn unifbool() bool { return p(0.5); }
