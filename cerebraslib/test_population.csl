@@ -5,13 +5,9 @@ const population = @import_module("cerebraslib/population.csl", .{
 });
 
 
-fn test_calc_fitness() void {
-    population.calc_fitness(0);
-}
+fn test_calc_fitness() void { population.calc_fitness(0); }
 
-fn test_do_mutation() void {
-    population.do_mutation(0);
-}
+fn test_do_mutation() void { population.do_mutation(0); }
 
 fn test_sample_n() void {
     population.sample_n(1);
@@ -22,9 +18,7 @@ fn test_sample_n() void {
 }
 
 
-fn test_do_swap() void {
-    population.do_swap();
-}
+fn test_do_swap() void { population.do_swap(); }
 
 
 fn do_test() void {
