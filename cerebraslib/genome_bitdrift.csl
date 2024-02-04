@@ -33,9 +33,9 @@ fn apply_mutation(genome: genomePtr_t) void {
     @ptrcast(*f16, genome).* = mutated;
 
     // elapse generation in bitfield
-    const target_bit = opscalar.unif16(10 * 8);
-    var bitfield_ptr = &@ptrcast([*]u8, genome)[2];
-    bitmanip.flip_nth_bit(@ptrcast([*]u8, bitfield_ptr), target_bit);
+    const offset_bits: u16 = 2 * 8;
+    const target_bit = opscalar.unif16(10 * 8) + offset_bits;
+    bitmanip.flip_nth_bit(@ptrcast([*]u8, genome), target_bit);
 }
 
 fn calc_fitness(genome: genomePtr_t) f16 { return @ptrcast(*f16, genome).*; }
