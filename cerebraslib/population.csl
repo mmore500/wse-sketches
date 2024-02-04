@@ -37,16 +37,33 @@ const indexBufDsd = @get_dsd(mem1d_dsd, .{
 });
 
 // module functions ===========================================================
-fn calc_fitness(i: u16) f16 { return fitFun(get_genome(i)); }
+///////////////////////////////////////////////////////////////////////////////
 
-fn do_mutation(i: u16) void { mutFun(get_genome(i)); }
+// internal accessors ==========================================================
+fn _calc_fitness(i: u16) f16 { return fitFun(_get_genome(i)); }
 
-fn eval_fitnesses() void {
-    opdsd.iota16(indexBufDsd);
-    @map(calc_fitness, indexBufDsd, fitBufDsd);
+fn _do_mutation(i: u16) void { mutFun(_get_genome(i)); }
+
+fn _get_population_word(i: u16) u32 { return buffer[i]; }
+
+fn _get_swap_word(i: u16) u32 { return swap[i]; }
+
+// implement directly to save DSRs
+fn _mul_genome_words(i: u16) u16 { return i * genomeWords; }
+
+fn _put_population_word(data: u32, loc: u16) void { buffer[loc] = data; }
+
+fn _get_genome(i: u16) [*]u32 {
+return @ptrcast([*]u32, &buffer[i * genomeWords]);
 }
 
-fn sample_tournament_winner() u16 {
+// internal routines ===========================================================
+fn _eval_fitnesses() void {
+    opdsd.iota16(indexBufDsd);
+    @map(_calc_fitness, indexBufDsd, fitBufDsd);
+}
+
+fn _sample_tournament_winner() u16 {
     var bestFit: f16 = math.NEGATIVE_INF(f16);
     var bestIdx: u16 = 0;
     for (@range(i16, tournamentSize)) |i| {
@@ -60,9 +77,9 @@ fn sample_tournament_winner() u16 {
     return bestIdx;
 }
 
-fn do_selection() void {
-    eval_fitnesses();
-    @map(sample_tournament_winner, indexBufDsd);
+fn _do_selection() void {
+    _eval_fitnesses();
+    @map(_sample_tournament_winner, indexBufDsd);
 
     @mov32(swapDsd, bufferDsd);
 
@@ -71,42 +88,10 @@ fn do_selection() void {
         const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
         @add16(wordDsd, indexBufDsd, w);
     }
-    @map(get_swap_word, indexBufDsd, bufferDsd);
+    @map(_get_swap_word, indexBufDsd, bufferDsd);
 }
 
-fn do_generation() void {
-    do_selection();
-    opdsd.iota16(indexBufDsd);
-    @map(do_mutation, indexBufDsd);
-}
-
-fn get_genome(i: u16) [*]u32 {
-    return @ptrcast([*]u32, &buffer[i * genomeWords]);
-}
-
-fn get_population_word(i: u16) u32 { return buffer[i]; }
-
-fn get_swap_word(i: u16) u32 { return swap[i]; }
-
-fn put_population_word(data: u32, loc: u16) void { buffer[loc] = data; }
-
-fn immigrate_genomes(fromDsd: mem1d_dsd, nGenomes: u16) void {
-    sample_n(nGenomes);
-    const swapDsd_ = @set_dsd_length(swapDsd, sampleWords);
-    @map(put_population_word, fromDsd, swapDsd_);
-}
-
-fn emigrate_genomes(toDsd: mem1d_dsd, nGenomes: u16) void {
-    sample_n(nGenomes);
-    const nWords = nGenomes * genomeWords;
-    const swapDsd_ = @set_dsd_length(swapDsd, nWords);
-    @map(get_population_word, swapDsd_, toDsd);
-}
-
-// implement directly to save DSRs
-fn _mul_genome_words(i: u16) u16 { return i * genomeWords; }
-
-fn sample_n(n: u16) void {
+fn _sample_n(n: u16) void {
     // sample n genome indices
     const popIndexDsd = @set_dsd_length(indexBufDsd, n);
     const nDsd = dsd.get_dsd_repeat16(n);
@@ -132,3 +117,24 @@ fn sample_n(n: u16) void {
 }
 
 fn do_swap() void { @mov32(swapDsd, bufferDsd); }  // deprecated
+
+// public API =================================================================
+fn immigrate_genomes(fromDsd: mem1d_dsd, nGenomes: u16) void {
+    _sample_n(nGenomes);
+    const nWords = nGenomes * genomeWords;
+    const swapDsd_ = @set_dsd_length(swapDsd, nWords);
+    @map(_put_population_word, fromDsd, swapDsd_);
+}
+
+fn emigrate_genomes(toDsd: mem1d_dsd, nGenomes: u16) void {
+    _sample_n(nGenomes);
+    const nWords = nGenomes * genomeWords;
+    const swapDsd_ = @set_dsd_length(swapDsd, nWords);
+    @map(_get_population_word, swapDsd_, toDsd);
+}
+
+fn do_generation() void {
+    _do_selection();
+    opdsd.iota16(indexBufDsd);
+    @map(_do_mutation, indexBufDsd);
+}
