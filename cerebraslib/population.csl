@@ -82,21 +82,22 @@ fn _mutate_population() void {
     @map(_do_ith_mutation, indexBufDsd);
 }
 
-fn _perform_selection() void { // TODO fixme
+fn _perform_selection() void {
     _eval_population_fitnesses();
     @map(_sample_one_tournament, indexBufDsd);
 
     // back up main buffer to swap buffer
     @mov32(swapDsd, bufferDsd);
 
-    // inject indices for selected genomes into main buffer
+    // inject indices for selected genomes' words into main buffer
     @mov32(bufferDsd, 0); // zero out buffer (maybe necessary for add16?)
     for (@range(i16, genomeWords)) |w| {
         const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
         @add16(wordDsd, indexBufDsd, w);
     }
     // copy selected genomes from swap buffer to main buffer
-    @map(_get_swap_word, indexBufDsd, bufferDsd);
+    // this replaces indices for words with the actual words themselves
+    @map(_get_swap_word, bufferDsd, bufferDsd);
 }
 
 /// Place population buffer word indices for n randomly sampled genomes into
