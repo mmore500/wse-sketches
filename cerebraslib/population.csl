@@ -1,0 +1,52 @@
+// module params ==============================================================
+param popSize: u16;
+param genomeWords: u16;
+
+// module imports =============================================================
+const dsd = @import_module("cerebraslib/dsd.csl");
+const opdsd = @import_module("cerebraslib/opdsd.csl");
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+
+// global state ===============================================================
+const bufSize = popSize * genomeWords;
+
+var buffer = @zeros([bufSize]u32);
+const bufferDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{bufSize} -> buffer[i],
+});
+
+var swap = @zeros([bufSize]u32);
+const swapDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{bufSize} -> swap[i],
+});
+var indexBuf = @zeros([popSize]u16);
+const indexBufDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{popSize} -> indexBuf[i],
+});
+
+// module functions ===========================================================
+fn get_population_word(i: u16) u32 { return buffer[i]; }
+
+fn sample_n(n: u16) void {
+    const popIndexDsd = @set_dsd_length(indexBufDsd, n);
+    const nDsd = dsd.get_dsd_repeat16(n);
+    @map(opscalar.unif16, nDsd, popIndexDsd);
+
+    const sampleWords = n * genomeWords;
+    const popDsd = @set_dsd_length(swapDsd, sampleWords);
+    opdsd.iotamod32(popDsd, @as(u32, genomeWords));
+
+    for (@range(i16, genomeWords)) |w| {
+        const wordDsd = @set_dsd_length(
+            @set_dsd_stride(
+                @increment_dsd_offset(swapDsd, w, u32),
+                genomeWords,
+            ),
+            n,
+        );
+        @map(opscalar.add32, wordDsd, indexBufDsd, wordDsd);
+    }
+    @map(get_population_word, swapDsd, swapDsd);
+}
+
+fn do_swap() void { @mov32(swapDsd, bufferDsd); }

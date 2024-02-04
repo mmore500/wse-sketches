@@ -1,0 +1,21 @@
+const population = @import_module("cerebraslib/population.csl", .{
+    .popSize = 100, .genomeWords = 3,
+});
+
+
+fn test_sample_n() void {
+    population.sample_n(1);
+    population.sample_n(2);
+    population.sample_n(100);
+}
+
+
+fn test_do_swap() void {
+    population.do_swap();
+}
+
+
+fn do_test() void {
+    test_sample_n();
+    test_do_swap();
+}
