@@ -1,3 +1,5 @@
+const random = @import_module("<random>");
+
 const bitmanip = @import_module("cerebraslib/bitmanip.csl");
 
 
@@ -35,6 +37,25 @@ fn test_flip_nth_bit() void {
 }
 
 
+fn test_randomize() void {
+    random.set_global_prng_seed(1);
+    var bitfield = @zeros([2]u16); // Initialize a 2-byte bitfield
+
+    bitmanip.randomize(&bitfield, 0);
+    @assert(bitfield[0] == 0);
+    @assert(bitfield[1] == 0);
+
+    bitmanip.randomize(&bitfield, 1);
+    @assert(bitfield[0] != 0);
+    @assert(bitfield[1] == 0);
+
+    bitmanip.randomize(&bitfield, 2);
+    @assert(bitfield[0] != 0);
+    @assert(bitfield[1] != 0);
+}
+
+
 fn do_test() void {
     test_flip_nth_bit();
+    test_randomize();
 }

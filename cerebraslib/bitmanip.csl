@@ -1,7 +1,21 @@
+const dsd = @import_module("cerebraslib/dsd.csl");
+
 /// Toggle the nth bit in a bitfield.
 fn flip_nth_bit(bitfield: [*]u8, n: u16) void {
     const byteIndex = n >> 3; // right shift by 3 bits to divide by 8
     const bitPosition = n & 7; // AND withto 111 find the remainder modulo 8
     const bitMask = @as(u8, 1) << bitPosition; // mask with the nth bit set
     bitfield[byteIndex] ^= bitMask; // use XOR to flip the nth bit
+}
+
+fn _random16() u16 { return @random16(); }  // for map compat
+
+/// Randomize a bitfield.
+fn randomize(bitfield: [*]u16, n: u16) void {
+    const templateDsd = dsd.get_dsd_repeat16(0);
+    // Can't use @get_dsd without comptime ptr...
+    const dsd = @set_dsd_length(
+        @set_dsd_stride(@set_dsd_base_addr(templateDsd, bitfield), 1), n,
+    );
+    @map(_random16, dsd);
 }
