@@ -14,6 +14,8 @@ fn test_do_selection() void { population.do_selection(); }
 
 fn test_eval_fitnesses() void { population.eval_fitnesses(); }
 
+fn test_get_genome() void { population.get_genome(0); }
+
 fn test_sample_tournament_winner() void {
     population.sample_tournament_winner();
 }
@@ -35,6 +37,7 @@ fn do_test() void {
     test_do_mutation();
     test_do_selection();
     test_eval_fitnesses();
+    test_get_genome();
     // test_sample_n();
     test_sample_tournament_winner();
     test_do_swap();
