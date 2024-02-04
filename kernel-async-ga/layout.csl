@@ -1,6 +1,7 @@
 const nCycle = 20;
 const nRow = 3;
 const nCol = 3;
+const popSize = 64;
 
 // Color used by memcpy for RPC mechanism
 const LAUNCH: color = @get_color(9);
@@ -31,6 +32,7 @@ layout {
           .nCycle = nCycle,
           .nRow = nRow,
           .nCol = nCol,
+          .popSize = popSize,
           .memcpy_params = memcpy.get_params(x),
         }
       );

@@ -26,6 +26,7 @@ param y: i16;
 param nCycle: u16;  // how many self-activation cycles to run for?
 param nRow: i16;  // how big is PE array?
 param nCol: i16;
+param popSize: u16;  // how many genomes in each local population?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
 
 // module imports =============================================================
@@ -67,7 +68,6 @@ var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
 var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
 var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 
-const popSize: u16 = 64;
 var population = @zeros([popSize]u32);  // holds population during simulation
 const populationDsd = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{1} -> population[i],
