@@ -9,7 +9,7 @@ const _buf16dsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{4} -> _buf16[i],
 });
 fn test_get_dsd_repeat16() void {
-    @mov16(_buf16dsd, dsd.get_dsd_repeat16(3));
+    @mov16(_buf16dsd, @set_dsd_length(dsd.get_dsd_repeat16(3), 4));
     @assert(_buf16[0] == 3);
     @assert(_buf16[1] == 3);
     @assert(_buf16[2] == 3);
@@ -23,7 +23,7 @@ const _buf32dsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{4} -> _buf32[i],
 });
 fn test_get_dsd_repeat32() void {
-    @mov16(_buf32dsd, dsd.get_dsd_repeat32(3));
+    @mov32(_buf32dsd, @set_dsd_length(dsd.get_dsd_repeat32(3), 4));
     @assert(_buf32[0] == 3);
     @assert(_buf32[1] == 3);
     @assert(_buf32[2] == 3);
