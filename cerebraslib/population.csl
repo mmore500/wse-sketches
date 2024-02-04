@@ -40,8 +40,8 @@ fn sample_n(n: u16) void {
     @map(_mul_genome_words, popIndexDsd, popIndexDsd);
 
     const sampleWords = n * genomeWords;
-    const popDsd = @set_dsd_length(swapDsd, sampleWords);
-    opdsd.iotamod32(popDsd, @as(u32, genomeWords));
+    const swapDsd_ = @set_dsd_length(swapDsd, sampleWords);
+    opdsd.iotamod32(swapDsd_, @as(u32, genomeWords));
 
     for (@range(i16, genomeWords)) |w| {
         const wordDsd = @set_dsd_length(
@@ -53,7 +53,9 @@ fn sample_n(n: u16) void {
         );
         @map(opscalar.add32, wordDsd, indexBufDsd, wordDsd);
     }
-    @map(get_population_word, swapDsd, swapDsd);
+
+    // replace word indices with word values
+    @map(get_population_word, swapDsd_, swapDsd_);
 }
 
 fn do_swap() void { @mov32(swapDsd, bufferDsd); }
