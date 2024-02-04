@@ -1,0 +1,40 @@
+const bitmanip = @import_module("cerebraslib/bitmanip.csl");
+
+
+fn test_flip_nth_bit() void {
+    var bitfield = @zeros([2]u8); // Initialize a 2-byte bitfield
+
+    bitmanip.flip_nth_bit(&bitfield, 0);
+    @assert(bitfield[0] == 0b00000001);
+    @assert(bitfield[1] == 0b00000000);
+
+    bitmanip.flip_nth_bit(&bitfield, 1);
+    @assert(bitfield[0] == 0b00000011);
+    @assert(bitfield[1] == 0b00000000);
+
+    bitmanip.flip_nth_bit(&bitfield, 7);
+    @assert(bitfield[0] == 0b10000011);
+    @assert(bitfield[1] == 0b00000000);
+
+    bitmanip.flip_nth_bit(&bitfield, 8);
+    @assert(bitfield[0] == 0b10000011);
+    @assert(bitfield[1] == 0b00000001);
+
+    // Flip the same bit again to revert it back
+    bitmanip.flip_nth_bit(&bitfield, 8);
+    @assert(bitfield[0] == 0b10000011);
+    @assert(bitfield[1] == 0b000000000);
+
+    bitmanip.flip_nth_bit(&bitfield, 1);
+    @assert(bitfield[0] == 0b10000001);
+    @assert(bitfield[1] == 0b00000000);
+
+    bitmanip.flip_nth_bit(&bitfield, 15);
+    @assert(bitfield[0] == 0b10000001);
+    @assert(bitfield[1] == 0b10000000);
+}
+
+
+fn do_test() void {
+    test_flip_nth_bit();
+}

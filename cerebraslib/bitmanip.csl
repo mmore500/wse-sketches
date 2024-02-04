@@ -1,0 +1,7 @@
+/// Toggle the nth bit in a bitfield.
+fn flip_nth_bit(bitfield: [*]u8, n: u16) void {
+    const byteIndex = n >> 3; // right shift by 3 bits to divide by 8
+    const bitPosition = n & 7; // AND withto 111 find the remainder modulo 8
+    const bitMask = @as(u8, 1) << bitPosition; // mask with the nth bit set
+    bitfield[byteIndex] ^= bitMask; // use XOR to flip the nth bit
+}
