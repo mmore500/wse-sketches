@@ -19,6 +19,9 @@ var buffer = @zeros([bufSize]u32);
 const bufferDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{bufSize} -> buffer[i],
 });
+const genomeDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{popSize} -> buffer[i * @as(i16, genomeWords)],
+});
 
 var swap = @zeros([bufSize]u32);
 const swapDsd = @get_dsd(mem1d_dsd, .{
@@ -116,18 +119,15 @@ fn sample_n(n: u16) void {
     // set swap buffer to within-genome offsets
     const sampleWords = n * genomeWords;
     const swapDsd_ = @set_dsd_length(swapDsd, sampleWords);
-    opdsd.iotamod32(swapDsd_, @as(u32, genomeWords));
 
     // add sampled word indices to word offsets
+    @mov32(swapDsd_, 0);
     for (@range(i16, genomeWords)) |w| {
         const wordDsd = @set_dsd_length(
-            @set_dsd_stride(
-                @increment_dsd_offset(swapDsd, w, u32),
-                genomeWords,
-            ),
+            @increment_dsd_offset(genomeDsd, w, u32),
             n,
         );
-        @map(opscalar.add32, wordDsd, indexBufDsd, wordDsd);
+        @add16(wordDsd, indexBufDsd, w);
     }
 }
 
