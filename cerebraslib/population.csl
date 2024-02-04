@@ -1,8 +1,13 @@
 // module params ==============================================================
 param popSize: u16;
+param fitFun: fn([*]u32) f16;
+param mutFun: fn([*]u32) void;
 param genomeWords: u16;
+param tournamentSize: u16;
 
 // module imports =============================================================
+const math = @import_module("<math>");
+
 const dsd = @import_module("cerebraslib/dsd.csl");
 const opdsd = @import_module("cerebraslib/opdsd.csl");
 const opscalar = @import_module("cerebraslib/opscalar.csl");
@@ -19,13 +24,87 @@ var swap = @zeros([bufSize]u32);
 const swapDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{bufSize} -> swap[i],
 });
+var fitBuf = @zeros([popSize]f16);
+const fitBufDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{popSize} -> fituf[i],
+});
 var indexBuf = @zeros([popSize]u16);
 const indexBufDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{popSize} -> indexBuf[i],
 });
 
 // module functions ===========================================================
+fn calc_fitness(i: u16) f16 { return fitFun(get_genome(i)); }
+
+fn do_mutation(i: u16) void { mutFun(get_genome(i)); }
+
+fn eval_fitnesses() void {
+    opdsd.iota(indexBufDsd);
+    @map(calc_fitness, indexBufDsd, fitBufDsd);
+}
+
+fn sample_tournament_winner() u16 {
+    var bestFit: f16 = math.NEGATIVE_INF(f16);
+    var bestIdx = 0;
+    for (@range(i16, tournamentSize)) |i| {
+        const idx = opscalar.unif16(popSize);
+        const fit = fitBuf[idx];
+        if (fit > bestFit) {
+            bestFit = fit;
+            bestIdx = idx;
+        }
+    }
+    return bestIdx;
+}
+
+fn do_selection() void {
+    eval_fitnesses();
+    @map(sample_tournament_winner, indexBufDsd);
+
+    @mov32(swapDsd, bufferDsd);
+
+    opdsd.iotamod32(bufferDsd, @as(u32, genomeWords));
+    for (@range(i16, genomeWords)) |w| {
+        const wordDsd = @set_dsd_length(
+            @set_dsd_stride(
+                @increment_dsd_offset(bufferDsd, w, u32),
+                genomeWords,
+            ),
+            popSize,
+        );
+        @map(opscalar.add32, wordDsd, indexBufDsd, wordDsd);
+    }
+    @map(get_swap_word, indexBufDsd, bufferDsd);
+}
+
+fn do_generation() void () {
+    do_selection();
+    opdsd.iota(indexBufDsd);
+    @map(do_mutation, indexBufDsd);
+}
+
+fn get_genome(i: u16) [*]u32 {
+    return @ptrcast([*]u32, &buffer[i * genomeWords]);
+}
+
 fn get_population_word(i: u16) u32 { return buffer[i]; }
+
+fn get_swap_word(i: u16) u32 { return swap[i]; }
+
+fn put_population_word(data: u32, loc: u16) void { buffer[loc] = data; }
+
+fn immigrate_genomes(fromDsd: mem1d_dsd, nGenomes: u16) void {
+    sample_n(nGenomes);
+    @map(put_population_word, fromDsd, swapDsd);
+}
+
+fn emigrate_genomes(toDsd: mem1d_dsd, nGenomes: u16) void {
+    sample_n(nGenomes);
+    const nWords = nGenomes * genomeWords;
+    const swapDsd_ = @set_dsd_length(swapDsd, nWords);
+    @map(get_population_word, swapDsd_, swapDsd_);
+    @mov32(toDsd, swapDsd_);
+}
 
 // implement directly to save DSRs
 fn _mul_genome_words(i: u16) u16 { return i * genomeWords; }
@@ -56,9 +135,6 @@ fn sample_n(n: u16) void {
         );
         @map(opscalar.add32, wordDsd, indexBufDsd, wordDsd);
     }
-
-    // replace word indices with word values
-    @map(get_population_word, swapDsd_, swapDsd_);
 }
 
-fn do_swap() void { @mov32(swapDsd, bufferDsd); }
+fn do_swap() void { @mov32(swapDsd, bufferDsd); }  // deprecated

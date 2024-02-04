@@ -23,7 +23,7 @@ const opscalar = @import_module("cerebraslib/opscalar.csl");
 // module params ==============================================================
 const genomeWords: u16 = 3;
 const genome_t = [genomeWords]u32;
-const genomePtr_t = *[genomeWords]u32;
+const genomePtr_t = [*]u32;
 
 // module functions ===========================================================
 fn apply_mutation(genome: genomePtr_t) void {
@@ -38,9 +38,7 @@ fn apply_mutation(genome: genomePtr_t) void {
     bitmanip.flip_nth_bit(@ptrcast([*]u8, bitfield_ptr), target_bit);
 }
 
-fn calc_fitness(genome: genomePtr_t) f16 {
-    return @ptrcast(*f16, genome).*;
-}
+fn calc_fitness(genome: genomePtr_t) f16 { return @ptrcast(*f16, genome).*; }
 
 fn initialize(genome: genomePtr_t) void {
     bitmanip.randomize(@ptrcast([*]u16, genome), genomeWords * 2);
