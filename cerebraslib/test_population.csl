@@ -8,9 +8,23 @@ const population = @import_module("cerebraslib/population.csl", .{
 
 fn test_calc_fitness() void { population.calc_fitness(0); }
 
+fn test_do_generation() void { population.do_generation(); }
+
 fn test_do_mutation() void { population.do_mutation(0); }
 
 fn test_do_selection() void { population.do_selection(); }
+
+fn test_emigrate_genomes() void {
+    population.emigrate_genomes(
+        population.swapDsd, 10
+    );
+}
+
+fn test_immigrate_genomes() void {
+    population.immigrate_genomes(
+        population.swapDsd, 10
+    );
+}
 
 fn test_eval_fitnesses() void { population.eval_fitnesses(); }
 
@@ -38,8 +52,11 @@ fn test_do_swap() void { population.do_swap(); }
 
 fn do_test() void {
     test_calc_fitness();
+    // test_do_generation();
     test_do_mutation();
     test_do_selection();
+    // test_emigrate_genomes();
+    // test_immigrate_genomes();
     test_eval_fitnesses();
     test_get_genome();
     test_get_population_word();
