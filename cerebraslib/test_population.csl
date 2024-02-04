@@ -11,6 +11,10 @@ fn test_do_mutation() void { population.do_mutation(0); }
 
 fn test_eval_fitnesses() void { population.eval_fitnesses(); }
 
+fn test_sample_tournament_winner() void {
+    population.sample_tournament_winner();
+}
+
 fn test_sample_n() void {
     population.sample_n(1);
     population.sample_n(2);
