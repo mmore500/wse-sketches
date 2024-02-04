@@ -20,27 +20,36 @@ const random = @import_module("<random>");
 const bitmanip = @import_module("cerebraslib/bitmanip.csl");
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 
-// module params ==============================================================
-const genomeWords: u16 = 3;
-const genome_t = [genomeWords]u32;
+// module config specs ========================================================
+const gSize: u16 = 3;
+const genome_t = [gSize]u32;
 const genomePtr_t = [*]u32;
 
-// module functions ===========================================================
-fn apply_mutation(genome: genomePtr_t) void {
+// internal functions =========================================================
+fn _apply_mutation(genome: genomePtr_t) void {
     // mutate fitness value
-    const fitness = calc_fitness(genome);
+    const fitness = calc_fitness_of(genome);
     const mutated = fitness + @as(f16, random.random_normal_f32());
     @ptrcast(*f16, genome).* = mutated;
+}
 
+fn _step_instrumentation(genome: genomePtr_t) void {
     // elapse generation in bitfield
     const offset_bits: u16 = 2 * 8;
-    const target_bit = opscalar.unif16(10 * 8) + offset_bits;
+    const bitfield_bits: u16 = 10 * 8;
+    const target_bit = opscalar.unif16(bitfield_bits) + offset_bits;
     bitmanip.flip_nth_bit(@ptrcast([*]u8, genome), target_bit);
 }
 
-fn calc_fitness(genome: genomePtr_t) f16 { return @ptrcast(*f16, genome).*; }
+// public API =================================================================
+fn elapse_inheritance_of(genome: genomePtr_t) void {
+    _apply_mutation(genome); _step_instrumentation(genome);
+}
 
-fn initialize(genome: genomePtr_t) void {
-    bitmanip.randomize(@ptrcast([*]u16, genome), genomeWords * 2);
+fn calc_fitness_of(genome: genomePtr_t) f16 { return @ptrcast(*f16, genome).*; }
+
+fn initialize_one(genome: genomePtr_t) void {
+    const genomeBytes: u16 = gSize * 2;
+    bitmanip.randomize(@ptrcast([*]u16, genome), genomeBytes);
     @ptrcast(*f16, genome).* = 0.0;
 }
