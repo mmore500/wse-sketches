@@ -27,6 +27,7 @@ param nCycle: u16;  // how many self-activation cycles to run for?
 param nRow: i16;  // how big is PE array?
 param nCol: i16;
 param popSize: u16;  // how many genomes in each local population?
+param genomeImpl: comptime_string;  // what genome impl should be used?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
 
 // module imports =============================================================
@@ -36,8 +37,9 @@ const math = @import_module("<math>");
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
 
+const genome_ = @import_module(genomeImpl);
 const population_ = @import_module("cerebraslib/population.csl", .{
-  .popSize = popSize, .genomeWords = 1,
+  .popSize = popSize, .genomeWords = genome_.genomeWords,
 });
 
 // global output variables ====================================================
