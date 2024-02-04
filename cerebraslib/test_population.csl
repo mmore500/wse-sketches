@@ -9,6 +9,8 @@ fn test_calc_fitness() void { population.calc_fitness(0); }
 
 fn test_do_mutation() void { population.do_mutation(0); }
 
+fn test_eval_fitnesses() void { population.eval_fitnesses(); }
+
 fn test_sample_n() void {
     population.sample_n(1);
     population.sample_n(2);
