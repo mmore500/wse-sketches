@@ -31,6 +31,7 @@ fn get_population_word(i: u16) u32 { return buffer[i]; }
 fn _mul_genome_words(i: u16) u16 { return i * genomeWords; }
 
 fn sample_n(n: u16) void {
+    // sample n genome indices
     const popIndexDsd = @set_dsd_length(indexBufDsd, n);
     const nDsd = dsd.get_dsd_repeat16(n);
     @map(opscalar.unif16, nDsd, popIndexDsd);
@@ -39,10 +40,12 @@ fn sample_n(n: u16) void {
     // const genomeWordsDsd = dsd.get_dsd_repeat16(genomeWords);
     @map(_mul_genome_words, popIndexDsd, popIndexDsd);
 
+    // set swap buffer to within-genome offsets
     const sampleWords = n * genomeWords;
     const swapDsd_ = @set_dsd_length(swapDsd, sampleWords);
     opdsd.iotamod32(swapDsd_, @as(u32, genomeWords));
 
+    // add sampled word indices to word offsets
     for (@range(i16, genomeWords)) |w| {
         const wordDsd = @set_dsd_length(
             @set_dsd_stride(
