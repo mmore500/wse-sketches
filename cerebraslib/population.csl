@@ -27,10 +27,17 @@ const indexBufDsd = @get_dsd(mem1d_dsd, .{
 // module functions ===========================================================
 fn get_population_word(i: u16) u32 { return buffer[i]; }
 
+// implement directly to save DSRs
+fn _mul_genome_words(i: u16) u16 { return i * genomeWords; }
+
 fn sample_n(n: u16) void {
     const popIndexDsd = @set_dsd_length(indexBufDsd, n);
     const nDsd = dsd.get_dsd_repeat16(n);
     @map(opscalar.unif16, nDsd, popIndexDsd);
+
+    // convert to word indices
+    // const genomeWordsDsd = dsd.get_dsd_repeat16(genomeWords);
+    @map(_mul_genome_words, popIndexDsd, popIndexDsd);
 
     const sampleWords = n * genomeWords;
     const popDsd = @set_dsd_length(swapDsd, sampleWords);
