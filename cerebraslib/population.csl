@@ -39,7 +39,7 @@ fn calc_fitness(i: u16) f16 { return fitFun(get_genome(i)); }
 fn do_mutation(i: u16) void { mutFun(get_genome(i)); }
 
 fn eval_fitnesses() void {
-    opdsd.iota32(indexBufDsd);
+    opdsd.iota16(indexBufDsd);
     @map(calc_fitness, indexBufDsd, fitBufDsd);
 }
 
@@ -63,23 +63,17 @@ fn do_selection() void {
 
     @mov32(swapDsd, bufferDsd);
 
-    opdsd.iotamod32(bufferDsd, @as(u32, genomeWords));
+    @mov32(bufferDsd, 0);
     for (@range(i16, genomeWords)) |w| {
-        const wordDsd = @set_dsd_length(
-            @set_dsd_stride(
-                @increment_dsd_offset(bufferDsd, w, u32),
-                genomeWords,
-            ),
-            popSize,
-        );
-        @map(opscalar.add32, wordDsd, indexBufDsd, wordDsd);
+        const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
+        @add16(wordDsd, indexBufDsd, w);
     }
     @map(get_swap_word, indexBufDsd, bufferDsd);
 }
 
 fn do_generation() void {
     do_selection();
-    opdsd.iota32(indexBufDsd);
+    opdsd.iota16(indexBufDsd);
     @map(do_mutation, indexBufDsd);
 }
 
