@@ -27,6 +27,9 @@ fn incrmod32(val: u32, mod: u32) u32 {
     return res * correction;
 }
 
+/// Multiply two 32-bit integers.
+fn mul32(a: u32, b: u32) u32 { return a * b; }
+
 /// Draw a random 16-bit integer from a uniform distribution, with a given
 /// upper bound (exclusive).
 fn unif16(upper: u16) u16 {
