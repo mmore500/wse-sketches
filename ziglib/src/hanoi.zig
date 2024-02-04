@@ -22,3 +22,7 @@ pub fn get_hanoi_value_incidence_at_index(n: u32) u32 {
 pub fn get_hanoi_value_index_offset(value: i32) i32 {
     return (1 << value) - 1;
 }
+
+pub fn get_hanoi_value_index_cadence(value: i32) i32 {
+    return 1 << (value + 1);
+}
