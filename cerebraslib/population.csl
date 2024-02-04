@@ -99,8 +99,7 @@ fn emigrate_genomes(toDsd: mem1d_dsd, nGenomes: u16) void {
     sample_n(nGenomes);
     const nWords = nGenomes * genomeWords;
     const swapDsd_ = @set_dsd_length(swapDsd, nWords);
-    @map(get_population_word, swapDsd_, swapDsd_);
-    @mov32(toDsd, swapDsd_);
+    @map(get_population_word, swapDsd_, toDsd);
 }
 
 // implement directly to save DSRs
