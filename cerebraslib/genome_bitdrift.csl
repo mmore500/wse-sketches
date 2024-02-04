@@ -27,10 +27,12 @@ const genomePtr_t = *[genomeWords]u32;
 
 // module functions ===========================================================
 fn apply_mutation(genome: genomePtr_t) void {
+    // mutate fitness value
     const fitness = calc_fitness(genome);
     const mutated = fitness + @as(f16, random.random_normal_f32());
     @ptrcast(*f16, genome).* = mutated;
 
+    // elapse generation in bitfield
     const target_bit = opscalar.unif16(10 * 8);
     var bitfield_ptr = &@ptrcast([*]u8, genome)[2];
     bitmanip.flip_nth_bit(@ptrcast([*]u8, bitfield_ptr), target_bit);
