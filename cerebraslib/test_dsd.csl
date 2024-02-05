@@ -1,0 +1,37 @@
+const math = @import_module("<math>");
+
+const dsd = @import_module("cerebraslib/dsd.csl");
+
+
+fn _max16(a: u16, b: u16) u16 { return math.max(a, b); }
+var _buf16 = [4]u16{1, 2, 5, 1};
+const _buf16dsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{4} -> _buf16[i],
+});
+fn test_get_dsd_repeat16() void {
+    @mov16(_buf16dsd, @set_dsd_length(dsd.get_dsd_repeat16(3), 4));
+    @assert(_buf16[0] == 3);
+    @assert(_buf16[1] == 3);
+    @assert(_buf16[2] == 3);
+    @assert(_buf16[3] == 3);
+}
+
+
+fn _max32(a: u32, b: u32) u32 { return math.max(a, b); }
+var _buf32 = [4]u32{1, 2, 5, 1};
+const _buf32dsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{4} -> _buf32[i],
+});
+fn test_get_dsd_repeat32() void {
+    @mov32(_buf32dsd, @set_dsd_length(dsd.get_dsd_repeat32(3), 4));
+    @assert(_buf32[0] == 3);
+    @assert(_buf32[1] == 3);
+    @assert(_buf32[2] == 3);
+    @assert(_buf32[3] == 3);
+}
+
+
+fn do_test() void {
+    test_get_dsd_repeat16();
+    test_get_dsd_repeat32();
+}

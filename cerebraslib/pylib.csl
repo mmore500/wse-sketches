@@ -1,0 +1,18 @@
+/// Perform fast mod using bitwise operations.
+///
+/// Parameters
+/// ----------
+/// dividend : u32
+///     The dividend of the mod operation.
+/// divisor : u32
+///     The divisor of the mod operation. Must be a positive integer and a
+///     power of 2.
+///
+/// Returns
+/// -------
+/// u32
+///     The remainder of dividing the dividend by the divisor.
+fn fast_pow2_mod(dividend: u32, divisor: u32) u32 {
+    @assert(@as(bool, divisor));
+    return dividend & (divisor - 1);
+}

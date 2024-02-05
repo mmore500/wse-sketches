@@ -1,0 +1,121 @@
+const random = @import_module("<random>");
+
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+
+
+fn test_add32() void {
+    @assert(opscalar.add32(0, 0) == 0);
+    @assert(opscalar.add32(0, 1) == 1);
+    @assert(opscalar.add32(1, 0) == 1);
+    @assert(opscalar.add32(1, 1) == 2);
+    @assert(opscalar.add32(1, 2) == 3);
+    @assert(opscalar.add32(138, 4) == 142);
+    @assert(opscalar.add32(138, 0) == 138);
+}
+
+fn test_as() void {
+    var val = @as(u32, 65536);
+    @assert(0 == @as(u16, val));
+}
+
+var out = [1]u16{0};
+const out_dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{1} -> out[0] });
+fn test_ctz() void {
+    @ctz(out_dsd, 0);
+    @assert(out[0] == 16);
+}
+
+fn test_ctz32() void {
+    @assert(opscalar.ctz32(0) == 32);
+    @assert(opscalar.ctz32(1) == 0);
+    @assert(opscalar.ctz32(2) == 1);
+    @assert(opscalar.ctz32(3) == 0);
+    @assert(opscalar.ctz32(32768) == 15);
+    @assert(opscalar.ctz32(65534) == 1);
+    @assert(opscalar.ctz32(65535) == 0);
+    @assert(opscalar.ctz32(65536) == 16);
+    @assert(opscalar.ctz32(65537) == 0);
+    @assert(opscalar.ctz32(65538) == 1);
+}
+
+
+fn test_incr16() void {
+    @assert(opscalar.incr16(0) == 1);
+    @assert(opscalar.incr16(1) == 2);
+    @assert(opscalar.incr16(2) == 3);
+    @assert(opscalar.incr16(3) == 4);
+    @assert(opscalar.incr16(32768) == 32769);
+    @assert(opscalar.incr16(65534) == 65535);
+}
+
+
+fn test_incr32() void {
+    @assert(opscalar.incr32(0) == 1);
+    @assert(opscalar.incr32(1) == 2);
+    @assert(opscalar.incr32(2) == 3);
+    @assert(opscalar.incr32(3) == 4);
+    @assert(opscalar.incr32(32768) == 32769);
+    @assert(opscalar.incr32(65534) == 65535);
+    @assert(opscalar.incr32(65535) == 65536);
+    @assert(opscalar.incr32(65536) == 65537);
+    @assert(opscalar.incr32(65537) == 65538);
+    @assert(opscalar.incr32(65538) == 65539);
+}
+
+fn test_incrmod32() void {
+    @assert(opscalar.incrmod32(0, 0) == 0);
+    @assert(opscalar.incrmod32(0, 1) == 0);
+    @assert(opscalar.incrmod32(0, 2) == 1);
+    @assert(opscalar.incrmod32(1, 2) == 0);
+    @assert(opscalar.incrmod32(0, 3) == 1);
+    @assert(opscalar.incrmod32(1, 3) == 2);
+    @assert(opscalar.incrmod32(2, 3) == 0);
+}
+
+
+fn test_mul32() void {
+    @assert(opscalar.mul32(0, 0) == 0);
+    @assert(opscalar.mul32(0, 1) == 0);
+    @assert(opscalar.mul32(1, 0) == 0);
+    @assert(opscalar.mul32(1, 1) == 1);
+    @assert(opscalar.mul32(1, 2) == 2);
+    @assert(opscalar.mul32(3, 2) == 6);
+    @assert(opscalar.mul32(138, 4) == 552);
+    @assert(opscalar.mul32(138, 0) == 0);
+}
+
+fn test_p() void {
+    for (@range(u16, 20)) |i| { @assert(opscalar.p(1.0)); }
+    for (@range(u16, 20)) |i| { @assert(!opscalar.p(0.0)); }
+    while (!opscalar.p(0.5)) {}
+}
+
+fn test_unif16() void {
+    @assert(opscalar.unif16(0) == 0);
+    @assert(opscalar.unif16(1) == 0);
+    for (@range(u16, 20)) |i| { @assert(opscalar.unif16(2) < 2); }
+    for (@range(u16, 20)) |i| { @assert(opscalar.unif16(3) < 3); }
+    random.set_global_prng_seed(1);
+    @assert(opscalar.unif16(10000) != opscalar.unif16(10000));
+}
+
+
+fn test_unifbool() void {
+    while (opscalar.unifbool()) {}
+    while (!opscalar.unifbool()) {}
+}
+
+
+fn do_test() void {
+    test_add32();
+    test_as();
+    test_ctz();
+    test_ctz32();
+    test_incr16();
+    test_incr32();
+    test_incrmod32();
+    test_mul32();
+    test_p();
+    test_unif16();
+    test_unifbool();
+}

@@ -1,6 +1,9 @@
-const nCycle = 20;
+const nCycle = 40;
 const nRow = 3;
 const nCol = 3;
+const popSize = 32;
+const tournSize = 5;
+const genomeImpl = "cerebraslib/genome_bitdrift.csl";
 
 // Color used by memcpy for RPC mechanism
 const LAUNCH: color = @get_color(9);
@@ -31,6 +34,9 @@ layout {
           .nCycle = nCycle,
           .nRow = nRow,
           .nCol = nCol,
+          .popSize = popSize,
+          .tournSize = tournSize,
+          .genomeImpl = genomeImpl,
           .memcpy_params = memcpy.get_params(x),
         }
       );
@@ -47,7 +53,6 @@ layout {
   @export_name("sendCounter_S", [*]u16, true);
   @export_name("sendCounter_E", [*]u16, true);
   @export_name("sendCounter_W", [*]u16, true);
-  @export_name("population", [*]u32, true);
   @export_name("genome", [*]f32, true);
   @export_name("whoami", [*]i16, true);
   @export_name("whereami_x", [*]i16, true);
