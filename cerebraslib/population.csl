@@ -95,6 +95,9 @@ fn _perform_selection_all() void {
     _eval_fitness_all();
     @map(_sample_one_tournament, indexBufDsd);
 
+    // convert to word indices
+    @map(_scale_by_genome_words, indexBufDsd, indexBufDsd);
+
     // back up main buffer to swap buffer
     @mov32(swapDsd, bufferDsd);
 
