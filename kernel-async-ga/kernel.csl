@@ -395,7 +395,8 @@ task cycleTask(cycle: u16) void {
   // must stagger send requests, or else hardware simulation hangs
   // (but only when both vertical AND horizontal exchange enabled)
   // don't know why, but this is a workaround...
-  const isEvenCycle: bool = @as(bool, cycle % 2 == 0);
+  // edit: found that randomizing works better to preserve long term stability
+  const isEvenCycle: bool = @random16() & 1 == 0;
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
     population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);

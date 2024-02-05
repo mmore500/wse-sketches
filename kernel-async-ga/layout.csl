@@ -1,4 +1,4 @@
-const nCycle = 20;
+const nCycle = 40;
 const nRow = 3;
 const nCol = 3;
 const popSize = 32;
