@@ -120,7 +120,6 @@ fn _sample_n(n: u16) void {
     @map(opscalar.unif16, nDsd, popIndexDsd);
 
     // convert to word indices
-    // const gSizeDsd = dsd.get_dsd_repeat16(gSize);
     @map(_scale_by_genome_words, popIndexDsd, popIndexDsd);
 
     // set swap buffer to within-genome offsets

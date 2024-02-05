@@ -49,7 +49,7 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
 fn calc_fitness_of(genome: genomePtr_t) f16 { return @ptrcast(*f16, genome).*; }
 
 fn initialize_one(genome: genomePtr_t) void {
-    const genomeBytes: u16 = gSize * 2;
-    bitmanip.randomize(@ptrcast([*]u16, genome), genomeBytes);
+    const gHalfWords: u16 = gSize * 2;
+    bitmanip.randomize(@ptrcast([*]u16, genome), gHalfWords);
     @ptrcast(*f16, genome).* = 0.0;
 }
