@@ -28,6 +28,9 @@ var swap = @zeros([bufSize]u32);
 const swapDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{bufSize} -> swap[i],
 });
+const swapGenomeDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{bufSize} -> swap[i * @as(i16, gSize)],
+});
 var fitBuf = @zeros([popSize]f16);
 const fitBufDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{popSize} -> fitBuf[i],
@@ -137,7 +140,7 @@ fn _sample_n(n: u16) void {
     @mov32(swapDsd_, 0);
     for (@range(i16, gSize)) |w| {
         const wordDsd = @set_dsd_length(
-            @increment_dsd_offset(genomeDsd, w, u32),
+            @increment_dsd_offset(swapGenomeDsd, w, u32),
             n,
         );
         // possible cause of future wonkiness:
