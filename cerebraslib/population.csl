@@ -79,7 +79,7 @@ fn _put_population_word(data: u32, loc: u32) void { buffer[loc] = data; }
 
 // internal routines ===========================================================
 fn _eval_fitness_all() void {
-    for (@range(u16, popSize)) |i| { _calc_ith_fitness(i); }
+    for (@range(u16, popSize)) |i| { fitBuf[i] = _calc_ith_fitness(i); }
     // alternate implementation, if DSRs are available
     // opdsd.iota16(indexBufDsd);
     // @map(_calc_ith_fitness, indexBufDsd, fitBufDsd);
