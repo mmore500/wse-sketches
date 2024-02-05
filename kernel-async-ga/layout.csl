@@ -1,7 +1,8 @@
-const nCycle = 4;
+const nCycle = 20;
 const nRow = 3;
 const nCol = 3;
-const popSize = 16;
+const popSize = 32;
+const tournSize = 5;
 const genomeImpl = "cerebraslib/genome_bitdrift.csl";
 
 // Color used by memcpy for RPC mechanism
@@ -34,6 +35,7 @@ layout {
           .nRow = nRow,
           .nCol = nCol,
           .popSize = popSize,
+          .tournSize = tournSize,
           .genomeImpl = genomeImpl,
           .memcpy_params = memcpy.get_params(x),
         }
