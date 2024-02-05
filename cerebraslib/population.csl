@@ -105,7 +105,9 @@ fn _perform_selection_all() void {
     @mov32(bufferDsd, 0); // zero out buffer (maybe necessary for add16?)
     for (@range(i16, gSize)) |w| {
         const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
-        @add16(wordDsd, indexBufDsd, w);
+        // possible cause of future wonkiness:
+        // the output dsd is u32, not u16... keep an eye on this
+        @add16(wordDsd, indexBufDsd, @as(u16, w));
     }
     // copy selected genomes from swap buffer to main buffer
     // this replaces indices for words with the actual words themselves
@@ -136,7 +138,9 @@ fn _sample_n(n: u16) void {
             @increment_dsd_offset(genomeDsd, w, u32),
             n,
         );
-        @add16(wordDsd, indexBufDsd, w);
+        // possible cause of future wonkiness:
+        // the output dsd is u32, not u16... keep an eye on this
+        @add16(wordDsd, indexBufDsd, @as(u16, w));
     }
 }
 
