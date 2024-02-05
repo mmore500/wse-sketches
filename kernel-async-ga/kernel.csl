@@ -431,11 +431,16 @@ task cycleTask(cycle: u16) void {
 
 // launcher ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
+// appears to prevent hardware simulation crash, will consume different
+// numbers of cycles on different PEs at launch to desynchronize them at startup
+fn desync() void { for (@range(u16, @random16() % 256)) |i| { @random16(); } }
+
 fn dolaunch() void { // launched by RPC (remote procedure call)
   whoami[0] = peId;  // record layout params for telemetry
   whereami_x[0] = x;
   whereami_y[0] = y;
   random.set_global_prng_seed(peId);
+  desync();
   population_.init_module();
   dispatchRecv_N();  // open initial recv requests
   dispatchRecv_S();  // note: never-filled recv requests on PE array edges ok
