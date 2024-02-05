@@ -39,8 +39,9 @@ const random = @import_module("<random>");
 
 const genome_ = @import_module(genomeImpl);
 const population_ = @import_module("cerebraslib/population.csl", .{
-  .popSize = popSize, .genomeWords = genome_.genomeWords,
-  .fitFun = genome_.calc_fitness_of, .mutFun = genome_.apply_mutation_to,
+  .popSize = popSize, .gSize = genome_.gSize,
+  .fitFun = genome_.calc_fitness_of,
+  .inheritFun = genome_.elapse_inheritance_of,
   .tournamentSize = 3,
 });
 
