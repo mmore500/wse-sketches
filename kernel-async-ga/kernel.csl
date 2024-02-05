@@ -38,12 +38,12 @@ const math = @import_module("<math>");
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
 
-const genome_ = @import_module(genomeImpl);
+const genome_ = @import_module(genomeImpl, .{ .peId = peId });
 const population_ = @import_module("cerebraslib/population.csl", .{
   .gSize = genome_.gSize, .popSize = popSize, .tournamentSize = tournSize,
   .fitFun = genome_.calc_fitness_of,
   .inheritFun = genome_.elapse_inheritance_of,
-  .initFun = genome_.initialize_one,
+  .initFun = genome_.initialize_one, .peId = peId,
 });
 
 // global output variables ====================================================

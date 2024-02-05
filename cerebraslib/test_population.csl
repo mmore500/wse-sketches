@@ -1,9 +1,11 @@
-const genome = @import_module("cerebraslib/genome_bitdrift.csl");
+const genome = @import_module("cerebraslib/genome_bitdrift.csl", .{
+    .peId = 0,
+});
 const population = @import_module("cerebraslib/population.csl", .{
     .gSize = genome.gSize, .popSize = 100, .tournamentSize = 3,
     .fitFun = genome.calc_fitness_of,
     .inheritFun = genome.elapse_inheritance_of,
-    .initFun = genome.initialize_one,
+    .initFun = genome.initialize_one, .peId = 0,
 });
 
 // internal accessors ======================================================

@@ -1,3 +1,5 @@
+param peId: u32;
+
 // memory layout ===============================================================
 // byte 0 FITNESS (f16, 2 bytes)
 // byte 1
