@@ -66,7 +66,7 @@ fn _sample_one_tournament() u16 {
             bestIdx = idx;
         }
     }
-    return bestIdx;
+    return bestIdx * gSize;  // returns word index, not genome index
 }
 
 // implement directly to save DSRs
@@ -76,27 +76,29 @@ fn _put_population_word(data: u32, loc: u32) void { buffer[loc] = data; }
 
 // internal routines ===========================================================
 fn _eval_fitness_all() void {
-    opdsd.iota16(indexBufDsd);
-    @map(_calc_ith_fitness, indexBufDsd, fitBufDsd);
+    for (@range(u16, popSize)) |i| { _calc_ith_fitness(i); }
+    // alternate implementation, if DSRs are available
+    // opdsd.iota16(indexBufDsd);
+    // @map(_calc_ith_fitness, indexBufDsd, fitBufDsd);
 }
 
 fn _elapse_inheritance_all() void {
-    opdsd.iota16(indexBufDsd);
-    @map(_elapse_ith_inheritance, indexBufDsd);
+    for (@range(u16, popSize)) |i| { _elapse_ith_inheritance(i); }
+    // alternate implementation, if DSRs are available
+    // opdsd.iota16(indexBufDsd);
+    // @map(_elapse_ith_inheritance, indexBufDsd);
 }
 
 fn _initialize_all() void {
-    for (@range(u16, popSize)) |i| { initFun(_get_ith_genome(i)); }
+    for (@range(u16, popSize)) |i| { _get_ith_genome(i); }
     // opdsd.iota16(indexBufDsd); // hangs if initialized this way, why?
     // @map(_initialize_ith_genome, indexBufDsd);
 }
 
 fn _perform_selection_all() void {
     _eval_fitness_all();
+    // sample tournament returns word indices, so don't need to rescale
     @map(_sample_one_tournament, indexBufDsd);
-
-    // convert to word indices
-    @map(_scale_by_genome_words, indexBufDsd, indexBufDsd);
 
     // back up main buffer to swap buffer
     @mov32(swapDsd, bufferDsd);
