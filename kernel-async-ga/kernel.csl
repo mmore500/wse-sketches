@@ -445,22 +445,26 @@ task cycleTask(cycle: u16) void {
   const isEvenCycle: bool = @as(bool, cycle % 2 == 0);
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
-    @map(sample_population, sendBufDsd_N);  // load up send buffer
+    // @map(sample_population, sendBufDsd_N);  // load up send buffer
+    population_.immigrate_genomes(sendBufDsd_N, sendNumGenomes);
     if (y != 0) dispatchSend_N();  // except top row of PE array
     sendFlag_N = 0;  // open send request has been handled, unset flag
   }
   if (isOddCycle and @as(bool, sendFlag_S)) {
-    @map(sample_population, sendBufDsd_S);  // load up send buffer
+    // @map(sample_population, sendBufDsd_S);  // load up send buffer
+    population_.immigrate_genomes(sendBufDsd_S, sendNumGenomes);
     if (y != nRow - 1) dispatchSend_S();  // except bottom row of PE array
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
   if (isEvenCycle and @as(bool, sendFlag_E)) {
-    @map(sample_population, sendBufDsd_E);  // load up send buffer
+    // @map(sample_population, sendBufDsd_E);  // load up send buffer
+    population_.immigrate_genomes(sendBufDsd_E, sendNumGenomes);
     sendFlag_E = 0;  // open send request has been handled, unset flag
     if (x != nCol - 1) dispatchSend_E();  // except right col of PE array
   }
   if (isOddCycle and @as(bool, sendFlag_W)) {
-    @map(sample_population, sendBufDsd_W);  // load up send buffer
+    // @map(sample_population, sendBufDsd_W);  // load up send buffer
+    population_.immigrate_genomes(sendBufDsd_W, sendNumGenomes);
     sendFlag_W = 0;  // open send request has been handled, unset flag
     if (x != 0) dispatchSend_W();  // except left col of PE array
   }
@@ -482,6 +486,7 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   whereami_x[0] = x;
   whereami_y[0] = y;
   random.set_global_prng_seed(peId);
+  population_.init_module();
   dispatchRecv_N();  // open initial recv requests
   dispatchRecv_S();  // note: never-filled recv requests on PE array edges ok
   dispatchRecv_E();
