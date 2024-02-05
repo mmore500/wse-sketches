@@ -77,12 +77,6 @@ var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
 var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
 var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 
-var population = @zeros([popSize]u32);  // holds population during simulation
-const populationDsd = @get_dsd(mem1d_dsd, .{
-  .tensor_access = |i|{1} -> population[i],
-});
-var ptr_population: [*]u32 = &population;  // unused atm, genome is convenient
-
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
 const sendColor_N: color = @get_color(0);
@@ -356,50 +350,6 @@ fn dispatchRecv_W() void {
   recvCounter_W[0] += 1;  // counter only used for telemetry
 }
 
-// population update ops ======================================================
-///////////////////////////////////////////////////////////////////////////////
-fn immigrate_into_population(genome_: u32) void {
-  const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
-  // @assert(0 <= target and target < popSize);  // makes slow
-  population[target] = @bitcast(
-    u32,
-    math.max(
-      @bitcast(f32, population[target]),
-      @bitcast(f32, genome_),
-    ),
-  );
-}
-
-// generational turnover
-fn do_population_generation() void {
-  for (@range(u16, 32)) |tournament| {  // each loop is one tournament
-    const parent1 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
-    // @assert(0 <= parent1 and parent1 < popSize);  // makes slow
-    const parent2 = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
-    // @assert(0 <= parent2 and parent2 < popSize); // makes slow
-
-    const offspring1: f32 = (
-      @bitcast(f32, population[parent1]) + random.random_normal_f32()
-    );
-    const offspring2: f32 = (
-      @bitcast(f32, population[parent2]) + random.random_normal_f32()
-    );
-
-    const target = @as(i16, random.random_f16(0.0, @as(f16, popSize)));
-    // @assert(0 <= target and target < popSize); // makes slow
-    // tourn size 2
-    population[target] = @bitcast(u32, math.max(offspring1, offspring2));
-  }
-  // sample 0th element of population for telemetry
-  genome[0] = @bitcast(f32, population[0]);
-}
-
-fn sample_population() u32 {
-  const target = @as(u16, random.random_f16(0.0, @as(f16, popSize)));
-  // @assert(0 <= target and target < popSize);  // makes slow
-  return population[target];
-}
-
 // cycle task =================================================================
 // main program loop: self-activate with incrementing values until nCycle
 ///////////////////////////////////////////////////////////////////////////////
@@ -413,25 +363,21 @@ task cycleTask(cycle: u16) void {
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
   if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
-    // @map(immigrate_into_population, recvBufDsd_N);  // incorporate into pop
     population_.immigrate_genomes(recvBufDsd_N, recvNumGenomes);
     dispatchRecv_N();  // note: never-filled recv requests on PE array edges ok
     recvFlag_N = 0;  // open send request has been handled, unset flag
   }
   if (@as(bool, recvFlag_S)) {
-    // @map(immigrate_into_population, recvBufDsd_S);  // incorporate into pop
     population_.immigrate_genomes(recvBufDsd_S, recvNumGenomes);
     dispatchRecv_S();
     recvFlag_S = 0;  // open send request has been handled, unset flag
   }
   if (@as(bool, recvFlag_E)) {
-    // @map(immigrate_into_population, recvBufDsd_E);  // incorporate into pop
     population_.immigrate_genomes(recvBufDsd_E, recvNumGenomes);
     dispatchRecv_E();
     recvFlag_E = 0;  // open send request has been handled, unset flag
   }
   if (@as(bool, recvFlag_W)) {
-    // @map(immigrate_into_population, recvBufDsd_W);  // incorporate into pop
     population_.immigrate_genomes(recvBufDsd_W, recvNumGenomes);
     dispatchRecv_W();
     recvFlag_W = 0;  // open send request has been handled, unset flag
@@ -451,25 +397,21 @@ task cycleTask(cycle: u16) void {
   const isEvenCycle: bool = @as(bool, cycle % 2 == 0);
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
-    // @map(sample_population, sendBufDsd_N);  // load up send buffer
     population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
     if (y != 0) dispatchSend_N();  // except top row of PE array
     sendFlag_N = 0;  // open send request has been handled, unset flag
   }
   if (isOddCycle and @as(bool, sendFlag_S)) {
-    // @map(sample_population, sendBufDsd_S);  // load up send buffer
     population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
     if (y != nRow - 1) dispatchSend_S();  // except bottom row of PE array
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
   if (isEvenCycle and @as(bool, sendFlag_E)) {
-    // @map(sample_population, sendBufDsd_E);  // load up send buffer
     population_.emigrate_genomes(sendBufDsd_E, sendNumGenomes);
     sendFlag_E = 0;  // open send request has been handled, unset flag
     if (x != nCol - 1) dispatchSend_E();  // except right col of PE array
   }
   if (isOddCycle and @as(bool, sendFlag_W)) {
-    // @map(sample_population, sendBufDsd_W);  // load up send buffer
     population_.emigrate_genomes(sendBufDsd_W, sendNumGenomes);
     sendFlag_W = 0;  // open send request has been handled, unset flag
     if (x != 0) dispatchSend_W();  // except left col of PE array
@@ -575,7 +517,6 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_sendCounter_E, "sendCounter_E");
   @export_symbol(ptr_sendCounter_W, "sendCounter_W");
   @export_symbol(ptr_genome, "genome");
-  @export_symbol(ptr_population, "population");
   @export_symbol(ptr_whoami, "whoami");
   @export_symbol(ptr_whereami_x, "whereami_x");
   @export_symbol(ptr_whereami_y, "whereami_y");
