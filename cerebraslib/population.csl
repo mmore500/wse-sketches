@@ -1,9 +1,10 @@
 // module params ==============================================================
+param gSize: u16;
 param popSize: u16;
+param tournamentSize: u16;
 param fitFun: fn([*]u32) f16;
 param inheritFun: fn([*]u32) void;
-param gSize: u16;
-param tournamentSize: u16;
+param initFun: fn([*]u32) void;
 
 // module imports =============================================================
 const math = @import_module("<math>");
@@ -52,6 +53,8 @@ fn _get_population_word(i: u16) u32 { return buffer[i]; }
 
 fn _get_swap_word(i: u16) u32 { return swap[i]; }
 
+fn _initialize_ith_genome(i: u16) void { initFun(_get_ith_genome(i)); }
+
 fn _sample_one_tournament() u16 {
     var bestFit: f16 = math.NEGATIVE_INF(f16);
     var bestIdx: u16 = 0;
@@ -80,6 +83,12 @@ fn _eval_fitness_all() void {
 fn _elapse_inheritance_all() void {
     opdsd.iota16(indexBufDsd);
     @map(_elapse_ith_inheritance, indexBufDsd);
+}
+
+fn _initialize_all() void {
+    // for (@range(u16, popSize)) |i| { initFun(_get_ith_genome(i)); }
+    // opdsd.iota16(indexBufDsd);
+    // @map(_initialize_ith_genome, indexBufDsd);
 }
 
 fn _perform_selection_all() void {
@@ -143,5 +152,7 @@ fn immigrate_genomes(fromDsd: mem1d_dsd, nGenomes: u16) void {
     const swapDsd_ = @set_dsd_length(swapDsd, nWords);
     @map(_put_population_word, fromDsd, swapDsd_);
 }
+
+fn init_module() void { _initialize_all(); }
 
 fn do_generation() void { _perform_selection_all(); _elapse_inheritance_all(); }

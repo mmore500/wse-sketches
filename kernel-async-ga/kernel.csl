@@ -39,10 +39,10 @@ const random = @import_module("<random>");
 
 const genome_ = @import_module(genomeImpl);
 const population_ = @import_module("cerebraslib/population.csl", .{
-  .popSize = popSize, .gSize = genome_.gSize,
+  .gSize = genome_.gSize, .popSize = popSize, .tournamentSize = 3,
   .fitFun = genome_.calc_fitness_of,
   .inheritFun = genome_.elapse_inheritance_of,
-  .tournamentSize = 3,
+  .initFun = genome_.initialize_one,
 });
 
 // global output variables ====================================================

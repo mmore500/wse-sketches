@@ -1,9 +1,9 @@
 const genome = @import_module("cerebraslib/genome_bitdrift.csl");
 const population = @import_module("cerebraslib/population.csl", .{
-    .popSize = 100, .gSize = genome.gSize,
+    .gSize = genome.gSize, .popSize = 100, .tournamentSize = 3,
     .fitFun = genome.calc_fitness_of,
     .inheritFun = genome.elapse_inheritance_of,
-    .tournamentSize = 3,
+    .initFun = genome.initialize_one,
 });
 
 // internal accessors ======================================================
@@ -49,6 +49,7 @@ fn test_do_generaiton() void { population.do_generation(); }
 
 // test runner ================================================================
 fn do_test() void {
+    population.init_module();
     test_calc_ith_fitness();
     test_elapse_ith_inheritance();
     test_get_ith_genome();
