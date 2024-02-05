@@ -236,7 +236,7 @@ fn dispatchSend_W() void {
 // asynchronously accept genomes from neighbors,
 // which are then harvested from buffer & immigrated into the population
 ///////////////////////////////////////////////////////////////////////////////
-const recvNumGenomes: u16 = 2;  // how many genomes to batch together?
+const recvNumGenomes: u16 = 4;  // how many genomes to batch together?
 // how many receives to batch together?
 const recvBufSize: u16 = genome_.gSize * recvNumGenomes;
 
