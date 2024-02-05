@@ -363,7 +363,7 @@ const cycleDsd = @get_dsd(fabout_dsd, .{
 task cycleTask(cycle: u16) void {
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
-  if (@as(bool, recvFlag_N)) {  // has open recv request ben filled?
+  if (@as(bool, recvFlag_N)) {  // has open recv request been filled?
     population_.immigrate_genomes(recvBufDsd_N, recvNumGenomes);
     dispatchRecv_N();  // note: never-filled recv requests on PE array edges ok
     recvFlag_N = 0;  // open send request has been handled, unset flag
