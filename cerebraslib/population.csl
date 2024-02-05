@@ -86,8 +86,8 @@ fn _elapse_inheritance_all() void {
 }
 
 fn _initialize_all() void {
-    // for (@range(u16, popSize)) |i| { initFun(_get_ith_genome(i)); }
-    // opdsd.iota16(indexBufDsd);
+    for (@range(u16, popSize)) |i| { initFun(_get_ith_genome(i)); }
+    // opdsd.iota16(indexBufDsd); // hangs if initialized this way, why?
     // @map(_initialize_ith_genome, indexBufDsd);
 }
 
