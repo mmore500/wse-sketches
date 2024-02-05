@@ -1,0 +1,40 @@
+const random = @import_module("<random>");
+
+const genome_bitdrift = @import_module("cerebraslib/genome_bitdrift.csl", .{
+    .peId = 0,
+});
+
+
+fn test_builtin_random_seeding() void {
+    random.set_global_prng_seed(1);
+    const first = @random16();
+    @assert(first != @random16());
+    random.set_global_prng_seed(1);
+    @assert(first == @random16());
+}
+
+
+fn test_elapse_inheritance_of() void {
+    var genome = @zeros(genome_bitdrift.genome_t);
+    genome_bitdrift.elapse_inheritance_of(&genome);
+}
+
+
+fn test_calc_fitness_of() void {
+    var genome = @zeros(genome_bitdrift.genome_t);
+    @assert(genome_bitdrift.calc_fitness_of(&genome) == 0.0);
+}
+
+
+fn test_initialize_one() void {
+    var genome = @zeros(genome_bitdrift.genome_t);
+    genome_bitdrift.initialize_one(&genome);
+}
+
+
+fn do_test() void {
+    test_builtin_random_seeding();
+    test_calc_fitness_of();
+    test_elapse_inheritance_of();
+    test_initialize_one();
+}

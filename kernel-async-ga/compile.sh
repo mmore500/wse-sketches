@@ -6,6 +6,10 @@ cd "$(dirname "$0")"
 
 echo "CSLC ${CSLC}"
 
+# symlinks don't work and --import-path doesn't work, so this is a workaround
+trap "git checkout ./cerebraslib" EXIT
+rsync -rI "$(readlink -f cerebraslib)" .
+
 # target a 2x2 region of interest
 # Every program using memcpy must use a fabric offset of 4,1, and if compiling
 # for a simulated fabric, must use a fabric dimension of at least

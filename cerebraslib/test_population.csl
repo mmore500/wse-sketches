@@ -1,0 +1,69 @@
+const genome = @import_module("cerebraslib/genome_bitdrift.csl", .{
+    .peId = 0,
+});
+const population = @import_module("cerebraslib/population.csl", .{
+    .gSize = genome.gSize, .popSize = 100, .tournamentSize = 3,
+    .fitFun = genome.calc_fitness_of,
+    .inheritFun = genome.elapse_inheritance_of,
+    .initFun = genome.initialize_one, .peId = 0,
+});
+
+// internal accessors ======================================================
+fn test_calc_ith_fitness() void { population._calc_ith_fitness(0); }
+
+fn test_elapse_ith_inheritance() void { population._elapse_ith_inheritance(0); }
+
+fn test_get_ith_genome() void { population._get_ith_genome(0); }
+
+fn test_get_population_word() void { population._get_population_word(0); }
+
+fn test_get_swap_word() void { population._get_swap_word(0); }
+
+fn test_sample_one_tournament() void { population._sample_one_tournament(); }
+
+fn test_scale_by_genome_words() void { population._scale_by_genome_words(0); }
+
+// internal routines ==========================================================
+fn test_eval_fitness_all() void { population._eval_fitness_all(); }
+
+fn test_elapse_inheritance_all() void { population._elapse_inheritance_all(); }
+
+fn test_perform_selection_all() void { population._perform_selection_all(); }
+
+fn test_sample_n() void {
+    population._sample_n(1);
+    population._sample_n(2);
+    population._sample_n(100);
+    population._sample_n(99);
+    population._sample_n(2);
+}
+
+// public API =================================================================
+fn test_emigrate_genomes() void {
+    population.emigrate_genomes(population.swapDsd, 10);
+}
+
+fn test_immigrate_genomes() void {
+    population.immigrate_genomes(population.swapDsd, 10);
+}
+
+fn test_do_generaiton() void { population.do_generation(); }
+
+// test runner ================================================================
+fn do_test() void {
+    population.init_module();
+    test_calc_ith_fitness();
+    test_elapse_ith_inheritance();
+    test_get_ith_genome();
+    test_get_population_word();
+    test_get_swap_word();
+    test_sample_one_tournament();
+    test_scale_by_genome_words();
+    test_eval_fitness_all();
+    test_elapse_inheritance_all();
+    test_perform_selection_all();
+    test_sample_n();
+    test_emigrate_genomes();
+    test_immigrate_genomes();
+    test_do_generaiton();
+}

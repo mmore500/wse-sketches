@@ -1,0 +1,112 @@
+const opdsd = @import_module("cerebraslib/opdsd.csl");
+
+var _buf1 = @zeros([1]u32);
+const _buf1dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{1} -> _buf1[i] });
+var _buf2 = @zeros([2]u32);
+const _buf2dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{2} -> _buf2[i] });
+var _buf7 = @zeros([7]u32);
+const _buf7dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{7} -> _buf7[i] });
+var _buf8 = @zeros([8]u32);
+const _buf8dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{8} -> _buf8[i] });
+fn test_iota32() void {
+    opdsd.iota32(_buf1dsd);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+    @mov32(_buf1dsd, 1);
+    opdsd.iota32(_buf1dsd);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+
+    opdsd.iota32(_buf2dsd);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == i); }
+    @mov32(_buf2dsd, 1);
+    opdsd.iota32(_buf2dsd);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == i); }
+
+    opdsd.iota32(_buf7dsd);
+    for (@range(u32, 7)) |i| { @assert(_buf7[i] == i); }
+    @mov32(_buf7dsd, 3);
+    opdsd.iota32(_buf7dsd);
+    for (@range(u32, 7)) |i| { @assert(_buf7[i] == i); }
+
+    opdsd.iota32(_buf8dsd);
+    for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
+    @mov32(_buf8dsd, 2);
+    opdsd.iota32(_buf8dsd);
+    for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
+}
+
+
+fn test_iotamod32() void {
+    opdsd.iotamod32(_buf1dsd, 4);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+    @mov32(_buf1dsd, 1);
+    opdsd.iotamod32(_buf1dsd, 4);
+    for (@range(u32, 1)) |i| { @assert(_buf1[i] == i); }
+
+    opdsd.iotamod32(_buf2dsd, 3);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == i); }
+    @mov32(_buf2dsd, 1);
+    opdsd.iotamod32(_buf2dsd, 1);
+    for (@range(u32, 2)) |i| { @assert(_buf2[i] == 0); }
+
+    // modulus % isn't linking correctly, so specify expected values manually
+    opdsd.iotamod32(_buf7dsd, 2);
+    for ([7]u32{0, 1, 0, 1, 0, 1, 0}) |v, i| { @assert(_buf7[i] == v); }
+    @mov32(_buf7dsd, 3);
+    opdsd.iotamod32(_buf7dsd, 3);
+    for ([7]u32{0, 1, 2, 0, 1, 2, 0}) |v, i| { @assert(_buf7[i] == v); }
+
+    // modulus % isn't linking correctly, so specify expected values manually
+    opdsd.iotamod32(_buf8dsd, 5);
+    for ([8]u32{0, 1, 2, 3, 4, 0, 1, 2}) |v, i| { @assert(_buf8[i] == v); }
+    @mov32(_buf8dsd, 2);
+    opdsd.iotamod32(_buf8dsd, 15);
+    for (@range(u32, 8)) |i| { @assert(_buf8[i] == i); }
+}
+
+var _buf1_ = @zeros([1]u16);
+const _buf1dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{1} -> _buf1_[i]
+});
+var _buf2_ = @zeros([2]u16);
+const _buf2dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{2} -> _buf2_[i]
+});
+var _buf7_ = @zeros([7]u16);
+const _buf7dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{7} -> _buf7_[i]
+});
+var _buf8_ = @zeros([8]u16);
+const _buf8dsd_ = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{8} -> _buf8_[i]
+});
+fn test_iota16() void {
+    opdsd.iota16(_buf1dsd_);
+    for (@range(u16, 1)) |i| { @assert(_buf1_[i] == i); }
+    @mov16(_buf1dsd_, 1);
+    opdsd.iota16(_buf1dsd_);
+    for (@range(u16, 1)) |i| { @assert(_buf1_[i] == i); }
+
+    opdsd.iota16(_buf2dsd_);
+    for (@range(u16, 2)) |i| { @assert(_buf2_[i] == i); }
+    @mov16(_buf2dsd_, 1);
+    opdsd.iota16(_buf2dsd_);
+    for (@range(u16, 2)) |i| { @assert(_buf2_[i] == i); }
+
+    opdsd.iota16(_buf7dsd_);
+    for (@range(u16, 7)) |i| { @assert(_buf7_[i] == i); }
+    @mov16(_buf7dsd_, 3);
+    opdsd.iota16(_buf7dsd_);
+    for (@range(u16, 7)) |i| { @assert(_buf7_[i] == i); }
+
+    opdsd.iota16(_buf8dsd_);
+    for (@range(u16, 8)) |i| { @assert(_buf8_[i] == i); }
+    @mov16(_buf8dsd_, 2);
+    opdsd.iota16(_buf8dsd_);
+    for (@range(u16, 8)) |i| { @assert(_buf8_[i] == i); }
+}
+
+fn do_test() void {
+    test_iota16();
+    test_iota32();
+    test_iotamod32();
+}

@@ -1,0 +1,170 @@
+// module params ==============================================================
+param gSize: u16;
+param popSize: u16;
+param tournamentSize: u16;
+param fitFun: fn([*]u32) f16;
+param inheritFun: fn([*]u32) void;
+param initFun: fn([*]u32) void;
+param peId: u16;
+
+// module imports =============================================================
+const math = @import_module("<math>");
+
+const dsd = @import_module("cerebraslib/dsd.csl");
+const opdsd = @import_module("cerebraslib/opdsd.csl");
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+
+// global state ===============================================================
+const bufSize = popSize * gSize;
+
+var buffer = @zeros([bufSize]u32);
+const bufferDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{bufSize} -> buffer[i],
+});
+const genomeDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{popSize} -> buffer[i * @as(i16, gSize)],
+});
+
+var swap = @zeros([bufSize]u32);
+const swapDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{bufSize} -> swap[i],
+});
+const swapGenomeDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{bufSize} -> swap[i * @as(i16, gSize)],
+});
+var fitBuf = @zeros([popSize]f16);
+const fitBufDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{popSize} -> fitBuf[i],
+});
+var indexBuf = @zeros([popSize]u16);
+const indexBufDsd = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{popSize} -> indexBuf[i],
+});
+
+// module functions ===========================================================
+///////////////////////////////////////////////////////////////////////////////
+
+// internal accessors ==========================================================
+fn _calc_ith_fitness(i: u16) f16 { return fitFun(_get_ith_genome(i)); }
+
+fn _elapse_ith_inheritance(i: u16) void { inheritFun(_get_ith_genome(i)); }
+
+fn _get_ith_genome(i: u16) [*]u32 {
+    return @ptrcast([*]u32, &buffer[i * gSize]);
+}
+
+fn _get_population_word(i: u32) u32 { return buffer[i]; }
+
+fn _get_swap_word(i: u32) u32 { return swap[i]; }
+
+fn _initialize_ith_genome(i: u16) void { initFun(_get_ith_genome(i)); }
+
+fn _sample_one_tournament() u16 {
+    var bestFit: f16 = math.NEGATIVE_INF(f16);
+    var bestIdx: u16 = 0;
+    for (@range(i16, tournamentSize)) |i| {
+        const idx = opscalar.unif16(popSize);
+        const fit = fitBuf[idx];
+        if (fit > bestFit) {
+            bestFit = fit;
+            bestIdx = idx;
+        }
+    }
+    return bestIdx * gSize;  // returns word index, not genome index
+}
+
+// implement directly to save DSRs
+fn _scale_by_genome_words(i: u16) u16 { return i * gSize; }
+
+fn _put_population_word(data: u32, loc: u32) void { buffer[loc] = data; }
+
+// internal routines ===========================================================
+fn _eval_fitness_all() void {
+    for (@range(u16, popSize)) |i| { fitBuf[i] = _calc_ith_fitness(i); }
+    // alternate implementation, if DSRs are available
+    // opdsd.iota16(indexBufDsd);
+    // @map(_calc_ith_fitness, indexBufDsd, fitBufDsd);
+}
+
+fn _elapse_inheritance_all() void {
+    for (@range(u16, popSize)) |i| { _elapse_ith_inheritance(i); }
+    // alternate implementation, if DSRs are available
+    // opdsd.iota16(indexBufDsd);
+    // @map(_elapse_ith_inheritance, indexBufDsd);
+}
+
+fn _initialize_all() void {
+    for (@range(u16, popSize)) |i| { _get_ith_genome(i); }
+    // opdsd.iota16(indexBufDsd); // hangs if initialized this way, why?
+    // @map(_initialize_ith_genome, indexBufDsd);
+}
+
+fn _perform_selection_all() void {
+    _eval_fitness_all();
+    // sample tournament returns word indices, so don't need to rescale
+    @map(_sample_one_tournament, indexBufDsd);
+
+    // back up main buffer to swap buffer
+    @mov32(swapDsd, bufferDsd);
+
+    // inject indices for selected genomes' words into main buffer
+    @mov32(bufferDsd, 0); // zero out buffer (maybe necessary for add16?)
+    for (@range(i16, gSize)) |w| {
+        const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
+        // possible cause of future wonkiness:
+        // the output dsd is u32, not u16... keep an eye on this
+        @add16(wordDsd, indexBufDsd, @as(u16, w));
+    }
+    // copy selected genomes from swap buffer to main buffer
+    // this replaces indices for words with the actual words themselves
+    @map(_get_swap_word, bufferDsd, bufferDsd);
+}
+
+/// Place population buffer word indices for n randomly sampled genomes into
+/// the swap buffer. For a genome g words long, g * n words will be placed.
+/// Copying the data at the stored word indices from the population buffer will
+/// give genome data for n genomes.
+fn _sample_n(n: u16) void {
+    // sample n genome indices
+    const popIndexDsd = @set_dsd_length(indexBufDsd, n);
+    const nDsd = dsd.get_dsd_repeat16(n);
+    @map(opscalar.unif16, nDsd, popIndexDsd);
+
+    // convert to word indices
+    @map(_scale_by_genome_words, popIndexDsd, popIndexDsd);
+
+    // set swap buffer to within-genome offsets
+    const sampleWords = n * gSize;
+    const swapDsd_ = @set_dsd_length(swapDsd, sampleWords);
+
+    // add sampled word indices to word offsets
+    @mov32(swapDsd_, 0);
+    for (@range(i16, gSize)) |w| {
+        const wordDsd = @set_dsd_length(
+            @increment_dsd_offset(swapGenomeDsd, w, u32),
+            n,
+        );
+        // possible cause of future wonkiness:
+        // the output dsd is u32, not u16... keep an eye on this
+        @add16(wordDsd, indexBufDsd, @as(u16, w));
+    }
+}
+
+// public API =================================================================
+fn emigrate_genomes(toDsd: mem1d_dsd, nGenomes: u16) void {
+    _sample_n(nGenomes);
+    const nWords = nGenomes * gSize;
+    const swapDsd_ = @set_dsd_length(swapDsd, nWords);
+    @map(_get_population_word, swapDsd_, toDsd);
+}
+
+fn immigrate_genomes(fromDsd: mem1d_dsd, nGenomes: u16) void {
+    _sample_n(nGenomes);
+    const nWords = nGenomes * gSize;
+    const swapDsd_ = @set_dsd_length(swapDsd, nWords);
+    @map(_put_population_word, fromDsd, swapDsd_);
+}
+
+fn init_module() void { _initialize_all(); }
+
+fn do_generation() void { _elapse_inheritance_all(); _perform_selection_all(); }
