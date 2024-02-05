@@ -49,9 +49,9 @@ fn _get_ith_genome(i: u16) [*]u32 {
     return @ptrcast([*]u32, &buffer[i * gSize]);
 }
 
-fn _get_population_word(i: u16) u32 { return buffer[i]; }
+fn _get_population_word(i: u32) u32 { return buffer[i]; }
 
-fn _get_swap_word(i: u16) u32 { return swap[i]; }
+fn _get_swap_word(i: u32) u32 { return swap[i]; }
 
 fn _initialize_ith_genome(i: u16) void { initFun(_get_ith_genome(i)); }
 
@@ -72,7 +72,7 @@ fn _sample_one_tournament() u16 {
 // implement directly to save DSRs
 fn _scale_by_genome_words(i: u16) u16 { return i * gSize; }
 
-fn _put_population_word(data: u32, loc: u16) void { buffer[loc] = data; }
+fn _put_population_word(data: u32, loc: u32) void { buffer[loc] = data; }
 
 // internal routines ===========================================================
 fn _eval_fitness_all() void {
