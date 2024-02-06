@@ -65,3 +65,16 @@ test "bit_encode_gray tests" {
     try std.testing.expect(pylib.bit_encode_gray(257) == 385);
     try std.testing.expect(pylib.bit_encode_gray(1234567890) == 1834812347);
 }
+
+test "test_bit_floor" {
+    try std.testing.expectEqual(@as(i32, 0b00000000), pylib.bitFloor(0b00000000));
+    try std.testing.expectEqual(@as(i32, 0b00000001), pylib.bitFloor(0b00000001));
+    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bitFloor(0b00000010));
+    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bitFloor(0b00000011));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000100));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000101));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000110));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000111));
+    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bitFloor(0b00001000));
+    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bitFloor(0b00001001));
+}
