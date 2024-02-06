@@ -55,3 +55,8 @@ pub fn bit_floor(n: i32) i32 {
     var mask: i32 = @as(i32, 1) << bitLength;
     return n & mask;
 }
+
+pub fn bit_drop_msb(n: i32) i32 {
+    // Drop most significant bit from binary representation of integer n.
+    return n & (~bit_floor(n));
+}

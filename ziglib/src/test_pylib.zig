@@ -67,14 +67,41 @@ test "bit_encode_gray tests" {
 }
 
 test "test_bit_floor" {
-    try std.testing.expectEqual(@as(i32, 0b00000000), pylib.bitFloor(0b00000000));
-    try std.testing.expectEqual(@as(i32, 0b00000001), pylib.bitFloor(0b00000001));
-    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bitFloor(0b00000010));
-    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bitFloor(0b00000011));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000100));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000101));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000110));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bitFloor(0b00000111));
-    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bitFloor(0b00001000));
-    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bitFloor(0b00001001));
+    try std.testing.expectEqual(@as(i32, 0b00000000), pylib.bit_floor(0b00000000));
+    try std.testing.expectEqual(@as(i32, 0b00000001), pylib.bit_floor(0b00000001));
+    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bit_floor(0b00000010));
+    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bit_floor(0b00000011));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000100));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000101));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000110));
+    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000111));
+    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bit_floor(0b00001000));
+    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bit_floor(0b00001001));
+}
+
+test "bit_drop_msb tests" {
+    const test_cases = .{
+        .{ 0, 0 },
+        .{ 1, 0 },
+        .{ 2, 0 },
+        .{ 3, 1 },
+        .{ 4, 0 },
+        .{ 5, 1 },
+        .{ 6, 2 },
+        .{ 7, 3 },
+        .{ 8, 0 },
+        .{ 9, 1 },
+        .{ 10, 2 },
+        .{ 255, 127 },
+        .{ 256, 0 },
+        .{ 257, 1 },
+        .{ 1234567890, 160826066 },
+    };
+
+    inline for (test_cases) |test_case| {
+        const input = test_case[0];
+        const expected = test_case[1];
+        const output = pylib.bit_drop_msb(input);
+        try std.testing.expectEqual(output, expected);
+    }
 }
