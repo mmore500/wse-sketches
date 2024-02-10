@@ -1,4 +1,5 @@
 const std = @import("std");
+const pylib = @import("pylib.zig");
 
 /// Returns the value at a given index in the zero-indexed, zero-based Hanoi
 /// sequence.
@@ -43,4 +44,18 @@ pub fn get_index_of_hanoi_value_nth_incidence(value: u32, n: u32) u32 {
     const offset = get_hanoi_value_index_offset(value);
     const cadence = get_hanoi_value_index_cadence(value);
     return offset + cadence * n;
+}
+
+pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) i32 {
+    const m: i32 = @intCast(n);
+    const offset: i32 = @intCast(get_hanoi_value_index_offset(value));
+    const cadence: i32 = @intCast(get_hanoi_value_index_cadence(value));
+    const dividend: i32 = @intCast(m - offset + cadence);
+    const quotient = pylib.fast_pow2_divide(dividend, cadence);
+
+    if (get_hanoi_value_at_index(n) == value) {
+        return quotient - 1;
+    }
+
+    return quotient;
 }
