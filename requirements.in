@@ -1,0 +1,14 @@
+# pylib
+dendropy
+opytional
+pandas
+
+# qa
+black==22.10.0
+pytest
+ruff
+
+# binder
+ipykernel
+nb-clean
+jupyter

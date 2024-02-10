@@ -1,0 +1,28 @@
+const pylib = @import_module("cerebraslib/pylib.csl");
+
+
+fn test_fast_pow2_mod() void {
+    // positive dividend and power of 2
+    @assert(pylib.fast_pow2_mod(1, 1) == 0);
+    @assert(pylib.fast_pow2_mod(16, 1) == 0);
+    @assert(pylib.fast_pow2_mod(17, 1) == 0);
+    @assert(pylib.fast_pow2_mod(18, 1) == 0);
+
+    @assert(pylib.fast_pow2_mod(1, 2) == 1);
+    @assert(pylib.fast_pow2_mod(16, 2) == 0);
+    @assert(pylib.fast_pow2_mod(17, 2) == 1);
+    @assert(pylib.fast_pow2_mod(18, 2) == 0);
+
+    @assert(pylib.fast_pow2_mod(1, 4) == 1);
+    @assert(pylib.fast_pow2_mod(16, 4) == 0);
+    @assert(pylib.fast_pow2_mod(17, 4) == 1);
+    @assert(pylib.fast_pow2_mod(18, 4) == 2);
+
+    // zero dividend
+    @assert(pylib.fast_pow2_mod(0, 4) == 0);
+}
+
+
+fn do_test() void {
+    test_fast_pow2_mod();
+}

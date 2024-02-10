@@ -1,0 +1,61 @@
+const nCycle = 40;
+const nRow = 3;
+const nCol = 3;
+const popSize = 32;
+const tournSize = 5;
+const genomeImpl = "cerebraslib/genome_bitdrift.csl";
+
+// Color used by memcpy for RPC mechanism
+const LAUNCH: color = @get_color(9);
+
+// Import memcpy layout module for 2 x 2 grid of PEs
+// This module defines parameters passed to program on the single PE
+const memcpy = @import_module("<memcpy/get_params>", .{
+  .width = nCol,
+  .height = nRow,
+  .LAUNCH = LAUNCH
+});
+
+layout {
+  // how many PE?
+  @set_rectangle(nCol, nRow);
+
+  // assign code to each PE
+  var peId: u16 = 0;
+  for (@range(i32, nCol)) |x| {
+    for (@range(i32, nRow)) |y| {
+      @set_tile_code(
+        x, y,
+        "kernel.csl",
+        .{
+          .peId = peId,
+          .x = x,
+          .y = y,
+          .nCycle = nCycle,
+          .nRow = nRow,
+          .nCol = nCol,
+          .popSize = popSize,
+          .tournSize = tournSize,
+          .genomeImpl = genomeImpl,
+          .memcpy_params = memcpy.get_params(x),
+        }
+      );
+      peId += 1;
+    }
+  }
+
+  @export_name("cycleCounter", [*]u16, true);
+  @export_name("recvCounter_N", [*]u16, true);
+  @export_name("recvCounter_S", [*]u16, true);
+  @export_name("recvCounter_E", [*]u16, true);
+  @export_name("recvCounter_W", [*]u16, true);
+  @export_name("sendCounter_N", [*]u16, true);
+  @export_name("sendCounter_S", [*]u16, true);
+  @export_name("sendCounter_E", [*]u16, true);
+  @export_name("sendCounter_W", [*]u16, true);
+  @export_name("genome", [*]f32, true);
+  @export_name("whoami", [*]i16, true);
+  @export_name("whereami_x", [*]i16, true);
+  @export_name("whereami_y", [*]i16, true);
+  @export_name("dolaunch", fn()void);
+}

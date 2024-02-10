@@ -41,7 +41,147 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r pylib/requirements.txt
+          pip install -r requirements.txt
 
       - name: Run test script
         run: ./pylib/test.sh
+
+  test-csl:
+    name: Test csl
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
+    env:
+      CSLC: cslc
+      CS_PYTHON: cs_python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Apptainer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm2cpio
+          sudo apt-get install -y golang-go
+          mkdir -p ~/apptainer
+          # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
+          echo "$HOME/apptainer/bin" >> $GITHUB_PATH
+          curl -s https://raw.githubusercontent.com/apptainer/apptainer/d77d6f1eb099855f284a482992140d5eeb18be8a/tools/install-unprivileged.sh | bash -s - ~/apptainer
+
+      - name: Test Apptainer
+        run: |
+          apptainer --version
+
+      - name: Set up SDK
+        run: |
+          mkdir -p ~/cerebras/bin
+          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        env:
+          CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
+
+      - name: Test SDK
+        run: |
+          cslc -h
+          csdb --help
+          cs_python -h
+          cs_readelf -h
+          sdk_debug_shell --help
+
+      - name: Test async-ga
+        run: |
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
+
+      - name: Test self-driving
+        run: |
+          ./kernel-self-driving/compile.sh
+          ./kernel-self-driving/execute.sh
+
+      - name: Test cerebraslib
+        run: |
+          ./kernel-test-cerebraslib/compile.sh
+          ./kernel-test-cerebraslib/execute.sh
+
+  binder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ghostscript
+          python3 -m pip install pip --upgrade
+          python3 -m pip install -r requirements.txt
+      # Adapted from https://askubuntu.com/a/524368
+      - run: ./binder/execute_notebooks.sh
+      # adapted from https://unix.stackexchange.com/a/545630
+      - run: find -type f -name "*.pdf" -exec bash -c 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dBATCH -dQUIET -sOutputFile="new.pdf" "{}"; rm "{}"; mv "new.pdf" "{}";' {} \;
+      - run: rm -rf .git
+      - run: git init
+      - uses: fregante/setup-git-user@v1
+      - run: git commit --allow-empty -m "Initial commit"
+      - uses: JamesIves/github-pages-deploy-action@4.0.0
+        with:
+          branch: binder # The branch the action should deploy to.
+          folder: "${{ github.workspace }}" # The folder the action should deploy.
+
+  push-to-mirror:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/master' && github.event.repository.name == 'wse-sketches-mirror' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: fregante/setup-git-user@v2
+      - name: Push to mirror
+        run: |
+          git status
+          git log
+          git remote set-url origin https://mmore500:${HUBGIT_AUTH_TOKEN}@github.com/mmore500/wse-sketches.git
+          git push origin master:master
+        env:
+          HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
+
+  docker-teximage-build:
+    name: Docker Tex Image Build
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0 # fetch all history for all branches and tags
+      - name: Build and Push to GitHub Container Registry
+        uses: docker/build-push-action@v1
+        with:
+          push: true
+          tags: "GITHUB_ACTION_${{ github.run_number }}_TEXIMAGE"
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          repository: mmore500/${{ github.event.repository.name }}
+          registry: ghcr.io
+          path: ./tex/
+          add_git_labels: true
+  latex:
+    name: Latex Build
+    runs-on: ubuntu-20.04
+    if: false  # temporarily disable
+    needs:
+      - docker-teximage-build
+    container:
+      image: ghcr.io/mmore500/${{ github.event.repository.name }}:GITHUB_ACTION_${{ github.run_number }}_TEXIMAGE
+      # github actions requires root to access mounted volumes
+      options: --user root
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - run: make -C /opt/${{ github.event.repository.name }}/tex
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: manuscript
+          path: /opt/${{ github.event.repository.name }}/tex/${{ github.event.repository.name }}-draft.pdf

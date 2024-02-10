@@ -1,0 +1,51 @@
+const math = @import_module("<math>");
+const random = @import_module("<random>");
+
+var _as16 = [2]u16{0, 0};  // csl requires global access for dsd
+const _dsd_as16 = @get_dsd(mem1d_dsd, .{
+    .tensor_access = |i|{2} -> _as16[i],
+});
+
+/// Add two 32-bit integers.
+fn add32(a: u32, b: u32) u32 { return a + b; }
+
+/// Count trailing zeros in a 32-bit integer.
+fn ctz32(n: u32) u32 {
+    _as16[0] = @as(u16, n);
+    _as16[1] = @as(u16, n >> 16);
+    @ctz(_dsd_as16, _dsd_as16);
+    return @as(u32, _as16[0] + (_as16[1] * @as(u16, _as16[0] == 16)));
+}
+
+/// Increment a 32-bit integer by one
+fn incr16(a: u16) u16 { return a + 1; }
+
+/// Increment a 32-bit integer by one
+fn incr32(a: u32) u32 { return a + 1; }
+
+/// Increment a 32-bit integer by one, modulo a given value.
+fn incrmod32(val: u32, mod: u32) u32 {
+    const res = val + 1;
+    const correction = @as(u32, res < mod);
+    return res * correction;
+}
+
+/// Multiply two 32-bit integers.
+fn mul32(a: u32, b: u32) u32 { return a * b; }
+
+// Sample a coin flip with probability p.
+fn p(probability: f32) bool {
+    return random.random_f32(0.0, 1.0) < probability;
+}
+
+/// Draw a random 16-bit integer from a uniform distribution, with a given
+/// upper bound (exclusive).
+fn unif16(upper: u16) u16 {
+    return math.min( // explicitly enforce bounds RE float precision
+        @as(u16, random.random_f32(0.0, @as(f32, upper))),
+        upper - 1,
+    );
+}
+
+/// Draw a random boolean value (even coin flip)..
+fn unifbool() bool { return p(0.5); }

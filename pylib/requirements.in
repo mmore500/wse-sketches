@@ -1,6 +1,0 @@
-black==22.10.0
-dendropy
-opytional
-pandas
-pytest
-ruff

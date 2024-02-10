@@ -1,0 +1,33 @@
+param memcpy_params: comptime_struct;
+
+// memcpy module provides infrastructure for copying data
+// and launching functions from the host
+const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
+
+const test_bitmanip = @import_module("cerebraslib/test_bitmanip.csl");
+const test_dsd = @import_module("cerebraslib/test_dsd.csl");
+const test_genome_bitdrift = @import_module(
+    "cerebraslib/test_genome_bitdrift.csl",
+);
+const test_hanoi = @import_module("cerebraslib/test_hanoi.csl");
+const test_opdsd = @import_module("cerebraslib/test_opdsd.csl");
+const test_opscalar = @import_module("cerebraslib/test_opscalar.csl");
+const test_population = @import_module("cerebraslib/test_population.csl");
+const test_pylib = @import_module("cerebraslib/test_pylib.csl");
+
+fn dolaunch() void {
+    test_bitmanip.do_test();
+    test_dsd.do_test();
+    test_genome_bitdrift.do_test();
+    test_hanoi.do_test();
+    test_opdsd.do_test();
+    test_opscalar.do_test();
+    test_population.do_test();
+    test_pylib.do_test();
+    memcpy.unblock_cmd_stream();  // terminate
+}
+
+comptime {
+    @export_symbol(dolaunch);
+    @rpc(@get_data_task_id(memcpy.LAUNCH)); // direct remote procedure calls
+}

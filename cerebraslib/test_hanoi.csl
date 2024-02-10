@@ -1,0 +1,36 @@
+const hanoi = @import_module("cerebraslib/hanoi.csl");
+
+fn test_get_hanoi_value_at_index() void {
+    const A001511 = [105]u32{
+        1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 5, 1, 2, 1, 3, 1, 2, 1, 4,
+        1, 2, 1, 3, 1, 2, 1, 6, 1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 5,
+        1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 7, 1, 2, 1, 3, 1, 2, 1, 4,
+        1, 2, 1, 3, 1, 2, 1, 5, 1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1, 6,
+        1, 2, 1, 3, 1, 2, 1, 4, 1,
+    };
+    for (A001511) |v, i| {
+        @assert(v - 1 == hanoi.get_hanoi_value_at_index(@as(u32, i)));
+    }
+}
+
+fn test_get_hanoi_value_incidence_at_index() void {
+    var hanoi_values: [33]u32;
+    for (@range(u32, 33)) |i| {
+        hanoi_values[i] = hanoi.get_hanoi_value_at_index(@as(u32, i));
+    }
+
+    for (@range(u32, 33)) |n| {
+        var count: u32 = 0;
+        for (@range(u32, n)) |j| {
+            if (hanoi_values[j] == hanoi_values[n]) {
+                count += 1;
+            }
+        }
+        @assert(count == hanoi.get_hanoi_value_incidence_at_index(@as(u32, n)));
+    }
+}
+
+fn do_test() void {
+    test_get_hanoi_value_at_index();
+    test_get_hanoi_value_incidence_at_index();
+}
