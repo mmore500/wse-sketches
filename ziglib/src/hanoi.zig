@@ -21,12 +21,14 @@ pub fn get_hanoi_value_incidence_at_index(n: u32) u32 {
     return n >> @intCast(get_hanoi_value_at_index(n) + 1);
 }
 
-pub fn get_hanoi_value_index_offset(value: i32) i32 {
-    return (1 << value) - 1;
+pub fn get_hanoi_value_index_offset(value: u32) u32 {
+    var shift: u5 = @intCast(value);
+    return (@as(u32, 1) << shift) - 1;
 }
 
-pub fn get_hanoi_value_index_cadence(value: i32) i32 {
-    return 1 << (value + 1);
+pub fn get_hanoi_value_index_cadence(value: u32) u32 {
+    var shift: u5 = @intCast(value);
+    return @as(u32, 1) << (shift + 1);
 }
 
 pub fn get_max_hanoi_value_through_index(n: u32) i32 {
@@ -35,4 +37,10 @@ pub fn get_max_hanoi_value_through_index(n: u32) i32 {
         return 0;
     }
     return 31 - @clz(n);
+}
+
+pub fn get_index_of_hanoi_value_nth_incidence(value: u32, n: u32) u32 {
+    const offset = get_hanoi_value_index_offset(value);
+    const cadence = get_hanoi_value_index_cadence(value);
+    return offset + cadence * n;
 }

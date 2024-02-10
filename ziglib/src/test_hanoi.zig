@@ -57,3 +57,26 @@ test "test_get_max_hanoi_value_through_index" {
         try std.testing.expectEqual(maxValue, hanoi.get_max_hanoi_value_through_index(m));
     }
 }
+
+test "test get_index_of_hanoi_value_incidence" {
+    var hanoi_value: u32 = 1;
+    while (hanoi_value <= 5) : (hanoi_value += 1) {
+        var i: u32 = 0;
+        while (i < 5) : (i += 1) {
+            const index: u32 = @intCast(hanoi.get_index_of_hanoi_value_nth_incidence(hanoi_value, i));
+            try std.testing.expectEqual(hanoi.get_hanoi_value_at_index(index), hanoi_value);
+
+            var hanoi_values: std.ArrayList(u32) = std.ArrayList(u32).init(std.heap.page_allocator);
+            defer hanoi_values.deinit();
+            var j: u32 = 0;
+            while (j < index) : (j += 1) {
+                _ = try hanoi_values.append(hanoi.get_hanoi_value_at_index(j));
+            }
+            var count: u32 = 0;
+            for (hanoi_values.items) |value| {
+                if (value == hanoi_value) count += 1;
+            }
+            try std.testing.expectEqual(count, i);
+        }
+    }
+}
