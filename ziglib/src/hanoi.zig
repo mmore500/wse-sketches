@@ -1,3 +1,5 @@
+const std = @import("std");
+
 /// Returns the value at a given index in the zero-indexed, zero-based Hanoi
 /// sequence.
 ///
@@ -25,4 +27,12 @@ pub fn get_hanoi_value_index_offset(value: i32) i32 {
 
 pub fn get_hanoi_value_index_cadence(value: i32) i32 {
     return 1 << (value + 1);
+}
+
+pub fn get_max_hanoi_value_through_index(n: u32) i32 {
+    // Assuming n is a 32-bit integer; adjust type if needed for your use case
+    if (n <= 1) {
+        return 0;
+    }
+    return 31 - @clz(n);
 }
