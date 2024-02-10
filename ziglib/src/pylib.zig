@@ -60,3 +60,7 @@ pub fn bit_drop_msb(n: i32) i32 {
     // Drop most significant bit from binary representation of integer n.
     return n & (~bit_floor(n));
 }
+
+pub fn sign(x: i256) i32 {
+    return if (x > 0) 1 else if (x < 0) -1 else 0;
+}

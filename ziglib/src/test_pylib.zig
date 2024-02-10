@@ -105,3 +105,20 @@ test "bit_drop_msb tests" {
         try std.testing.expectEqual(output, expected);
     }
 }
+
+test "sign function tests" {
+    // Test sign positive
+    try std.testing.expectEqual(pylib.sign(1), 1);
+    try std.testing.expectEqual(pylib.sign(5), 1);
+    try std.testing.expectEqual(pylib.sign(1000), 1);
+    try std.testing.expectEqual(pylib.sign(1 << 128), 1); // Zig does not support 2**128 directly for integer types, adjust as needed
+
+    // Test sign zero
+    try std.testing.expectEqual(pylib.sign(0), 0);
+
+    // Test sign negative
+    try std.testing.expectEqual(pylib.sign(-1), -1);
+    try std.testing.expectEqual(pylib.sign(-3), -1);
+    try std.testing.expectEqual(pylib.sign(-999), -1);
+    try std.testing.expectEqual(pylib.sign(-(1 << 128)), -1); // Adjust as needed
+}
