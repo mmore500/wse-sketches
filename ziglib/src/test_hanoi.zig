@@ -117,3 +117,36 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
         }
     }
 }
+
+test "test_get_index_of_hanoi_value_next_incidence" {
+    // Loop over hanoiValue from 1 to 5
+    for (1..6) |hanoiValue| {
+        // Loop over i from 0 to 4
+        for (0..5) |i| {
+            const v: u32 = @intCast(hanoiValue);
+            const j: u32 = @intCast(i);
+
+            const lb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j);
+            const upb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j + 1);
+            const ub: i32 = @intCast(upb);
+
+            // Test for indices between lb and ub
+            for (lb..upb) |index| {
+                const k: i32 = @intCast(index);
+                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, k, 1);
+                try std.testing.expectEqual(result, ub);
+            }
+
+            // Test for indices before lb
+            for (0..lb) |index| {
+                const k: i32 = @intCast(index);
+                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, k, 1);
+                try std.testing.expect(result <= lb and lb < ub);
+            }
+
+            // Test for index immediately after ub
+            const resultAfterUb = hanoi.get_index_of_hanoi_value_next_incidence(v, ub, 1);
+            try std.testing.expect(resultAfterUb > ub);
+        }
+    }
+}
