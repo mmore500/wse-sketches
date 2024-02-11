@@ -105,3 +105,62 @@ test "bit_drop_msb tests" {
         try std.testing.expectEqual(output, expected);
     }
 }
+
+test "sign function tests" {
+    // Test sign positive
+    try std.testing.expectEqual(pylib.sign(1), 1);
+    try std.testing.expectEqual(pylib.sign(5), 1);
+    try std.testing.expectEqual(pylib.sign(1000), 1);
+    try std.testing.expectEqual(pylib.sign(1 << 128), 1); // Zig does not support 2**128 directly for integer types, adjust as needed
+
+    // Test sign zero
+    try std.testing.expectEqual(pylib.sign(0), 0);
+
+    // Test sign negative
+    try std.testing.expectEqual(pylib.sign(-1), -1);
+    try std.testing.expectEqual(pylib.sign(-3), -1);
+    try std.testing.expectEqual(pylib.sign(-999), -1);
+    try std.testing.expectEqual(pylib.sign(-(1 << 128)), -1); // Adjust as needed
+}
+
+test "fast_pow2_divide comprehensive tests" {
+    // Positive dividend and divisor
+    inline for ([_]struct { dividend: i32, divisor: i32, expected: i32 }{
+        .{ .dividend = 16, .divisor = 4, .expected = 4 },
+        .{ .dividend = 17, .divisor = 4, .expected = 4 },
+        .{ .dividend = 18, .divisor = 4, .expected = 4 },
+        .{ .dividend = 19, .divisor = 4, .expected = 4 },
+        .{ .dividend = 20, .divisor = 4, .expected = 5 },
+        .{ .dividend = 32, .divisor = 8, .expected = 4 },
+        .{ .dividend = 64, .divisor = 2, .expected = 32 },
+        .{ .dividend = 16, .divisor = 1, .expected = 16 },
+        .{ .dividend = 0, .divisor = 1, .expected = 0 },
+    }) |test_case| {
+        try std.testing.expectEqual(pylib.fast_pow2_divide(test_case.dividend, test_case.divisor), test_case.expected);
+    }
+
+    // Negative dividend and positive divisor
+    inline for ([_]struct { dividend: i32, divisor: i32, expected: i32 }{
+        .{ .dividend = -15, .divisor = 4, .expected = -3 },
+        .{ .dividend = -1, .divisor = 4, .expected = 0 },
+        .{ .dividend = -1, .divisor = 8, .expected = 0 },
+        .{ .dividend = -16, .divisor = 8, .expected = -2 },
+        .{ .dividend = -16, .divisor = 4, .expected = -4 },
+        .{ .dividend = -17, .divisor = 4, .expected = -4 },
+        .{ .dividend = -18, .divisor = 4, .expected = -4 },
+        .{ .dividend = -19, .divisor = 4, .expected = -4 },
+        .{ .dividend = -20, .divisor = 4, .expected = -5 },
+        .{ .dividend = -32, .divisor = 8, .expected = -4 },
+        .{ .dividend = -64, .divisor = 2, .expected = -32 },
+        .{ .dividend = -16, .divisor = 1, .expected = -16 },
+        .{ .dividend = -0, .divisor = 1, .expected = -0 },
+
+        // Add other cases as necessary
+    }) |test_case| {
+        try std.testing.expectEqual(pylib.fast_pow2_divide(test_case.dividend, test_case.divisor), test_case.expected);
+    }
+
+    // Additional tests for edge cases and error conditions could be added here.
+    // Remember, Zig encourages handling errors with error values rather than panics
+    // for conditions that can be reasonably checked and handled.
+}

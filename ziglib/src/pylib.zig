@@ -60,3 +60,21 @@ pub fn bit_drop_msb(n: i32) i32 {
     // Drop most significant bit from binary representation of integer n.
     return n & (~bit_floor(n));
 }
+
+pub fn sign(x: i256) i32 {
+    return if (x > 0) 1 else if (x < 0) -1 else 0;
+}
+
+pub fn fast_pow2_divide(dividend: i32, divisor: i32) i32 {
+    std.debug.assert(divisor >= 1);
+    std.debug.assert((divisor & (divisor - 1)) == 0);
+
+    // In Zig, using countTrailingZeros gives the number of zeros before the first 1 from the right.
+    // For a power of 2, this is also the log2(divisor).
+    const shiftAmount: u5 = @intCast(@ctz(divisor));
+
+    // Perform fast division using right shift. Zig's abs function is in std.math.abs.
+    const absDividend = std.math.absCast(dividend);
+    const shifted: i32 = @intCast(absDividend >> shiftAmount);
+    return sign(dividend) * shifted;
+}
