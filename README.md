@@ -8,7 +8,7 @@ Requires [Cerebras SDK](https://www.cerebras.net/developers/sdk-request/), avail
 ## Contents
 
 - `ziglib`: port of [`hsurf` algorithms](https://github.com/mmore500/hstrat-surface-concept/) from Python to Zig
-- `cerebraslib`: port of `hsurf` algorithms to Cerebras Software Language as well other supporting materials for WSE kernels
+- `cerebraslib`: port of `hsurf` algorithms to Cerebras Software Language (CSL) as well other supporting materials for WSE kernels
 - `kernel-test-cerebraslib`: uses Cerebras WSE hardware simulator to run unit tests on `cerebraslib` components
 - `kernel-async-ga`: general purpose framework for decentralized, island-model genetic algorithm across WSE Processing Elements (PEs), with configurably-sized agent genomes, customizable mutation operator, and customizable fitness function; includes scripts to run on Cerebras WSE hardware simulator
 - `kernel-self-driving` and `kernel-simple-ga`: early exploration of WSE capabilities and design patterns
