@@ -1,5 +1,8 @@
 # wse-sketches
 
+[![CI](https://github.com/mmore500/wse-sketches/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/wse-sketches/actions/workflows/ci.yaml)
+[![GitHub stars](https://img.shields.io/github/stars/mmore500/wse-sketches.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/wse-sketches)
+
 Development work for agent-based evolution/epidemiological modeling on the Cerebras Wafer-scale Engine (WSE) hardware.
 Incoprorates [hereditary stratigraphy](https://github.com/mmore500/hstrat) methodology for distributed tracking of agent phylogenies.
 
