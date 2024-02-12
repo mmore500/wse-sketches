@@ -42,7 +42,27 @@ test "test_get_a000295_value_at_index" {
     // Iterate over each expected value and compare it to the computed value
     for (expectedValues, 0..) |value, index| {
         const computedValue = oeis.get_a000295_value_at_index(@as(i64, @intCast(index)));
-        // try std.testing.expectEqual(@as(i64, @intCast(computedValue)), value);
-        std.debug.print("index: {}, expected: {}, computed: {}\n", .{ index, value, @as(i64, @intCast(computedValue)) });
+        try std.testing.expectEqual(@as(i64, @intCast(computedValue)), value);
+    }
+}
+
+test "test_get_a000295_index_of_value" {
+    // First part: Specific expected index results for values 0 through 14
+    const expectedIndices = [_]i32{
+        0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3,
+    };
+    for (expectedIndices, 0..) |expected, i| {
+        const j: i32 = @intCast(i);
+        const n = oeis.get_a000295_index_of_value(j);
+        try std.testing.expectEqual(expected, n);
+    }
+
+    // Second part: General condition for values 0 through 399
+    for (0..400) |i| {
+        const j: i32 = @intCast(i);
+        const n = oeis.get_a000295_index_of_value(j);
+        const lb = oeis.get_a000295_value_at_index(n);
+        const ub = oeis.get_a000295_value_at_index(n + 1);
+        try std.testing.expect(lb <= i and i < ub);
     }
 }
