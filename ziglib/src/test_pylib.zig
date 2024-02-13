@@ -171,7 +171,7 @@ test "fast_pow2_divide comprehensive tests" {
         .{ .dividend = -32, .divisor = 8, .expected = -4 },
         .{ .dividend = -64, .divisor = 2, .expected = -32 },
         .{ .dividend = -16, .divisor = 1, .expected = -16 },
-        .{ .dividend = -0, .divisor = 1, .expected = -0 },
+        .{ .dividend = 0, .divisor = 1, .expected = 0 },
 
         // Add other cases as necessary
     }) |test_case| {
