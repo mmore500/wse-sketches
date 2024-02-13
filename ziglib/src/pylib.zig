@@ -18,7 +18,7 @@ pub fn fast_pow2_mod(dividend: i32, divisor: i32) i32 {
     std.debug.assert(divisor >= 1);
     std.debug.assert(@popCount(divisor) == 1);
 
-    const absVal = std.math.absInt(dividend * divisor) catch unreachable;
+    const absVal = @abs(dividend * divisor);
     return (dividend + absVal) & (divisor - 1);
 }
 
@@ -73,8 +73,8 @@ pub fn fast_pow2_divide(dividend: i32, divisor: i32) i32 {
     // For a power of 2, this is also the log2(divisor).
     const shiftAmount: u5 = @intCast(@ctz(divisor));
 
-    // Perform fast division using right shift. Zig's abs function is in std.math.abs.
-    const absDividend = std.math.absCast(dividend);
+    // Perform fast division using right shift.
+    const absDividend = @abs(dividend);
     const shifted: i32 = @intCast(absDividend >> shiftAmount);
     return sign(dividend) * shifted;
 }
