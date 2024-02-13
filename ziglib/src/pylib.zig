@@ -52,7 +52,7 @@ pub fn bit_encode_gray(n: u32) u32 {
 pub fn bit_floor(n: i32) i32 {
     if (n == 0) return 0;
     const bitLength: u5 = @as(u5, @intCast(@bitSizeOf(i32) - @clz(n) - 1));
-    var mask: i32 = @as(i32, 1) << bitLength;
+    const mask: i32 = @as(i32, 1) << bitLength;
     return n & mask;
 }
 

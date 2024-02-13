@@ -41,7 +41,7 @@ test "test_get_max_hanoi_value_through_index" {
     var hanoiValues: [1000]u32 = undefined; // Adjust type and size as necessary
     // Populate hanoiValues with Hanoi sequence values
     for (0..1000) |i| {
-        var j: u32 = @intCast(i);
+        const j: u32 = @intCast(i);
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
     }
 
@@ -53,7 +53,7 @@ test "test_get_max_hanoi_value_through_index" {
                 maxValue = @intCast(hanoiValues[j]);
             }
         }
-        var m: u32 = @intCast(n);
+        const m: u32 = @intCast(n);
         try std.testing.expectEqual(maxValue, hanoi.get_max_hanoi_value_through_index(m));
     }
 }
@@ -86,7 +86,7 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
 
     // Populate Hanoi values
     for (0..1000) |i| {
-        var j: u32 = @intCast(i);
+        const j: u32 = @intCast(i);
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
     }
 
@@ -101,8 +101,8 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
                 }
             }
 
-            var v: u32 = @intCast(hanoiValue);
-            var m: u32 = @intCast(n);
+            const v: u32 = @intCast(hanoiValue);
+            const m: u32 = @intCast(n);
 
             const incidenceCount = hanoi.get_incidence_count_of_hanoi_value_through_index(v, m);
 
