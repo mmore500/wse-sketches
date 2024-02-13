@@ -14,7 +14,7 @@ const std = @import("std");
 /// -------
 /// int
 ///     The remainder of dividing the dividend by the divisor.
-pub fn fast_pow2_mod(dividend: i32, divisor: i32) i32 {
+pub fn fast_pow2_mod(dividend: u32, divisor: u32) u32 {
     std.debug.assert(divisor >= 1);
     std.debug.assert(@popCount(divisor) == 1);
 
