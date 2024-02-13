@@ -53,10 +53,6 @@ pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) i32 
     const dividend: i32 = @intCast(m - offset + cadence);
     const quotient = pylib.fast_pow2_divide(dividend, cadence);
 
-    if (get_hanoi_value_at_index(n) == value) {
-        return quotient - 1;
-    }
-
     return quotient;
 }
 
@@ -65,7 +61,7 @@ pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) i32 
 /// Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
 /// on zero-based variant of Hanoi sequence used.
 pub fn get_index_of_hanoi_value_next_incidence(value: u32, index: i32, n: i32) i32 {
-    const i: u32 = @intCast(index + 1);
+    const i: u32 = @intCast(index);
     const m: u32 = @intCast(n);
     const incidenceCount: u32 = @intCast(get_incidence_count_of_hanoi_value_through_index(value, i));
     const res: i32 = @intCast(get_index_of_hanoi_value_nth_incidence(value, incidenceCount + m - 1));

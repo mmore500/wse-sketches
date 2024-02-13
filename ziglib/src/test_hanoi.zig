@@ -83,9 +83,6 @@ test "test get_index_of_hanoi_value_incidence" {
 
 test "test_get_incidence_count_of_hanoi_value_through_index" {
     var hanoiValues: [1000]u32 = undefined;
-    // Allocator for dynamic operations
-    var allocator = std.heap.page_allocator;
-    _ = allocator;
 
     // Populate Hanoi values
     for (0..1000) |i| {
@@ -98,7 +95,7 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
         for (0..20) |hanoiValue| {
             var count: i32 = 0;
             // Count occurrences of hanoiValue up to n
-            for (0..n) |j| {
+            for (0..n + 1) |j| {
                 if (hanoiValues[j] == hanoiValue) {
                     count += 1;
                 }
@@ -109,9 +106,6 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
 
             const incidenceCount = hanoi.get_incidence_count_of_hanoi_value_through_index(v, m);
 
-            if (count != incidenceCount) {
-                std.debug.print("Mismatch at n={}, hanoiValue={}, count={}, incidenceCount={}\n", .{ n, hanoiValue, count, incidenceCount });
-            }
             // Use std.testing.expectEqual for assertion without a formatted message
             try std.testing.expectEqual(count, incidenceCount);
         }
