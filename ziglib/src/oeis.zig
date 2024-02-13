@@ -14,3 +14,9 @@ pub fn get_a000295_index_of_value(v: i32) i32 {
     var correction = get_a000295_value_at_index(ansatz) > v;
     return ansatz - @intFromBool(correction);
 }
+
+pub fn get_a048881_value_at_index(n: i32) i32 {
+    // Use std.math.popCount to count the number of bits set to 1.
+    // std.math.popCount returns the population count of a value, which is the equivalent of Python's .bit_count().
+    return @popCount(n + 1) - 1;
+}

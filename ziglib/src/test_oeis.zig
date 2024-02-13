@@ -66,3 +66,13 @@ test "test_get_a000295_index_of_value" {
         try std.testing.expect(lb <= i and i < ub);
     }
 }
+
+test "test_get_a048881_value_at_index" {
+    const expectedValues: []const i32 = &.{ 0, 0, 1, 0, 1, 1, 2, 0, 1, 1, 2, 1, 2, 2, 3, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3 };
+
+    for (expectedValues, 0..) |value, i| {
+        const j: i32 = @intCast(i);
+        const actualValue = oeis.get_a048881_value_at_index(j);
+        try std.testing.expectEqual(value, actualValue);
+    }
+}
