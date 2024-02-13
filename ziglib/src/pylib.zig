@@ -45,6 +45,12 @@ pub fn bit_ceil(n: u32) u32 {
     return @as(u32, 1) << exp;
 }
 
+pub fn bit_length(value: u32) u32 {
+    const zero_correction = @intFromBool(value != 0); // zig way to cast to bool
+    const num_bits = @bitSizeOf(@TypeOf(value));
+    return (num_bits - @clz(value)) * zero_correction;
+}
+
 pub fn bit_encode_gray(n: u32) u32 {
     return n ^ (n >> 1);
 }

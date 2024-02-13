@@ -77,6 +77,26 @@ test "test_bit_floor" {
     try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bit_floor(0b00001001));
 }
 
+test "bit_length tests" {
+    const expectEqual = std.testing.expectEqual;
+
+    try expectEqual(@as(u32, 0), pylib.bit_length(0b0));
+    try expectEqual(@as(u32, 1), pylib.bit_length(0b1));
+    try expectEqual(@as(u32, 2), pylib.bit_length(0b10));
+    try expectEqual(@as(u32, 2), pylib.bit_length(0b11));
+
+    try expectEqual(@as(u32, 3), pylib.bit_length(0b101));
+    try expectEqual(@as(u32, 4), pylib.bit_length(0b1100));
+    try expectEqual(@as(u32, 5), pylib.bit_length(0b10000));
+
+    try expectEqual(@as(u32, 31), pylib.bit_length(0x7FFFFFFF));
+    try expectEqual(@as(u32, 31), pylib.bit_length(0x7FA0873F));
+
+    try expectEqual(@as(u32, 32), pylib.bit_length(0xFFFFFFFF));
+    try expectEqual(@as(u32, 32), pylib.bit_length(0x80000000));
+    try expectEqual(@as(u32, 32), pylib.bit_length(0x800A0000));
+}
+
 test "bit_drop_msb tests" {
     const test_cases = .{
         .{ 0, 0 },
