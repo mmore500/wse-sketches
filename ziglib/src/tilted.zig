@@ -5,6 +5,10 @@ const longevity = @import("longevity.zig");
 const oeis = @import("oeis.zig");
 const pylib = @import("pylib.zig");
 
+/// Return the reservation-halving epoch of the given rank.
+///
+/// Rank zero is at 0th epoch. Epochs count up with each reservation count
+/// halving.
 pub fn get_global_epoch(rank: u32, surfaceSize: u32) u32 {
     std.debug.assert(surfaceSize >= 4);
     // must be even power of 2
@@ -22,11 +26,13 @@ pub fn get_global_epoch(rank: u32, surfaceSize: u32) u32 {
     }
 }
 
+/// Return the number of global-level reservations at the given rank.
 pub fn get_global_num_reservations(rank: u32, surfaceSize: u32) u32 {
     const epoch = get_global_epoch(rank, surfaceSize);
     return get_global_num_reservations_at_epoch(epoch, surfaceSize);
 }
 
+/// Helper method for get_global_num_reservations.
 pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     // must be even power of 2
     std.debug.assert(@popCount(surfaceSize) == 1);
@@ -34,6 +40,10 @@ pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     return surfaceSize >> shift;
 }
 
+/// Return the number of reservations remaining at the given rank.
+///
+/// Either the current global-level reservation count, or double it if the
+/// hanoi value is uninvaded.
 pub fn get_hanoi_num_reservations(rank: u32, surfaceSize: u32) u32 {
     const epoch = get_global_epoch(rank, surfaceSize);
     const grc = get_global_num_reservations(rank, surfaceSize);
@@ -70,12 +80,16 @@ pub fn get_hanoi_num_reservations(rank: u32, surfaceSize: u32) u32 {
     return 2 * grc;
 }
 
+/// Return the zeroth site of the given reservation, indexed in logical
+/// order (persistence order).
 pub fn get_reservation_position_logical(reservation: u32, surfaceSize: u32) u32 {
     const numReservations = surfaceSize >> 1;
     const physicalReservation = longevity.get_longevity_mapped_position_of_index(reservation, numReservations);
     return get_reservation_position_physical(physicalReservation, surfaceSize);
 }
 
+/// Return the zeroth site of the given reservation, indexed in physical
+/// order at rank 0.
 pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
     // must be even power of 2
     std.debug.assert(@popCount(surfaceSize) == 1);
@@ -99,6 +113,21 @@ pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32
     return base + offset - 2 + layeringCorrection;
 }
 
+/// Pick the deposition site on a surface for a given rank.
+///
+/// This function calculates a deposition site based on the rank and the
+/// surface size.
+/// Parameters
+/// ----------
+/// rank : u32
+///     The number of time steps elapsed.
+/// surface_size : u32
+///     The size of the surface on which deposition is to take place.
+///     Must be even power of two.
+/// Returns
+/// -------
+/// u32
+///     Deposition site within surface.
 pub fn pick_deposition_site(rank: u32, surfaceSize: u32) u32 {
     const numReservations = get_hanoi_num_reservations(rank, surfaceSize);
 
