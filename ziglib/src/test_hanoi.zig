@@ -38,7 +38,8 @@ test "get_hanoi_value_incidence_at_index" {
 }
 
 test "test_get_max_hanoi_value_through_index" {
-    var hanoiValues: [1000]u32 = undefined; // Adjust type and size as necessary
+    var hanoiValues: [1000]u32 = undefined;
+
     // Populate hanoiValues with Hanoi sequence values
     for (0..1000) |i| {
         const j: u32 = @intCast(i);
@@ -106,7 +107,6 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
 
             const incidenceCount = hanoi.get_incidence_count_of_hanoi_value_through_index(v, m);
 
-            // Use std.testing.expectEqual for assertion without a formatted message
             try std.testing.expectEqual(count, incidenceCount);
         }
     }

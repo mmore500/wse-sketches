@@ -17,6 +17,5 @@ pub fn get_a000295_index_of_value(v: u32) u32 {
 
 pub fn get_a048881_value_at_index(n: u32) u32 {
     // Use std.math.popCount to count the number of bits set to 1.
-    // std.math.popCount returns the population count of a value, which is the equivalent of Python's .bit_count().
     return @popCount(n + 1) - 1;
 }

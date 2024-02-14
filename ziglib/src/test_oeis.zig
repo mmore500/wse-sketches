@@ -1,5 +1,5 @@
 const std = @import("std");
-const oeis = @import("oeis.zig"); // Adjust import path as necessary
+const oeis = @import("oeis.zig");
 
 test "test_get_a000295_value_at_index" {
     // The expected values from the OEIS sequence A000295, starting from index 1 (skipping zeroth element)

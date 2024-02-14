@@ -129,7 +129,7 @@ test "sign function tests" {
     try std.testing.expectEqual(pylib.sign(1), 1);
     try std.testing.expectEqual(pylib.sign(5), 1);
     try std.testing.expectEqual(pylib.sign(1000), 1);
-    try std.testing.expectEqual(pylib.sign(1 << 128), 1); // Zig does not support 2**128 directly for integer types, adjust as needed
+    try std.testing.expectEqual(pylib.sign(1 << 128), 1);
 
     // Test sign zero
     try std.testing.expectEqual(pylib.sign(0), 0);
@@ -138,7 +138,7 @@ test "sign function tests" {
     try std.testing.expectEqual(pylib.sign(-1), -1);
     try std.testing.expectEqual(pylib.sign(-3), -1);
     try std.testing.expectEqual(pylib.sign(-999), -1);
-    try std.testing.expectEqual(pylib.sign(-(1 << 128)), -1); // Adjust as needed
+    try std.testing.expectEqual(pylib.sign(-(1 << 128)), -1);
 }
 
 test "fast_pow2_divide comprehensive tests" {
