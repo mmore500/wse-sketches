@@ -33,10 +33,7 @@ pub fn get_hanoi_value_index_cadence(value: u32) u32 {
 }
 
 pub fn get_max_hanoi_value_through_index(n: u32) u32 {
-    if (n <= 1) {
-        return 0;
-    }
-    return 31 - @clz(n);
+    return pylib.bit_length(n + 1) - 1;
 }
 
 pub fn get_index_of_hanoi_value_nth_incidence(value: u32, n: u32) u32 {

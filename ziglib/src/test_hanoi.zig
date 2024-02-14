@@ -46,6 +46,11 @@ test "test get_hanoi_value_index_offset" {
 }
 
 test "test_get_max_hanoi_value_through_index" {
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(0), 0);
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(1), 1);
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(2), 1);
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(3), 2);
+
     var hanoiValues: [1000]u32 = undefined;
 
     // Populate hanoiValues with Hanoi sequence values
@@ -54,12 +59,12 @@ test "test_get_max_hanoi_value_through_index" {
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
     }
 
+    var maxValue: u32 = 0;
     for (0..1000) |n| {
-        var maxValue: u32 = hanoiValues[0];
         // Find max value up to n
-        for (0..n) |j| {
+        for (0..n + 1) |j| {
             if (hanoiValues[j] > maxValue) {
-                maxValue = @intCast(hanoiValues[j]);
+                maxValue = hanoiValues[j];
             }
         }
         const m: u32 = @intCast(n);
