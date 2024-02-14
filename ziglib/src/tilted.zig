@@ -21,9 +21,9 @@ pub fn get_global_epoch(rank: u32, surfaceSize: u32) u32 {
     }
 }
 
-pub fn get_global_num_reservations(rank: u32, surface_size: u32) u32 {
-    const epoch = get_global_epoch(rank, surface_size);
-    return get_global_num_reservations_at_epoch(epoch, surface_size);
+pub fn get_global_num_reservations(rank: u32, surfaceSize: u32) u32 {
+    const epoch = get_global_epoch(rank, surfaceSize);
+    return get_global_num_reservations_at_epoch(epoch, surfaceSize);
 }
 
 pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
@@ -31,6 +31,42 @@ pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     std.debug.assert(@popCount(surfaceSize) == 1);
     const shift: u5 = @intCast(1 + epoch);
     return surfaceSize >> shift;
+}
+
+pub fn get_hanoi_num_reservations(rank: u32, surfaceSize: u32) u32 {
+    const epoch = get_global_epoch(rank, surfaceSize);
+    const grc = get_global_num_reservations(rank, surfaceSize);
+
+    if (epoch == 0) {
+        return grc;
+    }
+
+    const shift1: u5 = @intCast(epoch);
+    const maxUninvaded: u32 = (@as(u32, 1) << shift1) - 2; // 0, 2, 6, 14, ...
+    std.debug.assert(maxUninvaded >= 0);
+
+    const hanoiValue: u32 = hanoi.get_hanoi_value_at_index(rank);
+
+    if (hanoiValue > maxUninvaded) {
+        return grc;
+    }
+
+    const reservation0At = hanoi.get_max_hanoi_value_through_index(rank);
+    std.debug.assert(epoch > 0);
+
+    const shift2: u5 = @intCast(epoch - 1);
+    const idx: u32 = @as(u32, 1) << shift2; // 1, 2, 4, 8, ...
+    std.debug.assert(idx > 0);
+
+    // -1 undoes correction for extra reservation 0 slot
+    const reservation0Begin: u32 = get_reservation_position_physical(idx, surfaceSize) - 1;
+    const reservation0Progress = reservation0At - reservation0Begin;
+
+    if (hanoiValue <= reservation0Progress) {
+        return grc;
+    }
+
+    return 2 * grc;
 }
 
 pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
