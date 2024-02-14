@@ -86,6 +86,7 @@ test "bit_length tests" {
     try expectEqual(@as(u32, 2), pylib.bit_length(0b11));
 
     try expectEqual(@as(u32, 3), pylib.bit_length(0b101));
+    try expectEqual(@as(u32, 3), pylib.bit_length(0b111));
     try expectEqual(@as(u32, 4), pylib.bit_length(0b1100));
     try expectEqual(@as(u32, 5), pylib.bit_length(0b10000));
 
