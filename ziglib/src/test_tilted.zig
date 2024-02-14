@@ -208,6 +208,48 @@ test "test_get_hanoi_num_reservations64" {
     }
 }
 
+test "test_get_reservation_position_logical4" {
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(0, 4), 0);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(1, 4), 3);
+}
+
+test "test_get_reservation_position_logical8" {
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(0, 8), 0);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(1, 8), 5);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(2, 8), 4);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(3, 8), 7);
+}
+
+test "test_get_reservation_position_logical16" {
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(0, 16), 0);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(1, 16), 9);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(2, 16), 6);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(3, 16), 13);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(4, 16), 5);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(5, 16), 8);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(6, 16), 12);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(7, 16), 15);
+}
+
+test "test_get_reservation_position_logical32" {
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(0, 32), 0);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(1, 32), 17);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(2, 32), 10);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(3, 32), 25);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(4, 32), 7);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(5, 32), 14);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(6, 32), 22);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(7, 32), 29);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(8, 32), 6);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(9, 32), 9);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(10, 32), 13);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(11, 32), 16);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(12, 32), 21);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(13, 32), 24);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(14, 32), 28);
+    try std.testing.expectEqual(tilted.get_reservation_position_logical(15, 32), 31);
+}
+
 test "test_get_reservation_position_physical" {
     // Test for surface size 4
     const expected4 = [_]u32{ 0, 3 };

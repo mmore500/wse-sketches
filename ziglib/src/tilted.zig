@@ -1,6 +1,7 @@
 const std = @import("std");
 
 const hanoi = @import("hanoi.zig");
+const longevity = @import("longevity.zig");
 const oeis = @import("oeis.zig");
 const pylib = @import("pylib.zig");
 
@@ -67,6 +68,12 @@ pub fn get_hanoi_num_reservations(rank: u32, surfaceSize: u32) u32 {
     }
 
     return 2 * grc;
+}
+
+pub fn get_reservation_position_logical(reservation: u32, surfaceSize: u32) u32 {
+    const numReservations = surfaceSize >> 1;
+    const physicalReservation = longevity.get_longevity_mapped_position_of_index(reservation, numReservations);
+    return get_reservation_position_physical(physicalReservation, surfaceSize);
 }
 
 pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
