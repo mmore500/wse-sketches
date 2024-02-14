@@ -32,7 +32,7 @@ pub fn get_hanoi_value_index_cadence(value: u32) u32 {
     return @as(u32, 1) << (shift + 1);
 }
 
-pub fn get_max_hanoi_value_through_index(n: u32) i32 {
+pub fn get_max_hanoi_value_through_index(n: u32) u32 {
     // Assuming n is a 32-bit integer; adjust type if needed for your use case
     if (n <= 1) {
         return 0;
@@ -46,11 +46,10 @@ pub fn get_index_of_hanoi_value_nth_incidence(value: u32, n: u32) u32 {
     return offset + cadence * n;
 }
 
-pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) i32 {
-    const m: i32 = @intCast(n);
-    const offset: i32 = @intCast(get_hanoi_value_index_offset(value));
-    const cadence: i32 = @intCast(get_hanoi_value_index_cadence(value));
-    const dividend: i32 = @intCast(m - offset + cadence);
+pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) u32 {
+    const offset: u32 = get_hanoi_value_index_offset(value);
+    const cadence: u32 = get_hanoi_value_index_cadence(value);
+    const dividend: u32 = n + cadence - offset;
     const quotient = pylib.fast_pow2_divide(dividend, cadence);
 
     return quotient;
@@ -60,11 +59,9 @@ pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) i32 
 /// Hanoi sequence past the given index?
 /// Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
 /// on zero-based variant of Hanoi sequence used.
-pub fn get_index_of_hanoi_value_next_incidence(value: u32, index: i32, n: i32) i32 {
-    const i: u32 = @intCast(index);
-    const m: u32 = @intCast(n);
-    const incidenceCount: u32 = @intCast(get_incidence_count_of_hanoi_value_through_index(value, i));
-    const res: i32 = @intCast(get_index_of_hanoi_value_nth_incidence(value, incidenceCount + m - 1));
+pub fn get_index_of_hanoi_value_next_incidence(value: u32, index: u32, n: u32) u32 {
+    const incidenceCount: u32 = get_incidence_count_of_hanoi_value_through_index(value, index);
+    const res: u32 = get_index_of_hanoi_value_nth_incidence(value, incidenceCount + n - 1);
 
     return res;
 }

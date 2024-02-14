@@ -1,17 +1,20 @@
 const std = @import("std");
-const oeis = @import("oeis.zig");
 
-pub fn get_global_num_reservations_at_epoch(epoch: i32, surfaceSize: i32) i32 {
+const hanoi = @import("hanoi.zig");
+const oeis = @import("oeis.zig");
+const pylib = @import("pylib.zig");
+
+pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     // Zig does not have a direct bit_count method, so you would need to implement or use an equivalent.
     std.debug.assert(std.bitops.popCount(u32(surfaceSize)) == 1); // Assuming surfaceSize is positive and fits in u32
     return surfaceSize >> (1 + epoch);
 }
 
-pub fn get_hanoi_value_index_offset(value: i32) i32 {
+pub fn get_hanoi_value_index_offset(value: u32) u32 {
     return (1 << value) - 1; // Equivalent to 2**value - 1 in Python
 }
 
-pub fn get_reservation_position_physical(reservation: i32, surfaceSize: i32) i32 {
+pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
     // Assert surfaceSize is a power of 2
     std.debug.assert(surfaceSize & (surfaceSize - 1) == 0);
     // Assert reservation is within valid range

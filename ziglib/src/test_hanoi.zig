@@ -46,7 +46,7 @@ test "test_get_max_hanoi_value_through_index" {
     }
 
     for (0..1000) |n| {
-        var maxValue: i32 = @intCast(hanoiValues[0]);
+        var maxValue: u32 = hanoiValues[0];
         // Find max value up to n
         for (0..n) |j| {
             if (hanoiValues[j] > maxValue) {
@@ -93,7 +93,7 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
     // Iterate over all combinations of n and hanoiValue
     for (0..1000) |n| {
         for (0..20) |hanoiValue| {
-            var count: i32 = 0;
+            var count: u32 = 0;
             // Count occurrences of hanoiValue up to n
             for (0..n + 1) |j| {
                 if (hanoiValues[j] == hanoiValue) {
@@ -121,20 +121,18 @@ test "test_get_index_of_hanoi_value_next_incidence" {
             const j: u32 = @intCast(i);
 
             const lb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j);
-            const upb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j + 1);
-            const ub: i32 = @intCast(upb);
+            const ub = hanoi.get_index_of_hanoi_value_nth_incidence(v, j + 1);
 
             // Test for indices between lb and ub
-            for (lb..upb) |index| {
-                const k: i32 = @intCast(index);
+            for (lb..ub) |index| {
+                const k: u32 = @intCast(index);
                 const result = hanoi.get_index_of_hanoi_value_next_incidence(v, k, 1);
                 try std.testing.expectEqual(result, ub);
             }
 
             // Test for indices before lb
             for (0..lb) |index| {
-                const k: i32 = @intCast(index);
-                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, k, 1);
+                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, @intCast(index), 1);
                 try std.testing.expect(result <= lb and lb < ub);
             }
 

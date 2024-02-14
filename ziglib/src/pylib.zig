@@ -55,14 +55,14 @@ pub fn bit_encode_gray(n: u32) u32 {
     return n ^ (n >> 1);
 }
 
-pub fn bit_floor(n: i32) i32 {
+pub fn bit_floor(n: u32) u32 {
     if (n == 0) return 0;
-    const bitLength: u5 = @as(u5, @intCast(@bitSizeOf(i32) - @clz(n) - 1));
-    const mask: i32 = @as(i32, 1) << bitLength;
+    const bitLength: u5 = @as(u5, @intCast(@bitSizeOf(u32) - @clz(n) - 1));
+    const mask: u32 = @as(u32, 1) << bitLength;
     return n & mask;
 }
 
-pub fn bit_drop_msb(n: i32) i32 {
+pub fn bit_drop_msb(n: u32) u32 {
     // Drop most significant bit from binary representation of integer n.
     return n & (~bit_floor(n));
 }
@@ -71,7 +71,7 @@ pub fn sign(x: i256) i32 {
     return if (x > 0) 1 else if (x < 0) -1 else 0;
 }
 
-pub fn fast_pow2_divide(dividend: i32, divisor: i32) i32 {
+pub fn fast_pow2_divide(dividend: u32, divisor: u32) u32 {
     std.debug.assert(divisor >= 1);
     std.debug.assert((divisor & (divisor - 1)) == 0);
 
@@ -81,6 +81,6 @@ pub fn fast_pow2_divide(dividend: i32, divisor: i32) i32 {
 
     // Perform fast division using right shift.
     const absDividend = @abs(dividend);
-    const shifted: i32 = @intCast(absDividend >> shiftAmount);
-    return sign(dividend) * shifted;
+    const shifted: u32 = absDividend >> shiftAmount;
+    return shifted;
 }
