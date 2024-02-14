@@ -37,6 +37,14 @@ test "get_hanoi_value_incidence_at_index" {
     }
 }
 
+test "test get_hanoi_value_index_offset" {
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(0), 0);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(1), 1);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(2), 3);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(3), 7);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(4), 15);
+}
+
 test "test_get_max_hanoi_value_through_index" {
     var hanoiValues: [1000]u32 = undefined;
 
