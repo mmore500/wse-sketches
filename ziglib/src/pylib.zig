@@ -18,8 +18,8 @@ pub fn fast_pow2_mod(dividend: u32, divisor: u32) u32 {
     std.debug.assert(divisor >= 1);
     std.debug.assert(@popCount(divisor) == 1);
 
-    const absVal = @abs(dividend * divisor);
-    return (dividend + absVal) & (divisor - 1);
+    const product = dividend * divisor;
+    return (dividend + product) & (divisor - 1);
 }
 
 pub fn bit_reverse(n: u32) u32 {
@@ -80,7 +80,6 @@ pub fn fast_pow2_divide(dividend: u32, divisor: u32) u32 {
     const shiftAmount: u5 = @intCast(@ctz(divisor));
 
     // Perform fast division using right shift.
-    const absDividend = @abs(dividend);
-    const shifted: u32 = absDividend >> shiftAmount;
+    const shifted: u32 = dividend >> shiftAmount;
     return shifted;
 }
