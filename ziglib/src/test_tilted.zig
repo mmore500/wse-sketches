@@ -1,5 +1,51 @@
-const tilted = @import("tilted.zig");
 const std = @import("std");
+
+const hanoi = @import("hanoi.zig");
+const tilted = @import("tilted.zig");
+
+fn gge_expected(rank: u32, surface_size: u32) u32 {
+    if (surface_size == 8) {
+        if (rank < hanoi.get_hanoi_value_index_offset(3)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 1;
+        return 2;
+    } else if (surface_size == 16) {
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(8)) return 2;
+        return 3;
+    } else if (surface_size == 32) {
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(9)) return 2;
+        if (rank < hanoi.get_hanoi_value_index_offset(16)) return 3;
+        return 4;
+    } else if (surface_size == 64) {
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(7)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(10)) return 2;
+        if (rank < hanoi.get_hanoi_value_index_offset(17)) return 3;
+        if (rank < hanoi.get_hanoi_value_index_offset(32)) return 4;
+        return 5;
+    } else {
+        @panic("Unsupported surface size");
+    }
+}
+
+test "test_get_global_epoch for various surface sizes" {
+    const surface_sizes = [_]u32{8};
+
+    for (surface_sizes) |size| {
+        // Use a smaller range for testing to avoid excessive test durations
+        const lb = @as(u32, 0);
+        const ub = @min(@as(u32, 4096), @as(u32, 1) << @intCast(size));
+        for (lb..ub) |rank_| {
+            const rank: u32 = @intCast(rank_);
+            const expected_epoch = gge_expected(rank, size);
+            const actual_epoch = tilted.get_global_epoch(rank, size);
+            try std.testing.expectEqual(expected_epoch, actual_epoch);
+        }
+    }
+}
 
 test "test_get_reservation_position_physical" {
     // Test for surface size 4
