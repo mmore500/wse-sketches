@@ -299,3 +299,25 @@ test "test_get_reservation_position_physical" {
         prevResult = result;
     }
 }
+
+test "test_pick_deposition_site8" {
+    const expected8 = [_]u32{ 0, 1, 5, 2, 4, 6, 7, 3, 0, 1, 5, 7, 0, 6, 5, 4, 0, 1, 0, 2, 0, 6, 0, 3, 0, 1, 0, 7, 0, 6, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 7, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 7, 0, 1, 0, 6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 7, 0 };
+    const surfaceSize: u32 = 8;
+
+    for (0..expected8.len) |rank| {
+        const expected = expected8[rank];
+        const actual = tilted.pick_deposition_site(@intCast(rank), surfaceSize);
+        try std.testing.expectEqual(expected, actual);
+    }
+}
+
+test "test_pick_deposition_site16" {
+    const expected16 = [_]u32{ 0, 1, 9, 2, 6, 10, 13, 3, 5, 7, 8, 11, 12, 14, 15, 4, 0, 1, 9, 8, 6, 10, 13, 12, 0, 7, 9, 15, 6, 14, 13, 5, 0, 1, 9, 2 }; // Note: Your provided list was cut off, make sure to complete it.
+    const surfaceSize: u32 = 16;
+
+    for (0..expected16.len) |rank| {
+        const expected = expected16[rank];
+        const actual = tilted.pick_deposition_site(@intCast(rank), surfaceSize);
+        try std.testing.expectEqual(expected, actual);
+    }
+}

@@ -98,3 +98,14 @@ pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32
 
     return base + offset - 2 + layeringCorrection;
 }
+
+pub fn pick_deposition_site(rank: u32, surfaceSize: u32) u32 {
+    const numReservations = get_hanoi_num_reservations(rank, surfaceSize);
+
+    const incidence = hanoi.get_hanoi_value_incidence_at_index(rank);
+    const hanoiValue = hanoi.get_hanoi_value_at_index(rank);
+
+    const reservation = pylib.fast_pow2_mod(incidence, numReservations);
+
+    return get_reservation_position_logical(reservation, surfaceSize) + hanoiValue;
+}
