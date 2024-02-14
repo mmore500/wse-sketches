@@ -18,7 +18,10 @@ pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32
     // must be even power of 2
     std.debug.assert(@popCount(surfaceSize) == 1);
     // Assert reservation is within valid range
-    std.debug.assert(0 <= reservation and (reservation < @divExact(surfaceSize, 2) or surfaceSize <= 2));
+    std.debug.assert(0 <= reservation);
+    if (surfaceSize > 2) {
+        std.debug.assert(reservation < @divExact(surfaceSize, 2));
+    }
 
     if (reservation == 0) { // special case
         return 0;
