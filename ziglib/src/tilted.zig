@@ -27,10 +27,6 @@ pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     return surfaceSize >> (1 + epoch);
 }
 
-pub fn get_hanoi_value_index_offset(value: u32) u32 {
-    return (1 << value) - 1; // Equivalent to 2**value - 1 in Python
-}
-
 pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
     // must be even power of 2
     std.debug.assert(@popCount(surfaceSize) == 1);
