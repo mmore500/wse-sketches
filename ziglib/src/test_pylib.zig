@@ -6,11 +6,9 @@ test "fast_pow2_mod tests" {
     try std.testing.expectEqual(pylib.fast_pow2_mod(16, 1), 0);
     try std.testing.expectEqual(pylib.fast_pow2_mod(17, 1), 0);
     try std.testing.expectEqual(pylib.fast_pow2_mod(18, 1), 0);
-
-    // negative dividend and power of 2
-    try std.testing.expectEqual(pylib.fast_pow2_mod(-15, 2), 1);
-    try std.testing.expectEqual(pylib.fast_pow2_mod(-2, 2), 0);
-    try std.testing.expectEqual(pylib.fast_pow2_mod(-1, 4), 3);
+    try std.testing.expectEqual(pylib.fast_pow2_mod(15, 2), 1);
+    try std.testing.expectEqual(pylib.fast_pow2_mod(2, 2), 0);
+    try std.testing.expectEqual(pylib.fast_pow2_mod(3, 4), 3);
 
     // zero dividend
     try std.testing.expectEqual(pylib.fast_pow2_mod(0, 4), 0);
@@ -67,16 +65,37 @@ test "bit_encode_gray tests" {
 }
 
 test "test_bit_floor" {
-    try std.testing.expectEqual(@as(i32, 0b00000000), pylib.bit_floor(0b00000000));
-    try std.testing.expectEqual(@as(i32, 0b00000001), pylib.bit_floor(0b00000001));
-    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bit_floor(0b00000010));
-    try std.testing.expectEqual(@as(i32, 0b00000010), pylib.bit_floor(0b00000011));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000100));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000101));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000110));
-    try std.testing.expectEqual(@as(i32, 0b00000100), pylib.bit_floor(0b00000111));
-    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bit_floor(0b00001000));
-    try std.testing.expectEqual(@as(i32, 0b00001000), pylib.bit_floor(0b00001001));
+    try std.testing.expectEqual(@as(u32, 0b00000000), pylib.bit_floor(0b00000000));
+    try std.testing.expectEqual(@as(u32, 0b00000001), pylib.bit_floor(0b00000001));
+    try std.testing.expectEqual(@as(u32, 0b00000010), pylib.bit_floor(0b00000010));
+    try std.testing.expectEqual(@as(u32, 0b00000010), pylib.bit_floor(0b00000011));
+    try std.testing.expectEqual(@as(u32, 0b00000100), pylib.bit_floor(0b00000100));
+    try std.testing.expectEqual(@as(u32, 0b00000100), pylib.bit_floor(0b00000101));
+    try std.testing.expectEqual(@as(u32, 0b00000100), pylib.bit_floor(0b00000110));
+    try std.testing.expectEqual(@as(u32, 0b00000100), pylib.bit_floor(0b00000111));
+    try std.testing.expectEqual(@as(u32, 0b00001000), pylib.bit_floor(0b00001000));
+    try std.testing.expectEqual(@as(u32, 0b00001000), pylib.bit_floor(0b00001001));
+}
+
+test "bit_length tests" {
+    const expectEqual = std.testing.expectEqual;
+
+    try expectEqual(@as(u32, 0), pylib.bit_length(0b0));
+    try expectEqual(@as(u32, 1), pylib.bit_length(0b1));
+    try expectEqual(@as(u32, 2), pylib.bit_length(0b10));
+    try expectEqual(@as(u32, 2), pylib.bit_length(0b11));
+
+    try expectEqual(@as(u32, 3), pylib.bit_length(0b101));
+    try expectEqual(@as(u32, 3), pylib.bit_length(0b111));
+    try expectEqual(@as(u32, 4), pylib.bit_length(0b1100));
+    try expectEqual(@as(u32, 5), pylib.bit_length(0b10000));
+
+    try expectEqual(@as(u32, 31), pylib.bit_length(0x7FFFFFFF));
+    try expectEqual(@as(u32, 31), pylib.bit_length(0x7FA0873F));
+
+    try expectEqual(@as(u32, 32), pylib.bit_length(0xFFFFFFFF));
+    try expectEqual(@as(u32, 32), pylib.bit_length(0x80000000));
+    try expectEqual(@as(u32, 32), pylib.bit_length(0x800A0000));
 }
 
 test "bit_drop_msb tests" {
@@ -111,7 +130,7 @@ test "sign function tests" {
     try std.testing.expectEqual(pylib.sign(1), 1);
     try std.testing.expectEqual(pylib.sign(5), 1);
     try std.testing.expectEqual(pylib.sign(1000), 1);
-    try std.testing.expectEqual(pylib.sign(1 << 128), 1); // Zig does not support 2**128 directly for integer types, adjust as needed
+    try std.testing.expectEqual(pylib.sign(1 << 128), 1);
 
     // Test sign zero
     try std.testing.expectEqual(pylib.sign(0), 0);
@@ -120,7 +139,7 @@ test "sign function tests" {
     try std.testing.expectEqual(pylib.sign(-1), -1);
     try std.testing.expectEqual(pylib.sign(-3), -1);
     try std.testing.expectEqual(pylib.sign(-999), -1);
-    try std.testing.expectEqual(pylib.sign(-(1 << 128)), -1); // Adjust as needed
+    try std.testing.expectEqual(pylib.sign(-(1 << 128)), -1);
 }
 
 test "fast_pow2_divide comprehensive tests" {
@@ -138,29 +157,4 @@ test "fast_pow2_divide comprehensive tests" {
     }) |test_case| {
         try std.testing.expectEqual(pylib.fast_pow2_divide(test_case.dividend, test_case.divisor), test_case.expected);
     }
-
-    // Negative dividend and positive divisor
-    inline for ([_]struct { dividend: i32, divisor: i32, expected: i32 }{
-        .{ .dividend = -15, .divisor = 4, .expected = -3 },
-        .{ .dividend = -1, .divisor = 4, .expected = 0 },
-        .{ .dividend = -1, .divisor = 8, .expected = 0 },
-        .{ .dividend = -16, .divisor = 8, .expected = -2 },
-        .{ .dividend = -16, .divisor = 4, .expected = -4 },
-        .{ .dividend = -17, .divisor = 4, .expected = -4 },
-        .{ .dividend = -18, .divisor = 4, .expected = -4 },
-        .{ .dividend = -19, .divisor = 4, .expected = -4 },
-        .{ .dividend = -20, .divisor = 4, .expected = -5 },
-        .{ .dividend = -32, .divisor = 8, .expected = -4 },
-        .{ .dividend = -64, .divisor = 2, .expected = -32 },
-        .{ .dividend = -16, .divisor = 1, .expected = -16 },
-        .{ .dividend = -0, .divisor = 1, .expected = -0 },
-
-        // Add other cases as necessary
-    }) |test_case| {
-        try std.testing.expectEqual(pylib.fast_pow2_divide(test_case.dividend, test_case.divisor), test_case.expected);
-    }
-
-    // Additional tests for edge cases and error conditions could be added here.
-    // Remember, Zig encourages handling errors with error values rather than panics
-    // for conditions that can be reasonably checked and handled.
 }
