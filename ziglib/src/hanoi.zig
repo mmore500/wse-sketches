@@ -22,26 +22,44 @@ pub fn get_hanoi_value_incidence_at_index(n: u32) u32 {
     return n >> @intCast(get_hanoi_value_at_index(n) + 1);
 }
 
+/// At what index does the hanoi value `value` first occur?
 pub fn get_hanoi_value_index_offset(value: u32) u32 {
     const shift: u5 = @intCast(value);
     return (@as(u32, 1) << shift) - 1;
 }
 
+/// How many indices occur between instances of hanoi value `value` after its
+/// first occurrence?
 pub fn get_hanoi_value_index_cadence(value: u32) u32 {
     const shift: u5 = @intCast(value);
     return @as(u32, 1) << (shift + 1);
 }
 
+/// What is the largest hanoi value that occurs at indices up to and including
+/// index n?
+///
+/// See `get_hanoi_value_at_index` for notes on zero-based variant of Hanoi
+/// sequence used.
 pub fn get_max_hanoi_value_through_index(n: u32) u32 {
     return pylib.bit_length(n + 1) - 1;
 }
 
+/// At what index does the nth incidence of a given value occur within the Hanoi
+/// sequence?
+///
+/// Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
+/// on zero-based variant of Hanoi sequence used.
 pub fn get_index_of_hanoi_value_nth_incidence(value: u32, n: u32) u32 {
     const offset = get_hanoi_value_index_offset(value);
     const cadence = get_hanoi_value_index_cadence(value);
     return offset + cadence * n;
 }
 
+/// How many times has the hanoi value value ocurred at indices up to and
+/// including index n?
+///
+/// See `get_hanoi_value_at_index` for notes on zero-based variant of Hanoi
+/// sequence used.
 pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) u32 {
     const offset: u32 = get_hanoi_value_index_offset(value);
     const cadence: u32 = get_hanoi_value_index_cadence(value);
@@ -53,6 +71,7 @@ pub fn get_incidence_count_of_hanoi_value_through_index(value: u32, n: u32) u32 
 
 /// At what index does the next incidence of a given value occur within the
 /// Hanoi sequence past the given index?
+///
 /// Assumes zero-indexing convention. See `get_hanoi_value_at_index` for notes
 /// on zero-based variant of Hanoi sequence used.
 pub fn get_index_of_hanoi_value_next_incidence(value: u32, index: u32, n: u32) u32 {
