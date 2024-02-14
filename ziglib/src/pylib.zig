@@ -14,12 +14,12 @@ const std = @import("std");
 /// -------
 /// int
 ///     The remainder of dividing the dividend by the divisor.
-pub fn fast_pow2_mod(dividend: i32, divisor: i32) i32 {
+pub fn fast_pow2_mod(dividend: u32, divisor: u32) u32 {
     std.debug.assert(divisor >= 1);
     std.debug.assert(@popCount(divisor) == 1);
 
-    const absVal = std.math.absInt(dividend * divisor) catch unreachable;
-    return (dividend + absVal) & (divisor - 1);
+    const product = dividend * divisor;
+    return (dividend + product) & (divisor - 1);
 }
 
 pub fn bit_reverse(n: u32) u32 {
@@ -45,18 +45,24 @@ pub fn bit_ceil(n: u32) u32 {
     return @as(u32, 1) << exp;
 }
 
+pub fn bit_length(value: u32) u32 {
+    const zero_correction = @intFromBool(value != 0); // zig way to cast to bool
+    const num_bits = @bitSizeOf(@TypeOf(value));
+    return (num_bits - @clz(value)) * zero_correction;
+}
+
 pub fn bit_encode_gray(n: u32) u32 {
     return n ^ (n >> 1);
 }
 
-pub fn bit_floor(n: i32) i32 {
+pub fn bit_floor(n: u32) u32 {
     if (n == 0) return 0;
-    const bitLength: u5 = @as(u5, @intCast(@bitSizeOf(i32) - @clz(n) - 1));
-    var mask: i32 = @as(i32, 1) << bitLength;
+    const bitLength: u5 = @as(u5, @intCast(@bitSizeOf(u32) - @clz(n) - 1));
+    const mask: u32 = @as(u32, 1) << bitLength;
     return n & mask;
 }
 
-pub fn bit_drop_msb(n: i32) i32 {
+pub fn bit_drop_msb(n: u32) u32 {
     // Drop most significant bit from binary representation of integer n.
     return n & (~bit_floor(n));
 }
@@ -65,7 +71,7 @@ pub fn sign(x: i256) i32 {
     return if (x > 0) 1 else if (x < 0) -1 else 0;
 }
 
-pub fn fast_pow2_divide(dividend: i32, divisor: i32) i32 {
+pub fn fast_pow2_divide(dividend: u32, divisor: u32) u32 {
     std.debug.assert(divisor >= 1);
     std.debug.assert((divisor & (divisor - 1)) == 0);
 
@@ -73,8 +79,7 @@ pub fn fast_pow2_divide(dividend: i32, divisor: i32) i32 {
     // For a power of 2, this is also the log2(divisor).
     const shiftAmount: u5 = @intCast(@ctz(divisor));
 
-    // Perform fast division using right shift. Zig's abs function is in std.math.abs.
-    const absDividend = std.math.absCast(dividend);
-    const shifted: i32 = @intCast(absDividend >> shiftAmount);
-    return sign(dividend) * shifted;
+    // Perform fast division using right shift.
+    const shifted: u32 = dividend >> shiftAmount;
+    return shifted;
 }

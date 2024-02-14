@@ -37,23 +37,37 @@ test "get_hanoi_value_incidence_at_index" {
     }
 }
 
+test "test get_hanoi_value_index_offset" {
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(0), 0);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(1), 1);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(2), 3);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(3), 7);
+    try std.testing.expectEqual(hanoi.get_hanoi_value_index_offset(4), 15);
+}
+
 test "test_get_max_hanoi_value_through_index" {
-    var hanoiValues: [1000]u32 = undefined; // Adjust type and size as necessary
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(0), 0);
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(1), 1);
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(2), 1);
+    try std.testing.expectEqual(hanoi.get_max_hanoi_value_through_index(3), 2);
+
+    var hanoiValues: [1000]u32 = undefined;
+
     // Populate hanoiValues with Hanoi sequence values
     for (0..1000) |i| {
-        var j: u32 = @intCast(i);
+        const j: u32 = @intCast(i);
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
     }
 
+    var maxValue: u32 = 0;
     for (0..1000) |n| {
-        var maxValue: i32 = @intCast(hanoiValues[0]);
         // Find max value up to n
-        for (0..n) |j| {
+        for (0..n + 1) |j| {
             if (hanoiValues[j] > maxValue) {
-                maxValue = @intCast(hanoiValues[j]);
+                maxValue = hanoiValues[j];
             }
         }
-        var m: u32 = @intCast(n);
+        const m: u32 = @intCast(n);
         try std.testing.expectEqual(maxValue, hanoi.get_max_hanoi_value_through_index(m));
     }
 }
@@ -86,14 +100,14 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
 
     // Populate Hanoi values
     for (0..1000) |i| {
-        var j: u32 = @intCast(i);
+        const j: u32 = @intCast(i);
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
     }
 
     // Iterate over all combinations of n and hanoiValue
     for (0..1000) |n| {
         for (0..20) |hanoiValue| {
-            var count: i32 = 0;
+            var count: u32 = 0;
             // Count occurrences of hanoiValue up to n
             for (0..n + 1) |j| {
                 if (hanoiValues[j] == hanoiValue) {
@@ -101,12 +115,11 @@ test "test_get_incidence_count_of_hanoi_value_through_index" {
                 }
             }
 
-            var v: u32 = @intCast(hanoiValue);
-            var m: u32 = @intCast(n);
+            const v: u32 = @intCast(hanoiValue);
+            const m: u32 = @intCast(n);
 
             const incidenceCount = hanoi.get_incidence_count_of_hanoi_value_through_index(v, m);
 
-            // Use std.testing.expectEqual for assertion without a formatted message
             try std.testing.expectEqual(count, incidenceCount);
         }
     }
@@ -121,20 +134,18 @@ test "test_get_index_of_hanoi_value_next_incidence" {
             const j: u32 = @intCast(i);
 
             const lb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j);
-            const upb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j + 1);
-            const ub: i32 = @intCast(upb);
+            const ub = hanoi.get_index_of_hanoi_value_nth_incidence(v, j + 1);
 
             // Test for indices between lb and ub
-            for (lb..upb) |index| {
-                const k: i32 = @intCast(index);
+            for (lb..ub) |index| {
+                const k: u32 = @intCast(index);
                 const result = hanoi.get_index_of_hanoi_value_next_incidence(v, k, 1);
                 try std.testing.expectEqual(result, ub);
             }
 
             // Test for indices before lb
             for (0..lb) |index| {
-                const k: i32 = @intCast(index);
-                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, k, 1);
+                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, @intCast(index), 1);
                 try std.testing.expect(result <= lb and lb < ub);
             }
 
