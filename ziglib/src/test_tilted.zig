@@ -108,6 +108,106 @@ test "test_get_global_num_reservations_at_epoch for various surface sizes" {
     }
 }
 
+test "test_get_hanoi_num_reservations8" {
+    const surface_size: u32 = 8;
+    for (0..(1 << 8)) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        try std.testing.expect(hnr == gnr or hnr == gnr * 2);
+    }
+
+    for (0..7) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        try std.testing.expect(hanoi.get_max_hanoi_value_through_index(rank) <= 2);
+        try std.testing.expectEqual(@as(u32, 4), tilted.get_hanoi_num_reservations(rank, surface_size));
+    }
+
+    for (7..15) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        try std.testing.expect(hanoi.get_max_hanoi_value_through_index(rank) == 3);
+        try std.testing.expectEqual(@as(u32, 2), tilted.get_hanoi_num_reservations(rank, surface_size));
+    }
+
+    for (15..31) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        try std.testing.expect(hanoi.get_max_hanoi_value_through_index(rank) == 4);
+        if (hanoi.get_hanoi_value_at_index(rank) == 1) {
+            try std.testing.expectEqual(@as(u32, 2), tilted.get_hanoi_num_reservations(rank, surface_size));
+        } else if (hanoi.get_hanoi_value_at_index(rank) == 2) {
+            try std.testing.expectEqual(@as(u32, 2), tilted.get_hanoi_num_reservations(rank, surface_size));
+        } else {
+            try std.testing.expectEqual(@as(u32, 1), tilted.get_hanoi_num_reservations(rank, surface_size));
+        }
+    }
+
+    for (31..63) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        try std.testing.expect(hanoi.get_max_hanoi_value_through_index(rank) == 5);
+        if (hanoi.get_hanoi_value_at_index(rank) == 2) {
+            try std.testing.expectEqual(@as(u32, 2), tilted.get_hanoi_num_reservations(rank, surface_size));
+        } else {
+            try std.testing.expectEqual(@as(u32, 1), tilted.get_hanoi_num_reservations(rank, surface_size));
+        }
+    }
+
+    for (64..127) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        try std.testing.expect(hanoi.get_max_hanoi_value_through_index(rank) == 6);
+        try std.testing.expectEqual(@as(u32, 1), tilted.get_hanoi_num_reservations(rank, surface_size));
+    }
+}
+
+test "test_get_hanoi_num_reservations16" {
+    const surface_size: u32 = 16;
+    for (0..(1 << 16)) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        try std.testing.expect(hnr == gnr or hnr == gnr * 2);
+    }
+}
+
+test "test_get_hanoi_num_reservations32" {
+    const surface_size: u32 = 32;
+    for (0..(1 << 16)) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        try std.testing.expect(hnr == gnr or hnr == gnr * 2);
+    }
+
+    var prng = std.rand.DefaultPrng.init(1234);
+    var random = prng.random();
+    var rank: u32 = undefined;
+    for (0..10000) |_| {
+        rank = random.int(u32);
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        try std.testing.expect(hnr == gnr or hnr == gnr * 2);
+    }
+}
+
+test "test_get_hanoi_num_reservations64" {
+    const surface_size: u32 = 64;
+    for (0..(1 << 16)) |rank_| {
+        const rank: u32 = @intCast(rank_);
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        try std.testing.expect(hnr == gnr or hnr == gnr * 2);
+    }
+
+    var prng = std.rand.DefaultPrng.init(1234);
+    var random = prng.random();
+    var rank: u32 = undefined;
+    for (0..10000) |_| {
+        rank = random.int(u32); // library only supports 32-bit integers
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        try std.testing.expect(hnr == gnr or hnr == gnr * 2);
+    }
+}
+
 test "test_get_reservation_position_physical" {
     // Test for surface size 4
     const expected4 = [_]u32{ 0, 3 };
