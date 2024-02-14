@@ -109,7 +109,7 @@ pub fn sign(x: i256) i32 {
 ///     The quotient of dividing the dividend by the divisor.
 pub fn fast_pow2_divide(dividend: u32, divisor: u32) u32 {
     std.debug.assert(divisor >= 1);
-    std.debug.assert((divisor & (divisor - 1)) == 0);
+    std.debug.assert(bit_count(divisor) == 1); // perfect power of 2
 
     // In Zig, using countTrailingZeros gives the number of zeros before the first 1 from the right.
     // For a power of 2, this is also the log2(divisor).
