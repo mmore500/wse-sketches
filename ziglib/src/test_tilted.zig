@@ -47,6 +47,67 @@ test "test_get_global_epoch for various surface sizes" {
     }
 }
 
+fn ggnr_expected(rank: u32, surface_size: u32) u32 {
+    if (surface_size == 8) {
+        if (rank < hanoi.get_hanoi_value_index_offset(3)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 2;
+        return 1;
+    } else if (surface_size == 16) {
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 8;
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(8)) return 2;
+        return 1;
+    } else if (surface_size == 32) {
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 16;
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 8;
+        if (rank < hanoi.get_hanoi_value_index_offset(9)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(16)) return 2;
+        return 1;
+    } else if (surface_size == 64) {
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 32;
+        if (rank < hanoi.get_hanoi_value_index_offset(7)) return 16;
+        if (rank < hanoi.get_hanoi_value_index_offset(10)) return 8;
+        if (rank < hanoi.get_hanoi_value_index_offset(17)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(32)) return 2;
+        return 1;
+    } else {
+        @panic("Unsupported surface size");
+    }
+}
+
+test "test_get_global_num_reservations for various surface sizes" {
+    const surface_sizes = [_]u32{8};
+
+    for (surface_sizes) |size| {
+        // Use a smaller range for testing to avoid excessive test durations
+        const lb = @as(u32, 0);
+        const ub = @min(@as(u32, 4096), @as(u32, 1) << @intCast(size));
+        for (lb..ub) |rank_| {
+            const rank: u32 = @intCast(rank_);
+            const expected = ggnr_expected(rank, size);
+            const actual = tilted.get_global_num_reservations(rank, size);
+            try std.testing.expectEqual(expected, actual);
+        }
+    }
+}
+
+test "test_get_global_num_reservations_at_epoch for various surface sizes" {
+    const surface_sizes = [_]u32{8};
+
+    for (surface_sizes) |size| {
+        // Use a smaller range for testing to avoid excessive test durations
+        const lb = @as(u32, 0);
+        const ub = @min(@as(u32, 4096), @as(u32, 1) << @intCast(size));
+        for (lb..ub) |rank_| {
+            const rank: u32 = @intCast(rank_);
+            const epoch: u32 = tilted.get_global_epoch(rank, size);
+            const expected = ggnr_expected(rank, size);
+            const actual = tilted.get_global_num_reservations_at_epoch(epoch, size);
+            try std.testing.expectEqual(expected, actual);
+        }
+    }
+}
+
 test "test_get_reservation_position_physical" {
     // Test for surface size 4
     const expected4 = [_]u32{ 0, 3 };

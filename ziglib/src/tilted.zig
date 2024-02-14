@@ -21,10 +21,16 @@ pub fn get_global_epoch(rank: u32, surfaceSize: u32) u32 {
     }
 }
 
+pub fn get_global_num_reservations(rank: u32, surface_size: u32) u32 {
+    const epoch = get_global_epoch(rank, surface_size);
+    return get_global_num_reservations_at_epoch(epoch, surface_size);
+}
+
 pub fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     // must be even power of 2
     std.debug.assert(@popCount(surfaceSize) == 1);
-    return surfaceSize >> (1 + epoch);
+    const shift: u5 = @intCast(1 + epoch);
+    return surfaceSize >> shift;
 }
 
 pub fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
