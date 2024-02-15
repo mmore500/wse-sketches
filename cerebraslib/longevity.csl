@@ -1,0 +1,13 @@
+const pylib = @import_module("cerebraslib/pylib.csl");
+
+/// What physical nesting layer does the logical index map to?
+fn get_longevity_level_of_index(index: u32) u32 {
+    return pylib.bit_length(index);
+}
+
+/// How many physical sites from beginning does the first element of the nth
+/// level occur?
+fn get_longevity_offset_of_level(level: u32, num_indices: u32) u32 {
+    const correction = @as(u32, @as(bool, level));
+    return (num_indices >> level) * correction;
+}

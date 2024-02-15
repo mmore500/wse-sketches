@@ -1,0 +1,25 @@
+const longevity = @import_module("cerebraslib/longevity.csl");
+
+fn test_get_longevity_offset_of_level() void {
+    // Test for level range 1 with total levels 1
+    longevity.get_longevity_offset_of_level(0, 1) == 0;
+
+    // Test for level range 2 with total levels 2
+    longevity.get_longevity_offset_of_level(0, 2) == 0;
+    longevity.get_longevity_offset_of_level(1, 2) == 1;
+
+    // Test for level range 3 with total levels 4
+    longevity.get_longevity_offset_of_level(0, 4) == 0;
+    longevity.get_longevity_offset_of_level(1, 4) == 2;
+    longevity.get_longevity_offset_of_level(2, 4) == 1;
+
+    // Test for level range 4 with total levels 8
+    longevity.get_longevity_offset_of_level(0, 8) == 0;
+    longevity.get_longevity_offset_of_level(1, 8) == 4;
+    longevity.get_longevity_offset_of_level(2, 8) == 2;
+    longevity.get_longevity_offset_of_level(3, 8) == 1;
+}
+
+fn do_test() void {
+    test_get_longevity_offset_of_level();
+}
