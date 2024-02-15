@@ -1,5 +1,23 @@
 const pylib = @import_module("cerebraslib/pylib.csl");
 
+fn test_bit_length() void {
+    @assert(pylib.bit_length(0b0) == 0);
+    @assert(pylib.bit_length(0b1) == 1);
+    @assert(pylib.bit_length(0b10) == 2);
+    @assert(pylib.bit_length(0b11) == 2);
+
+    @assert(pylib.bit_length(0b101) == 3);
+    @assert(pylib.bit_length(0b111) == 3);
+    @assert(pylib.bit_length(0b1100) == 4);
+    @assert(pylib.bit_length(0b10000) == 5);
+
+    @assert(pylib.bit_length(0x7FFFFFFF) == 31);
+    @assert(pylib.bit_length(0x7FA0873F) == 31);
+
+    @assert(pylib.bit_length(0xFFFFFFFF) == 32);
+    @assert(pylib.bit_length(0x80000000) == 32);
+    @assert(pylib.bit_length(0x800A0000) == 32);
+}
 
 fn test_fast_pow2_mod() void {
     // positive dividend and power of 2
@@ -24,5 +42,6 @@ fn test_fast_pow2_mod() void {
 
 
 fn do_test() void {
+    test_bit_length();
     test_fast_pow2_mod();
 }
