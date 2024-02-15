@@ -1,0 +1,158 @@
+const longevity = @import_module("cerebraslib/longevity.csl");
+
+fn test_get_longevity_offset_of_level() void {
+    // Test for level range 1 with total levels 1
+    longevity.get_longevity_offset_of_level(0, 1) == 0;
+
+    // Test for level range 2 with total levels 2
+    longevity.get_longevity_offset_of_level(0, 2) == 0;
+    longevity.get_longevity_offset_of_level(1, 2) == 1;
+
+    // Test for level range 3 with total levels 4
+    longevity.get_longevity_offset_of_level(0, 4) == 0;
+    longevity.get_longevity_offset_of_level(1, 4) == 2;
+    longevity.get_longevity_offset_of_level(2, 4) == 1;
+
+    // Test for level range 4 with total levels 8
+    longevity.get_longevity_offset_of_level(0, 8) == 0;
+    longevity.get_longevity_offset_of_level(1, 8) == 4;
+    longevity.get_longevity_offset_of_level(2, 8) == 2;
+    longevity.get_longevity_offset_of_level(3, 8) == 1;
+}
+
+ fn test_get_longevity_mapped_position_of_index1() void {
+    var results: [1]u32;
+    for (@range(u32, 1)) |index| {
+        results[index] = longevity.get_longevity_mapped_position_of_index(index, 1);
+    }
+    @assert(results[0] == 0);
+
+    var target: [1]u32;
+    for (@range(u32, 1)) |index| {
+        const mapped_position = longevity.get_longevity_mapped_position_of_index(index, 1);
+        target[mapped_position] = index;
+    }
+    @assert(results[0] == 0);
+}
+
+ fn test_get_longevity_mapped_position_of_index2() void {
+    var results: [2]u32;
+    for (@range(u32, 2)) |index| {
+        results[index] = longevity.get_longevity_mapped_position_of_index(index, 2);
+    }
+    @assert(results[0] == 0);
+    @assert(results[1] == 1);
+
+    var target: [2]u32;
+    for (@range(u32, 2)) |index| {
+        const mapped_position = longevity.get_longevity_mapped_position_of_index(index, 2);
+        target[mapped_position] = index;
+    }
+    @assert(target[0] == 0);
+    @assert(target[1] == 1);
+}
+
+ fn test_get_longevity_mapped_position_of_index4() void {
+    var results: [4]u32;
+    for (@range(u32, 4)) |index| {
+        results[index] = longevity.get_longevity_mapped_position_of_index(index, 4);
+    }
+    @assert(results[0] == 0);
+    @assert(results[1] == 2);
+    @assert(results[2] == 1);
+    @assert(results[3] == 3);
+
+    var target: [4]u32;
+    for (@range(u32, 4)) |index| {
+        const mapped_position = longevity.get_longevity_mapped_position_of_index(index, 4);
+        target[mapped_position] = index;
+    }
+    @assert(target[0] == 0);
+    @assert(target[1] == 2);
+    @assert(target[2] == 1);
+    @assert(target[3] == 3);
+}
+
+ fn test_get_longevity_mapped_position_of_index8() void {
+    var results: [8]u32;
+    for (@range(u32, 8)) |index| {
+        results[index] = longevity.get_longevity_mapped_position_of_index(index, 8);
+    }
+    @assert(results[0] == 0);
+    @assert(results[1] == 4);
+    @assert(results[2] == 2);
+    @assert(results[3] == 6);
+    @assert(results[4] == 1);
+    @assert(results[5] == 3);
+    @assert(results[6] == 5);
+    @assert(results[7] == 7);
+
+    var target: [8]u32;
+    for (@range(u32, 8)) |index| {
+        const mapped_position = longevity.get_longevity_mapped_position_of_index(index, 8);
+        target[mapped_position] = index;
+    }
+    @assert(target[0] == 0);
+    @assert(target[1] == 4);
+    @assert(target[2] == 2);
+    @assert(target[3] == 5);
+    @assert(target[4] == 1);
+    @assert(target[5] == 6);
+    @assert(target[6] == 3);
+    @assert(target[7] == 7);
+}
+
+ fn test_get_longevity_mapped_position_of_index16() void {
+    var results: [16]u32;
+    for (@range(u32, 16)) |index| {
+        results[index] = longevity.get_longevity_mapped_position_of_index(index, 16);
+    }
+    @assert(results[0] == 0);
+    @assert(results[1] == 8);
+    @assert(results[2] == 4);
+    @assert(results[3] == 12);
+    @assert(results[4] == 2);
+    @assert(results[5] == 6);
+    @assert(results[6] == 10);
+    @assert(results[7] == 14);
+    @assert(results[8] == 1);
+    @assert(results[9] == 3);
+    @assert(results[10] == 5);
+    @assert(results[11] == 7);
+    @assert(results[12] == 9);
+    @assert(results[13] == 11);
+    @assert(results[14] == 13);
+    @assert(results[15] == 15);
+
+    var target: [16]u32;
+    for (@range(u32, 16)) |index| {
+        const mapped_position = longevity.get_longevity_mapped_position_of_index(index, 16);
+        target[mapped_position] = index;
+    }
+    @assert(target[0] == 0);
+    @assert(target[1] == 8);
+    @assert(target[2] == 4);
+    @assert(target[3] == 9);
+    @assert(target[4] == 2);
+    @assert(target[5] == 10);
+    @assert(target[6] == 5);
+    @assert(target[7] == 11);
+    @assert(target[8] == 1);
+    @assert(target[9] == 12);
+    @assert(target[10] == 6);
+    @assert(target[11] == 13);
+    @assert(target[12] == 3);
+    @assert(target[13] == 14);
+    @assert(target[14] == 7);
+    @assert(target[15] == 15);
+}
+
+
+fn do_test() void {
+    test_get_longevity_offset_of_level();
+    test_get_longevity_mapped_position_of_index1();
+    test_get_longevity_mapped_position_of_index2();
+    test_get_longevity_mapped_position_of_index4();
+    test_get_longevity_mapped_position_of_index8();
+    test_get_longevity_mapped_position_of_index16();
+}
