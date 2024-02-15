@@ -1,5 +1,14 @@
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 
+/// Calculate the largest power of two not greater than n.
+///
+/// If zero, returns zero.
+fn bit_floor(n: u32) u32 {
+    const shift = bit_length(n >> 1);
+    const mask = @as(u32, 1) << shift;
+    return n & mask;
+}
+
 /// Return the number of bits necessary to represent an integer in binary,
 /// excluding the sign and leading zeros.
 fn bit_length(value: u32) u32 {
