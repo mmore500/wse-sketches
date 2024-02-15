@@ -67,7 +67,7 @@ pub fn bit_encode_gray(n: u32) u32 {
 ///
 /// If zero, returns zero.
 pub fn bit_floor(n: u32) u32 {
-    const shift: u5 = @as(u5, @intCast(bit_length(n >> 1)));
+    const shift: u5 = @intCast(bit_length(n >> 1));
     const mask: u32 = @as(u32, 1) << shift;
     return n & mask;
 }
