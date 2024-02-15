@@ -1,5 +1,18 @@
 const pylib = @import_module("cerebraslib/pylib.csl");
 
+fn test_bit_floor() void {
+    @assert(0b00000000 == pylib.bit_floor(0b00000000));
+    @assert(0b00000001 == pylib.bit_floor(0b00000001));
+    @assert(0b00000010 == pylib.bit_floor(0b00000010));
+    @assert(0b00000010 == pylib.bit_floor(0b00000011));
+    @assert(0b00000100 == pylib.bit_floor(0b00000100));
+    @assert(0b00000100 == pylib.bit_floor(0b00000101));
+    @assert(0b00000100 == pylib.bit_floor(0b00000110));
+    @assert(0b00000100 == pylib.bit_floor(0b00000111));
+    @assert(0b00001000 == pylib.bit_floor(0b00001000));
+    @assert(0b00001000 == pylib.bit_floor(0b00001001));
+}
+
 fn test_bit_length() void {
     @assert(pylib.bit_length(0b0) == 0);
     @assert(pylib.bit_length(0b1) == 1);
@@ -42,6 +55,7 @@ fn test_fast_pow2_mod() void {
 
 
 fn do_test() void {
+    test_bit_floor();
     test_bit_length();
     test_fast_pow2_mod();
 }
