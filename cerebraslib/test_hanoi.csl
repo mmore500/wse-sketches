@@ -30,7 +30,88 @@ fn test_get_hanoi_value_incidence_at_index() void {
     }
 }
 
+fn test_get_hanoi_value_index_offset() void {
+    hanoi.get_hanoi_value_index_offset(0) == 0;
+    hanoi.get_hanoi_value_index_offset(1) == 1;
+    hanoi.get_hanoi_value_index_offset(2) == 3;
+    hanoi.get_hanoi_value_index_offset(3) == 7;
+    hanoi.get_hanoi_value_index_offset(4) == 15;
+}
+
+fn test_get_max_hanoi_value_through_index() void {
+    hanoi.get_max_hanoi_value_through_index(0) == 0;
+    hanoi.get_max_hanoi_value_through_index(1) == 1;
+    hanoi.get_max_hanoi_value_through_index(2) == 1;
+    hanoi.get_max_hanoi_value_through_index(3) == 2;
+
+    var maxValue: u32 = 0;
+    for (@range(u32, 9)) |n| {
+        for (@range(u32, n + 1)) |j| {
+            if (hanoi.get_hanoi_value_at_index(j) > maxValue) {
+                maxValue = hanoi.get_hanoi_value_at_index(j);
+            }
+        }
+        @assert(maxValue == hanoi.get_max_hanoi_value_through_index(n));
+    }
+}
+
+fn test_get_index_of_hanoi_value_incidence() void {
+    for (@range(u32, 5)) |hanoiValue| {
+        for (@range(u32, 5)) |i| {
+            const index = hanoi.get_index_of_hanoi_value_nth_incidence(hanoiValue, i);
+
+            var actualCount: u32 = 0;
+            for (@range(u32, index)) |j| {
+                actualCount += @as(u32, hanoiValue == hanoi.get_hanoi_value_at_index(j));
+            }
+            @assert(actualCount == i);
+        }
+    }
+}
+
+fn test_get_incidence_count_of_hanoi_value_through_index() void {
+    for (@range(u32, 7)) |n| {
+        for (@range(u32, 4)) |hanoiValue| {
+            var expectedCount: u32 = 0;
+            for (@range(u32, n + 1)) |j| {
+                expectedCount += @as(u32, hanoi.get_hanoi_value_at_index(j) == hanoiValue);
+            }
+
+            const actualCount = hanoi.get_incidence_count_of_hanoi_value_through_index(hanoiValue, n);
+
+            @assert(expectedCount == actualCount);
+        }
+    }
+}
+
+fn test_get_index_of_hanoi_value_next_incidence() void {
+    for (@range(u32, 1, 6, 1)) |v| {
+        for (@range(u32, 5)) |j| {
+            const lb = hanoi.get_index_of_hanoi_value_nth_incidence(v, j);
+            const ub = hanoi.get_index_of_hanoi_value_nth_incidence(v, j + 1);
+
+            for (@range(u32, lb, ub, 1)) |index| {
+                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, index, 1);
+                @assert(result == ub);
+            }
+
+            for (@range(u32, lb)) |index| {
+                const result = hanoi.get_index_of_hanoi_value_next_incidence(v, index, 1);
+                @assert(result <= lb and lb < ub);
+            }
+
+            const resultAfterUb = hanoi.get_index_of_hanoi_value_next_incidence(v, ub, 1);
+            @assert(resultAfterUb > ub);
+        }
+    }
+}
+
 fn do_test() void {
     test_get_hanoi_value_at_index();
     test_get_hanoi_value_incidence_at_index();
+    test_get_hanoi_value_index_offset();
+    test_get_max_hanoi_value_through_index();
+    test_get_index_of_hanoi_value_incidence();
+    test_get_incidence_count_of_hanoi_value_through_index();
+    test_get_index_of_hanoi_value_next_incidence();
 }

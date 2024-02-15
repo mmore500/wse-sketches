@@ -53,6 +53,7 @@ jobs:
     env:
       CSLC: cslc
       CS_PYTHON: cs_python
+      SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE: 1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -86,6 +87,7 @@ jobs:
           cs_python -h
           cs_readelf -h
           sdk_debug_shell --help
+          echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test async-ga
         run: |
