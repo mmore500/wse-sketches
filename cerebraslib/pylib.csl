@@ -1,5 +1,12 @@
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 
+/// Return the number of bits necessary to represent an integer in binary,
+/// excluding the sign and leading zeros.
+fn bit_length(value: u32) u32 {
+    const zero_correction = @as(u32, @as(bool, value));
+    const num_bits = 32;
+    return (num_bits - opscalar.clz32(value)) * zero_correction;
+}
 
 /// Perform fast mod using bitwise operations.
 ///
@@ -18,12 +25,4 @@ const opscalar = @import_module("cerebraslib/opscalar.csl");
 fn fast_pow2_mod(dividend: u32, divisor: u32) u32 {
     @assert(@as(bool, divisor));
     return dividend & (divisor - 1);
-}
-
-/// Return the number of bits necessary to represent an integer in binary,
-/// excluding the sign and leading zeros.
-fn bit_length(value: u32) u32 {
-    const zero_correction = @as(u32, @as(bool, value));
-    const num_bits = 32;
-    return (num_bits - opscalar.clz32(value)) * zero_correction;
 }
