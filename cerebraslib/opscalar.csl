@@ -46,6 +46,14 @@ fn p(probability: f32) bool {
     return random.random_f32(0.0, 1.0) < probability;
 }
 
+/// Population count of an integer, i.e., number of set bits.
+fn popcnt32(n: u32) u32 {
+    _as16[0] = @as(u16, n);
+    _as16[1] = @as(u16, n >> 16);
+    @popcnt(_dsd_as16, _dsd_as16);
+    return @as(u32, _as16[0] + _as16[1]);
+}
+
 /// Draw a random 16-bit integer from a uniform distribution, with a given
 /// upper bound (exclusive).
 fn unif16(upper: u16) u16 {

@@ -115,6 +115,20 @@ fn test_p() void {
     while (!opscalar.p(0.5)) {}
 }
 
+fn test_popcnt32() void {
+    @assert(opscalar.popcnt32(0xFFFFFFFF) == 32);
+    @assert(opscalar.popcnt32(0xF0FFFFFF) == 28);
+    @assert(opscalar.popcnt32(0x80FFFFFF) == 25);
+    @assert(opscalar.popcnt32(0x80000000) == 1);
+    @assert(opscalar.popcnt32(0x80080000) == 2);
+    @assert(opscalar.popcnt32(0x80080010) == 3);
+    @assert(opscalar.popcnt32(0x80080030) == 4);
+    @assert(opscalar.popcnt32(3) == 2);
+    @assert(opscalar.popcnt32(2) == 1);
+    @assert(opscalar.popcnt32(1) == 1);
+    @assert(opscalar.popcnt32(0) == 0);
+}
+
 fn test_unif16() void {
     @assert(opscalar.unif16(0) == 0);
     @assert(opscalar.unif16(1) == 0);
@@ -143,6 +157,7 @@ fn do_test() void {
     test_incrmod32();
     test_mul32();
     test_p();
+    test_popcnt32();
     test_unif16();
     test_unifbool();
 }
