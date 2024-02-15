@@ -79,7 +79,6 @@ test "test_get_global_num_reservations for various surface sizes" {
     const surface_sizes = [_]u32{8};
 
     for (surface_sizes) |size| {
-        // Use a smaller range for testing to avoid excessive test durations
         const lb = @as(u32, 0);
         const ub = @min(@as(u32, 4096), @as(u32, 1) << @intCast(size));
         for (lb..ub) |rank_| {
@@ -95,7 +94,6 @@ test "test_get_global_num_reservations_at_epoch for various surface sizes" {
     const surface_sizes = [_]u32{8};
 
     for (surface_sizes) |size| {
-        // Use a smaller range for testing to avoid excessive test durations
         const lb = @as(u32, 0);
         const ub = @min(@as(u32, 4096), @as(u32, 1) << @intCast(size));
         for (lb..ub) |rank_| {
@@ -290,7 +288,6 @@ test "test_get_reservation_position_physical" {
 
     // Test all values for surface size 64 are increasing
     const rpp: i32 = @intCast(tilted.get_reservation_position_physical(0, 64));
-    // Initialize to one less than the first expected result
     var prevResult: i32 = rpp - 1;
     for (0..32) |i| {
         const j: u32 = @intCast(i);
