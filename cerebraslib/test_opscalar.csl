@@ -20,6 +20,31 @@ fn test_as() void {
 
 var out = [1]u16{0};
 const out_dsd = @get_dsd(mem1d_dsd, .{ .tensor_access = |i|{1} -> out[0] });
+fn test_clz() void {
+    @clz(out_dsd, 0);
+    @assert(out[0] == 16);
+}
+
+fn test_clz32() void {
+    @assert(opscalar.clz32(0xFFFFFFFF) == 0);
+    @assert(opscalar.clz32(0xF0FFFFFF) == 0);
+    @assert(opscalar.clz32(0x80FFFFFF) == 0);
+    @assert(opscalar.clz32(0x80000000) == 0);
+    @assert(opscalar.clz32(0x70FFFFFF) == 1);
+    @assert(opscalar.clz32(0x70FFFF00) == 1);
+    @assert(opscalar.clz32(0x3AAAAAAA) == 2);
+    @assert(opscalar.clz32(0x0FAAAAAA) == 4);
+    @assert(opscalar.clz32(0x0008F588) == 12);
+    @assert(opscalar.clz32(0x0007F585) == 13);
+    @assert(opscalar.clz32(0x0001F587) == 15);
+    @assert(opscalar.clz32(0x00008881) == 16);
+    @assert(opscalar.clz32(0x00005881) == 17);
+    @assert(opscalar.clz32(3) == 30);
+    @assert(opscalar.clz32(2) == 30);
+    @assert(opscalar.clz32(1) == 31);
+    @assert(opscalar.clz32(0) == 32);
+}
+
 fn test_ctz() void {
     @ctz(out_dsd, 0);
     @assert(out[0] == 16);
@@ -109,6 +134,8 @@ fn test_unifbool() void {
 fn do_test() void {
     test_add32();
     test_as();
+    test_clz();
+    test_clz32();
     test_ctz();
     test_ctz32();
     test_incr16();
