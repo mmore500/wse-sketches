@@ -53,7 +53,6 @@ test "test_get_max_hanoi_value_through_index" {
 
     var hanoiValues: [1000]u32 = undefined;
 
-    // Populate hanoiValues with Hanoi sequence values
     for (0..1000) |i| {
         const j: u32 = @intCast(i);
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
@@ -61,7 +60,6 @@ test "test_get_max_hanoi_value_through_index" {
 
     var maxValue: u32 = 0;
     for (0..1000) |n| {
-        // Find max value up to n
         for (0..n + 1) |j| {
             if (hanoiValues[j] > maxValue) {
                 maxValue = hanoiValues[j];
@@ -98,17 +96,14 @@ test "test get_index_of_hanoi_value_incidence" {
 test "test_get_incidence_count_of_hanoi_value_through_index" {
     var hanoiValues: [1000]u32 = undefined;
 
-    // Populate Hanoi values
     for (0..1000) |i| {
         const j: u32 = @intCast(i);
         hanoiValues[i] = hanoi.get_hanoi_value_at_index(j);
     }
 
-    // Iterate over all combinations of n and hanoiValue
     for (0..1000) |n| {
         for (0..20) |hanoiValue| {
             var count: u32 = 0;
-            // Count occurrences of hanoiValue up to n
             for (0..n + 1) |j| {
                 if (hanoiValues[j] == hanoiValue) {
                     count += 1;
