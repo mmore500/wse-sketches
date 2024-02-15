@@ -32,6 +32,18 @@ fn test_bit_length() void {
     @assert(pylib.bit_length(0x800A0000) == 32);
 }
 
+fn test_fast_pow2_divide() void {
+    @assert(pylib.fast_pow2_divide(16, 4) == 4);
+    @assert(pylib.fast_pow2_divide(17, 4) == 4);
+    @assert(pylib.fast_pow2_divide(18, 4) == 4);
+    @assert(pylib.fast_pow2_divide(19, 4) == 4);
+    @assert(pylib.fast_pow2_divide(20, 4) == 5);
+    @assert(pylib.fast_pow2_divide(32, 8) == 4);
+    @assert(pylib.fast_pow2_divide(64, 2) == 32);
+    @assert(pylib.fast_pow2_divide(16, 1) == 16);
+    @assert(pylib.fast_pow2_divide(0, 1) == 0);
+}
+
 fn test_fast_pow2_mod() void {
     // positive dividend and power of 2
     @assert(pylib.fast_pow2_mod(1, 1) == 0);
@@ -57,5 +69,6 @@ fn test_fast_pow2_mod() void {
 fn do_test() void {
     test_bit_floor();
     test_bit_length();
+    test_fast_pow2_divide();
     test_fast_pow2_mod();
 }

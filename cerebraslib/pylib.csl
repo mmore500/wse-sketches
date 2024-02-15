@@ -17,6 +17,26 @@ fn bit_length(value: u32) u32 {
     return (num_bits - opscalar.clz32(value)) * zero_correction;
 }
 
+/// Perform fast division using bitwise operations.
+///
+/// Parameters
+/// ----------
+/// dividend : u32
+///     The dividend of the division operation.
+/// divisor : u32
+///     The divisor of the division operation. Must be a positive integer and a
+///     power of 2.
+///
+/// Returns
+/// -------
+/// u32
+///     The quotient of dividing the dividend by the divisor.
+fn fast_pow2_divide(dividend: u32, divisor: u32) u32 {
+    @assert(@as(bool, divisor));
+    // Perform fast division using right shift.
+    return dividend >> opscalar.ctz32(divisor);
+}
+
 /// Perform fast mod using bitwise operations.
 ///
 /// Parameters
