@@ -2,7 +2,6 @@ const std = @import("std");
 const oeis = @import("oeis.zig");
 
 test "test_get_a000295_value_at_index" {
-    // The expected values from the OEIS sequence A000295, starting from index 1 (skipping zeroth element)
     const expectedValues = &[_]u32{
         0,
         1,
@@ -20,7 +19,6 @@ test "test_get_a000295_value_at_index" {
         16369,
     };
 
-    // Iterate over each expected value and compare it to the computed value
     for (expectedValues, 0..) |value, index| {
         const computedValue = oeis.get_a000295_value_at_index(@as(u32, @intCast(index)));
         try std.testing.expectEqual(@as(u32, @intCast(computedValue)), value);
@@ -28,7 +26,6 @@ test "test_get_a000295_value_at_index" {
 }
 
 test "test_get_a000295_index_of_value" {
-    // First part: Specific expected index results for values 0 through 14
     const expectedIndices = [_]u32{
         0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3,
     };
@@ -38,7 +35,6 @@ test "test_get_a000295_index_of_value" {
         try std.testing.expectEqual(expected, n);
     }
 
-    // Second part: General condition for values 0 through 399
     for (0..400) |i| {
         const j: u32 = @intCast(i);
         const n = oeis.get_a000295_index_of_value(j);
