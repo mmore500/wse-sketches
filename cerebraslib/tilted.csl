@@ -63,3 +63,37 @@ fn get_global_num_reservations(rank: u32, surfaceSize: u32) u32 {
     const epoch = get_global_epoch(rank, surfaceSize);
     return get_global_num_reservations_at_epoch(epoch, surfaceSize);
 }
+
+fn get_hanoi_num_reservations(rank: u32, surfaceSize: u32) u32 {
+    const epoch = get_global_epoch(rank, surfaceSize);
+    const grc = get_global_num_reservations(rank, surfaceSize);
+
+    if (epoch == 0) {
+        return grc;
+    }
+
+    const maxUninvaded: u32 = (@as(u32, 1) << epoch) - 2; // 0, 2, 6, 14, ...
+    @assert(maxUninvaded >= 0);
+
+    const hanoiValue: u32 = hanoi.get_hanoi_value_at_index(rank);
+
+    if (hanoiValue > maxUninvaded) {
+        return grc;
+    }
+
+    const reservation0At = hanoi.get_max_hanoi_value_through_index(rank);
+    @assert(epoch > 0);
+
+    const idx: u32 = @as(u32, 1) << (epoch - 1); // 1, 2, 4, 8, ...
+    @assert(idx > 0);
+
+    // -1 undoes correction for extra reservation 0 slot
+    const reservation0Begin: u32 = get_reservation_position_physical(idx, surfaceSize) - 1;
+    const reservation0Progress = reservation0At - reservation0Begin;
+
+    if (hanoiValue <= reservation0Progress) {
+        return grc;
+    }
+
+    return 2 * grc;
+}
