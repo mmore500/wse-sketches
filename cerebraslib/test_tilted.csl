@@ -1,0 +1,59 @@
+const tilted = @import_module("cerebraslib/tilted.csl");
+
+fn test_get_reservation_position_physical() void {
+    // Test for surface size 4
+
+    const expected4 = [2]u32{0, 3};
+    for (expected4) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 4);
+        @assert(result == value);
+    }
+
+    // Test for surface size 8
+    const expected8 = [4]u32{ 0, 4, 5, 7 };
+    for (expected8) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 8);
+        @assert(value == result);
+    }
+
+    // Test for surface size 16
+    const expected16 = [8]u32{ 0, 5, 6, 8, 9, 12, 13, 15 };
+    for (expected16) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 16);
+        @assert(value == result);
+    }
+
+    // Test for surface size 32
+    const expected32 = [16]u32{ 0, 6, 7, 9, 10, 13, 14, 16, 17, 21, 22, 24, 25, 28, 29, 31 };
+    for (expected32) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 32);
+        @assert(value == result);
+    }
+
+    // Test for surface size 64 with specific checks
+    @assert(tilted.get_reservation_position_physical(0, 64) == 0);
+    @assert(tilted.get_reservation_position_physical(16, 64) == 33);
+    @assert(tilted.get_reservation_position_physical(31, 64) == 63);
+
+    // Test all values for surface size 64 are increasing
+    const rpp: u32 = tilted.get_reservation_position_physical(0, 64);
+    var prevResult: u32 = tilted.get_reservation_position_physical(0, 64);
+
+    for (@range(u32, 1, 32, 1)) |i| {
+        const result: u32 = tilted.get_reservation_position_physical(i, 64);
+        @assert(result > prevResult);
+        prevResult = result;
+    }
+}
+
+fn do_test() void {
+  test_get_reservation_position_physical();
+}
