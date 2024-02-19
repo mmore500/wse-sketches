@@ -1,4 +1,5 @@
 const tilted = @import_module("cerebraslib/tilted.csl");
+const hanoi = @import_module("cerebraslib/hanoi.csl");
 const math = @import_module("<math>");
 
 fn test_get_reservation_position_physical() void {
@@ -91,6 +92,50 @@ fn test_get_reservation_position_logical() void {
   @assert(tilted.get_reservation_position_logical(15, 32) == 31);
 }
 
+fn gge_expected(rank: u32, surface_size: u32) u32 {
+    if (surface_size == 8) {
+        if (rank < hanoi.get_hanoi_value_index_offset(3)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 1;
+        return 2;
+    } else if (surface_size == 16) {
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(8)) return 2;
+        return 3;
+    } else if (surface_size == 32) {
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(9)) return 2;
+        if (rank < hanoi.get_hanoi_value_index_offset(16)) return 3;
+        return 4;
+    } else if (surface_size == 64) {
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(7)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(10)) return 2;
+        if (rank < hanoi.get_hanoi_value_index_offset(17)) return 3;
+        if (rank < hanoi.get_hanoi_value_index_offset(32)) return 4;
+        return 5;
+    } else {
+        @assert(false);
+        return 1;
+    }
+}
+
+fn test_get_global_epoch() void {
+    const surface_sizes = [1]u32{8};
+
+    for (surface_sizes) |size| {
+        // Use a smaller range for testing to avoid excessive test durations
+        const lb = @as(u32, 0);
+        const ub = math.min(@as(u32, 4096), @as(u32, 1) << @as(u32, size));
+        for (@range(u32, lb, ub, 1)) |rank| {
+            const expected_epoch = gge_expected(rank, size);
+            const actual_epoch = tilted.get_global_epoch(rank, size);
+            @assert(expected_epoch == actual_epoch);
+        }
+    }
+}
+
 fn test_get_global_num_reservations_at_epoch() void {
     const surface_sizes = [1]u32{8};
 
@@ -106,8 +151,11 @@ fn test_get_global_num_reservations_at_epoch() void {
     }
 }
 
+
+
 fn do_test() void {
   test_get_reservation_position_physical();
   test_get_reservation_position_logical();
+  test_get_global_epoch();
 }
 

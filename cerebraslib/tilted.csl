@@ -1,6 +1,10 @@
 const oeis = @import_module("cerebraslib/oeis.csl");
 const opscalar = @import_module("cerebraslib/opscalar.csl");
 const longevity = @import_module("cerebraslib/longevity.csl");
+const pylib = @import_module("cerebraslib/pylib.csl");
+const hanoi = @import_module("cerebraslib/hanoi.csl");
+const math = @import_module("<math>");
+
 
 fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
     // must be even power of 2
@@ -36,4 +40,26 @@ fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
     @assert(opscalar.popcnt32(surfaceSize) == 1);
     const shift: u5 = @as(u5, 1 + epoch);
     return surfaceSize >> shift;
+}
+
+fn get_global_epoch(rank: u32, surfaceSize: u32) u32 {
+    @assert(surfaceSize >= 4);
+    // must be even power of 2
+    @assert(opscalar.popcnt32(surfaceSize) == 1);
+
+    const maxHanoi = hanoi.get_max_hanoi_value_through_index(rank);
+    const baseHanoi = pylib.bit_length(surfaceSize) - 1;
+    if (maxHanoi < baseHanoi) {
+        return 0;
+    } else {
+        const diff = maxHanoi - baseHanoi;
+        const operand = oeis.get_a000295_index_of_value(diff) + 1;
+        const correction = pylib.bit_length(surfaceSize) - 2;
+        return math.min(operand, correction);
+    }
+}
+
+fn get_global_num_reservations(rank: u32, surfaceSize: u32) u32 {
+    const epoch = get_global_epoch(rank, surfaceSize);
+    return get_global_num_reservations_at_epoch(epoch, surfaceSize);
 }
