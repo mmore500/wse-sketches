@@ -1,0 +1,25 @@
+const oeis = @import_module("cerebraslib/oeis.csl");
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+
+fn get_reservation_position_physical(reservation: u32, surfaceSize: u32) u32 {
+    // must be even power of 2
+    @assert(opscalar.popcnt32(surfaceSize) == 1);
+    // Assert reservation is within valid range
+    @assert(0 <= reservation);
+    if (surfaceSize > 2) {
+        @assert(reservation < (surfaceSize / 2));
+    }
+
+    if (reservation == 0) { // special case
+        return 0;
+    }
+
+    const base = 2 * reservation;
+    const lastReservation = (surfaceSize << 1) - 1;
+    const offset = oeis.get_a048881_value_at_index(lastReservation - reservation);
+
+    // Convert boolean to integer: true to 1, false to 0
+    const layeringCorrection = @as(u32, reservation != 0);
+
+    return base + offset - 2 + layeringCorrection;
+}
