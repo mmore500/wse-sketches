@@ -17,6 +17,7 @@ const test_opscalar = @import_module("cerebraslib/test_opscalar.csl");
 const test_population = @import_module("cerebraslib/test_population.csl");
 const test_pylib = @import_module("cerebraslib/test_pylib.csl");
 const test_tilted = @import_module("cerebraslib/test_tilted.csl");
+const test_tilted_sticky = @import_module("cerebraslib/test_tilted_sticky.csl");
 
 fn dolaunch() void {
     test_bitmanip.do_test();
@@ -30,6 +31,7 @@ fn dolaunch() void {
     test_population.do_test();
     test_pylib.do_test();
     test_tilted.do_test();
+    test_tilted_sticky.do_test();
     memcpy.unblock_cmd_stream();  // terminate
 }
 
