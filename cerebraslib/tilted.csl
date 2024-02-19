@@ -30,3 +30,10 @@ fn get_reservation_position_logical(reservation: u32, surfaceSize: u32) u32 {
     const physicalReservation = longevity.get_longevity_mapped_position_of_index(reservation, numReservations);
     return get_reservation_position_physical(physicalReservation, surfaceSize);
 }
+
+fn get_global_num_reservations_at_epoch(epoch: u32, surfaceSize: u32) u32 {
+    // must be even power of 2
+    @assert(opscalar.popcnt32(surfaceSize) == 1);
+    const shift: u5 = @as(u5, 1 + epoch);
+    return surfaceSize >> shift;
+}
