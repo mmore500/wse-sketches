@@ -17,19 +17,21 @@ const test_opscalar = @import_module("cerebraslib/test_opscalar.csl");
 const test_population = @import_module("cerebraslib/test_population.csl");
 const test_pylib = @import_module("cerebraslib/test_pylib.csl");
 const test_tilted = @import_module("cerebraslib/test_tilted.csl");
+const test_tilted_sticky = @import_module("cerebraslib/test_tilted_sticky.csl");
 
 fn dolaunch() void {
-    // test_bitmanip.do_test();
-    // test_dsd.do_test();
-    // test_genome_bitdrift.do_test();
-    // test_hanoi.do_test();
-    // test_longevity.do_test();
-    // test_oeis.do_test();
-    // test_opdsd.do_test();
-    // test_opscalar.do_test();
-    // test_population.do_test();
-    // test_pylib.do_test();
+    test_bitmanip.do_test();
+    test_dsd.do_test();
+    test_genome_bitdrift.do_test();
+    test_hanoi.do_test();
+    test_longevity.do_test();
+    test_oeis.do_test();
+    test_opdsd.do_test();
+    test_opscalar.do_test();
+    test_population.do_test();
+    test_pylib.do_test();
     test_tilted.do_test();
+    test_tilted_sticky.do_test();
     memcpy.unblock_cmd_stream();  // terminate
 }
 
