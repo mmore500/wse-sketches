@@ -1,4 +1,5 @@
 const tilted = @import_module("cerebraslib/tilted.csl");
+const math = @import_module("<math>");
 
 fn test_get_reservation_position_physical() void {
     // Test for surface size 4
@@ -90,7 +91,23 @@ fn test_get_reservation_position_logical() void {
   @assert(tilted.get_reservation_position_logical(15, 32) == 31);
 }
 
+fn test_get_global_num_reservations_at_epoch() void {
+    const surface_sizes = [1]u32{8};
+
+    for (surface_sizes) |size| {
+        const lb: u32 = @as(u32, 0);
+        const ub: u32 = math.min(@as(u32, 4096), @as(u32, 1) << @as(u32, size));
+        for (@range(u32, lb, ub, 1)) |rank| {
+            const epoch: u32 = tilted.get_global_epoch(rank, size);
+            const expected = ggnr_expected(rank, size);
+            const actual = tilted.get_global_num_reservations_at_epoch(epoch, size);
+            @assert(expected == actual);
+        }
+    }
+}
+
 fn do_test() void {
   test_get_reservation_position_physical();
   test_get_reservation_position_logical();
 }
+
