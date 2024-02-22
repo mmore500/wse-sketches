@@ -10,7 +10,7 @@ parser.add_argument("--cmaddr", help="IP:port for CS system")
 args = parser.parse_args()
 
 # Path to ELF and simulation output files
-runner = SdkRuntime("out", cmaddr=args.cmaddr)
+runner = SdkRuntime(args.name, cmaddr=args.cmaddr)
 
 runner.load()
 runner.run()
