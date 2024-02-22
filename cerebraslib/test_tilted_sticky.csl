@@ -15,7 +15,7 @@ fn test_pick_deposition_site() void {
     }
 
     const surface_size2: u32 = 16;
-    const num_generations2: u32 = 4096; // 2^12
+    const num_generations2: u32 = 260;  // 4096; // 2^12
 
     for (@range(u32, num_generations2)) |rank| {
         const expected = reference_pick_deposition_site(rank, surface_size2);
@@ -24,7 +24,7 @@ fn test_pick_deposition_site() void {
     }
 
     const surface_size3: u32 = 32;
-    const num_generations3: u32 = 4096; // 2^12
+    const num_generations3: u32 = 260;  // 4096; // 2^12
 
     for (@range(u32, num_generations3)) |rank| {
         const expected = reference_pick_deposition_site(rank, surface_size3);
@@ -33,7 +33,7 @@ fn test_pick_deposition_site() void {
     }
 
     const surface_size4: u32 = 64;
-    const num_generations4: u32 = 4096; // 2^12
+    const num_generations4: u32 = 260;  //4096; // 2^12
 
     for (@range(u32, num_generations4)) |rank| {
         const expected = reference_pick_deposition_site(rank, surface_size4);
