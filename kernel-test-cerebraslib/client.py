@@ -1,7 +1,5 @@
-import numpy as np
 import argparse
 
-from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
     SdkRuntime,
 )  # pylint: disable=no-name-in-module
