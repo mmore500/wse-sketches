@@ -105,7 +105,7 @@ jobs:
           ./kernel-self-driving/execute.sh
 
   test-cerebraslib:
-    name: Test csl kernels
+    name: Test cerebraslib
     runs-on: ubuntu-latest
     if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
     env:
