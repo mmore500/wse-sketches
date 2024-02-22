@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -u
 
 cd "$(dirname "$0")"
 
@@ -21,11 +22,17 @@ rm -rf out*
 # see https://sdk.cerebras.net/csl/tutorials/gemv-01-complete-program/
 # 9x4 because compiler says
 # RuntimeError: Fabric dimension must be at least 9-by-4
-test_module_paths="$(ls cerebraslib/test_*.csl)"
+if [ "$#" -ge 1 ]; then  # use user argument if provided
+    test_module_paths="$@"
+else
+    test_module_paths="$(ls cerebraslib/test_*.csl)"
+fi
 num_tests="$(echo "${test_module_paths}" | wc -l)"
 echo "${num_tests} tests detected"
 
+set +u
 MAX_PROCESSES=$([ -n "$CI" ] && echo 2 || echo 4)
+set -u
 echo "Compiling ${num_tests} tests with up to ${MAX_PROCESSES} processes"
 
 for test_module_path in ${test_module_paths} END; do
