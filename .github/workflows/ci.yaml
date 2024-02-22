@@ -46,8 +46,8 @@ jobs:
       - name: Run test script
         run: ./pylib/test.sh
 
-  test-csl:
-    name: Test csl
+  test-csl-kernels:
+    name: Test csl kernels
     runs-on: ubuntu-latest
     if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
     env:
@@ -57,6 +57,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
 
       - name: Set up Apptainer
         run: |
@@ -98,6 +103,54 @@ jobs:
         run: |
           ./kernel-self-driving/compile.sh
           ./kernel-self-driving/execute.sh
+
+  test-cerebraslib:
+    name: Test cerebraslib
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
+    env:
+      CSLC: cslc
+      CS_PYTHON: cs_python
+      SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE: 1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Set up Apptainer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm2cpio
+          sudo apt-get install -y golang-go
+          mkdir -p ~/apptainer
+          # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
+          echo "$HOME/apptainer/bin" >> $GITHUB_PATH
+          curl -s https://raw.githubusercontent.com/apptainer/apptainer/d77d6f1eb099855f284a482992140d5eeb18be8a/tools/install-unprivileged.sh | bash -s - ~/apptainer
+
+      - name: Test Apptainer
+        run: |
+          apptainer --version
+
+      - name: Set up SDK
+        run: |
+          mkdir -p ~/cerebras/bin
+          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        env:
+          CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
+
+      - name: Test SDK
+        run: |
+          cslc -h
+          csdb --help
+          cs_python -h
+          cs_readelf -h
+          sdk_debug_shell --help
+          echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test cerebraslib
         run: |
