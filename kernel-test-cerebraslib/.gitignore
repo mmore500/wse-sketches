@@ -3,3 +3,6 @@ simfab_traces/
 *.json
 *.log
 *.out
+*.running
+*.failed
+out*/
