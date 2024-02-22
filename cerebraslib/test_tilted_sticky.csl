@@ -43,5 +43,5 @@ fn test_pick_deposition_site() void {
 }
 
 fn do_test() void {
-  test_pick_deposition_site();
+    test_pick_deposition_site();
 }
