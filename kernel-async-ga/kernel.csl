@@ -70,7 +70,7 @@ var ptr_sendCounter_E : [*]u16 = &sendCounter_E;
 var sendCounter_W = @zeros([1]u16);
 var ptr_sendCounter_W : [*]u16 = &sendCounter_W;
 
-var genome = @zeros([1]f32);  // samples 0th poopulation element (convenient)
+var genome = @zeros([1]f32);  // samples 0th population element (convenient)
 var ptr_genome : [*]f32 = &genome;
 
 // report back layout params (sanity check)
