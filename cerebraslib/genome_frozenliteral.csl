@@ -1,0 +1,42 @@
+param peId: u32;
+
+// memory layout ===============================================================
+// byte 0 BITFIELD (12 bytes)
+// byte 1
+// byte 2
+// byte 3
+// byte 4
+// byte 5
+// byte 6
+// byte 7
+// byte 8
+// byte 9
+// byte 10
+// byte 11
+// TOTAL: 3 words -> 12 bytes
+
+// module config specs ========================================================
+const gSize: u16 = 3;
+const genome_t = [gSize]u32;
+const genomePtr_t = [*]u32;
+
+const val1: u32 = 1692398096;
+const val2: u32 = 2816128869;
+const val3: u32 = 2428220313;
+
+
+fn _validate(genome: genomePtr_t) bool {
+    return (genome[0] == val1) && (genome[1] == val2) && (genome[2] == val3);
+}
+
+// public API =================================================================
+fn elapse_inheritance_of(genome: genomePtr_t) void {
+    @assert(_validate(genome));
+}
+
+fn calc_fitness_of(genome: genomePtr_t) f16 {
+    @assert(_validate(genome));
+    return 0.0;
+}
+
+fn initialize_one(genome: genomePtr_t) void { @assert(_validate(genome)); }
