@@ -39,4 +39,9 @@ fn calc_fitness_of(genome: genomePtr_t) f16 {
     return 0.0;
 }
 
-fn initialize_one(genome: genomePtr_t) void { @assert(_validate(genome)); }
+fn initialize_one(genome: genomePtr_t) void {
+    genome[0] = val1;
+    genome[1] = val2;
+    genome[2] = val3;
+    @assert(_validate(genome));
+}

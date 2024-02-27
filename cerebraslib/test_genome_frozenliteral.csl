@@ -19,9 +19,8 @@ fn test_calc_fitness_of() void {
 
 fn test_initialize_one() void {
     var genome = @zeros(genome_frozenliteral.genome_t);
-    @assert(!genome_frozenliteral.calc_fitness_of(&genome) == 0.0);
     genome_frozenliteral.initialize_one(&genome);
-    @assert(genome_frozenliteral.calc_fitness_of(&genome) == 0.0);
+    @assert(genome_frozenliteral._validate(&genome));
 }
 
 fn do_test() void {
