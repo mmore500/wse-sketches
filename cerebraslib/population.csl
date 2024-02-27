@@ -55,7 +55,7 @@ fn _get_ith_genome(i: u16) [*]u32 {
 
 fn _get_population_word(i: u32) u32 { return buffer[i]; }
 
-fn _get_swap_word(i: u32) u32 { return swap[i]; }
+fn _get_swap_word(i: u16) u32 { return swap[i]; }
 
 fn _initialize_ith_genome(i: u16) void { initFun(_get_ith_genome(i)); }
 
@@ -107,18 +107,23 @@ fn _perform_selection_all() void {
     // back up main buffer to swap buffer
     @mov32(swapDsd, bufferDsd);
 
+    // DSD-based implementation
     // inject indices for selected genomes' words into main buffer
-    @mov32(bufferDsd, 0); // zero out buffer (maybe necessary for add16?)
     for (@range(i16, gSize)) |w| {
         const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
-        // possible cause of future wonkiness:
-        // the output dsd is u32, not u16... keep an eye on this
-        @mov32(wordDsd, @as(u32, w));
-        @add16(wordDsd, indexBufDsd, wordDsd);
+        // copy selected genomes from swap buffer to main buffer
+        // this replaces indices for words with the actual words themselves
+        @map(_get_swap_word, indexBufDsd, wordDsd);
+        // advance index buffer
+        @add16(indexBufDsd, indexBufDsd, 1);
     }
-    // copy selected genomes from swap buffer to main buffer
-    // this replaces indices for words with the actual words themselves
-    @map(_get_swap_word, bufferDsd, bufferDsd);
+
+    // alternate loop-based implementation
+    // for (@range(u16, gSize)) |w| {
+    //     for (@range(u16, popSize)) |i| {
+    //         buffer[i * gSize + w] = swap[indexBuf[i] + w];
+    //     }
+    // }
 }
 
 /// Place population buffer word indices for n randomly sampled genomes into
