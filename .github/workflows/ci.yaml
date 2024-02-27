@@ -94,15 +94,22 @@ jobs:
           sdk_debug_shell --help
           echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
-      - name: Test async-ga
-        run: |
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
-
       - name: Test self-driving
         run: |
           ./kernel-self-driving/compile.sh
           ./kernel-self-driving/execute.sh
+
+      - name: Test async-ga, genome_frozenliteral
+        run: |
+          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_frozenliteral.csl"
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
+
+      - name: Test async-ga, genome_bitdrift
+        run: |
+          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_bitdrift.csl"
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
 
   test-cerebraslib:
     name: Test cerebraslib
