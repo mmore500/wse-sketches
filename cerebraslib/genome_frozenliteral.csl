@@ -26,7 +26,7 @@ const val3: u32 = 2428220313;
 
 
 fn _validate(genome: genomePtr_t) bool {
-    return (genome[0] == val1) && (genome[1] == val2) && (genome[2] == val3);
+    return (genome[0] == val1) and (genome[1] == val2) and (genome[2] == val3);
 }
 
 // public API =================================================================
