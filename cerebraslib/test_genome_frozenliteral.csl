@@ -1,0 +1,30 @@
+const random = @import_module("<random>");
+
+const genome_frozenliteral = @import_module("cerebraslib/genome_frozenliteral.csl", .{
+    .peId = 0,
+});
+
+fn test_elapse_inheritance_of() void {
+    var genome = @zeros(genome_frozenliteral.genome_t);
+    genome_frozenliteral.initialize_one(&genome);
+    genome_frozenliteral.elapse_inheritance_of(&genome);
+    @assert(genome_frozenliteral._validate(&genome));
+}
+
+fn test_calc_fitness_of() void {
+    var genome = @zeros(genome_frozenliteral.genome_t);
+    genome_frozenliteral.initialize_one(&genome);
+    @assert(genome_frozenliteral.calc_fitness_of(&genome) == 0.0);
+}
+
+fn test_initialize_one() void {
+    var genome = @zeros(genome_frozenliteral.genome_t);
+    genome_frozenliteral.initialize_one(&genome);
+    @assert(genome_frozenliteral._validate(&genome));
+}
+
+fn do_test() void {
+    test_calc_fitness_of();
+    test_elapse_inheritance_of();
+    test_initialize_one();
+}

@@ -46,8 +46,8 @@ jobs:
       - name: Run test script
         run: ./pylib/test.sh
 
-  test-csl:
-    name: Test csl
+  test-csl-kernels:
+    name: Test csl kernels
     runs-on: ubuntu-latest
     if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
     env:
@@ -57,6 +57,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
 
       - name: Set up Apptainer
         run: |
@@ -89,15 +94,70 @@ jobs:
           sdk_debug_shell --help
           echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
-      - name: Test async-ga
-        run: |
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
-
       - name: Test self-driving
         run: |
           ./kernel-self-driving/compile.sh
           ./kernel-self-driving/execute.sh
+
+      - name: Test async-ga, genome_frozenliteral
+        run: |
+          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_frozenliteral.csl"
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
+
+      - name: Test async-ga, genome_bitdrift
+        run: |
+          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_bitdrift.csl"
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
+
+  test-cerebraslib:
+    name: Test cerebraslib
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
+    env:
+      CSLC: cslc
+      CS_PYTHON: cs_python
+      SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE: 1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Set up Apptainer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm2cpio
+          sudo apt-get install -y golang-go
+          mkdir -p ~/apptainer
+          # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
+          echo "$HOME/apptainer/bin" >> $GITHUB_PATH
+          curl -s https://raw.githubusercontent.com/apptainer/apptainer/d77d6f1eb099855f284a482992140d5eeb18be8a/tools/install-unprivileged.sh | bash -s - ~/apptainer
+
+      - name: Test Apptainer
+        run: |
+          apptainer --version
+
+      - name: Set up SDK
+        run: |
+          mkdir -p ~/cerebras/bin
+          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        env:
+          CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
+
+      - name: Test SDK
+        run: |
+          cslc -h
+          csdb --help
+          cs_python -h
+          cs_readelf -h
+          sdk_debug_shell --help
+          echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test cerebraslib
         run: |
@@ -145,45 +205,22 @@ jobs:
         env:
           HUBGIT_AUTH_TOKEN: ${{ secrets.HUBGIT_AUTH_TOKEN }}
 
-  docker-teximage-build:
-    name: Docker Tex Image Build
-    runs-on: ubuntu-20.04
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-          fetch-depth: 0 # fetch all history for all branches and tags
-      - name: Build and Push to GitHub Container Registry
-        uses: docker/build-push-action@v1
-        with:
-          push: true
-          tags: "GITHUB_ACTION_${{ github.run_number }}_TEXIMAGE"
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          repository: mmore500/${{ github.event.repository.name }}
-          registry: ghcr.io
-          path: ./tex/
-          add_git_labels: true
+
   latex:
     name: Latex Build
     runs-on: ubuntu-20.04
-    if: false  # temporarily disable
-    needs:
-      - docker-teximage-build
     container:
-      image: ghcr.io/mmore500/${{ github.event.repository.name }}:GITHUB_ACTION_${{ github.run_number }}_TEXIMAGE
+      image: ghcr.io/mmore500/teximage:sha-77b8179
       # github actions requires root to access mounted volumes
       options: --user root
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      - run: make -C /opt/${{ github.event.repository.name }}/tex
+      - run: make -C tex/
+      - run: 'cat tex/*.log || :'
       - name: Upload output as artifact
         uses: actions/upload-artifact@v2
         with:
           name: manuscript
-          path: /opt/${{ github.event.repository.name }}/tex/${{ github.event.repository.name }}-draft.pdf
+          path: tex/${{ github.event.repository.name }}-draft.pdf
