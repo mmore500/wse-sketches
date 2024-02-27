@@ -113,7 +113,8 @@ fn _perform_selection_all() void {
         const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
         // possible cause of future wonkiness:
         // the output dsd is u32, not u16... keep an eye on this
-        @add16(wordDsd, indexBufDsd, @as(u16, w));
+        @mov32(wordDsd, @as(u32, w));
+        @add16(wordDsd, indexBufDsd, wordDsd);
     }
     // copy selected genomes from swap buffer to main buffer
     // this replaces indices for words with the actual words themselves
