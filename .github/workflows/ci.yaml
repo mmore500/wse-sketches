@@ -224,3 +224,10 @@ jobs:
         with:
           name: manuscript
           path: tex/${{ github.event.repository.name }}-draft.pdf
+      - run: make -C tex-access-proposal/
+      - run: 'cat tex-access-proposal/*.log || :'
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: access-proposal
+          path: tex-access-proposal/${{ github.event.repository.name }}-draft.pdf
