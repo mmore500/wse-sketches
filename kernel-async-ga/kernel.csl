@@ -439,7 +439,7 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   whoami[0] = peId;  // record layout params for telemetry
   whereami_x[0] = x;
   whereami_y[0] = y;
-  random.set_global_prng_seed(peId);
+  random.set_global_prng_seed(peId + 1);  // zero seed seems to break RNG...
   desync();
   population_.init_module();
   dispatchRecv_N();  // open initial recv requests
