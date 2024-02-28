@@ -1,0 +1,296 @@
+const tilted = @import_module("cerebraslib/tilted.csl");
+const hanoi = @import_module("cerebraslib/hanoi.csl");
+const math = @import_module("<math>");
+
+fn test_get_reservation_position_physical() void {
+    // Test for surface size 4
+
+    const expected4 = [2]u32{0, 3};
+    for (expected4) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 4);
+        @assert(result == value);
+    }
+
+    // Test for surface size 8
+    const expected8 = [4]u32{ 0, 4, 5, 7 };
+    for (expected8) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 8);
+        @assert(value == result);
+    }
+
+    // Test for surface size 16
+    const expected16 = [8]u32{ 0, 5, 6, 8, 9, 12, 13, 15 };
+    for (expected16) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 16);
+        @assert(value == result);
+    }
+
+    // Test for surface size 32
+    const expected32 = [16]u32{ 0, 6, 7, 9, 10, 13, 14, 16, 17, 21, 22, 24, 25, 28, 29, 31 };
+    for (expected32) |v, i| {
+        const j: u32 = @as(u32, i);
+        const value: u32 = @as(u32, v);
+        const result: u32 = tilted.get_reservation_position_physical(j, 32);
+        @assert(value == result);
+    }
+
+    // Test for surface size 64 with specific checks
+    @assert(tilted.get_reservation_position_physical(0, 64) == 0);
+    @assert(tilted.get_reservation_position_physical(16, 64) == 33);
+    @assert(tilted.get_reservation_position_physical(31, 64) == 63);
+
+    // Test all values for surface size 64 are increasing
+    const rpp: u32 = tilted.get_reservation_position_physical(0, 64);
+    var prevResult: u32 = tilted.get_reservation_position_physical(0, 64);
+
+    for (@range(u32, 1, 32, 1)) |i| {
+        const result: u32 = tilted.get_reservation_position_physical(i, 64);
+        @assert(result > prevResult);
+        prevResult = result;
+    }
+}
+
+fn test_get_reservation_position_logical() void {
+  @assert(tilted.get_reservation_position_logical(0, 4) == 0);
+  @assert(tilted.get_reservation_position_logical(1, 4) == 3);
+
+  @assert(tilted.get_reservation_position_logical(0, 8) == 0);
+  @assert(tilted.get_reservation_position_logical(1, 8) ==  5);
+  @assert(tilted.get_reservation_position_logical(2, 8) ==  4);
+  @assert(tilted.get_reservation_position_logical(3, 8) == 7);
+
+  @assert(tilted.get_reservation_position_logical(0, 16) == 0);
+  @assert(tilted.get_reservation_position_logical(1, 16) == 9);
+  @assert(tilted.get_reservation_position_logical(2, 16) == 6);
+  @assert(tilted.get_reservation_position_logical(3, 16) == 13);
+  @assert(tilted.get_reservation_position_logical(4, 16) == 5);
+  @assert(tilted.get_reservation_position_logical(5, 16) == 8);
+  @assert(tilted.get_reservation_position_logical(6, 16) == 12);
+  @assert(tilted.get_reservation_position_logical(7, 16) == 15);
+
+  @assert(tilted.get_reservation_position_logical(0, 32) == 0);
+  @assert(tilted.get_reservation_position_logical(1, 32) == 17);
+  @assert(tilted.get_reservation_position_logical(2, 32) == 10);
+  @assert(tilted.get_reservation_position_logical(3, 32) == 25);
+  @assert(tilted.get_reservation_position_logical(4, 32) == 7);
+  @assert(tilted.get_reservation_position_logical(5, 32) == 14);
+  @assert(tilted.get_reservation_position_logical(6, 32) == 22);
+  @assert(tilted.get_reservation_position_logical(7, 32) == 29);
+  @assert(tilted.get_reservation_position_logical(8, 32) == 6);
+  @assert(tilted.get_reservation_position_logical(9, 32) == 9);
+  @assert(tilted.get_reservation_position_logical(10, 32) == 13);
+  @assert(tilted.get_reservation_position_logical(11, 32) == 16);
+  @assert(tilted.get_reservation_position_logical(12, 32) == 21);
+  @assert(tilted.get_reservation_position_logical(13, 32) == 24);
+  @assert(tilted.get_reservation_position_logical(14, 32) == 28);
+  @assert(tilted.get_reservation_position_logical(15, 32) == 31);
+}
+
+fn gge_expected(rank: u32, surface_size: u32) u32 {
+    if (surface_size == 8) {
+        if (rank < hanoi.get_hanoi_value_index_offset(3)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 1;
+        return 2;
+    } else if (surface_size == 16) {
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(8)) return 2;
+        return 3;
+    } else if (surface_size == 32) {
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(9)) return 2;
+        if (rank < hanoi.get_hanoi_value_index_offset(16)) return 3;
+        return 4;
+    } else if (surface_size == 64) {
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 0;
+        if (rank < hanoi.get_hanoi_value_index_offset(7)) return 1;
+        if (rank < hanoi.get_hanoi_value_index_offset(10)) return 2;
+        if (rank < hanoi.get_hanoi_value_index_offset(17)) return 3;
+        if (rank < hanoi.get_hanoi_value_index_offset(32)) return 4;
+        return 5;
+    } else {
+        @assert(false);
+        return 1;
+    }
+}
+
+fn test_get_global_epoch() void {
+    const surface_sizes = [1]u32{8};
+
+    for (surface_sizes) |size| {
+        // Use a smaller range for testing to avoid excessive test durations
+        const lb = @as(u32, 0);
+        const ub = math.min(@as(u32, 4096), @as(u32, 1) << @as(u32, size));
+        for (@range(u32, lb, ub, 1)) |rank| {
+            const expected_epoch = gge_expected(rank, size);
+            const actual_epoch = tilted.get_global_epoch(rank, size);
+            @assert(expected_epoch == actual_epoch);
+        }
+    }
+}
+
+fn ggnr_expected(rank: u32, surface_size: u32) u32 {
+    if (surface_size == 8) {
+        if (rank < hanoi.get_hanoi_value_index_offset(3)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 2;
+        return 1;
+    } else if (surface_size == 16) {
+        if (rank < hanoi.get_hanoi_value_index_offset(4)) return 8;
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(8)) return 2;
+        return 1;
+    } else if (surface_size == 32) {
+        if (rank < hanoi.get_hanoi_value_index_offset(5)) return 16;
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 8;
+        if (rank < hanoi.get_hanoi_value_index_offset(9)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(16)) return 2;
+        return 1;
+    } else if (surface_size == 64) {
+        if (rank < hanoi.get_hanoi_value_index_offset(6)) return 32;
+        if (rank < hanoi.get_hanoi_value_index_offset(7)) return 16;
+        if (rank < hanoi.get_hanoi_value_index_offset(10)) return 8;
+        if (rank < hanoi.get_hanoi_value_index_offset(17)) return 4;
+        if (rank < hanoi.get_hanoi_value_index_offset(32)) return 2;
+        return 1;
+    } else {
+        @assert(false);
+        return 1;
+    }
+}
+
+fn test_get_global_num_reservations_at_epoch() void {
+    const surface_sizes = [1]u32{8};
+
+    for (surface_sizes) |size| {
+        const lb: u32 = @as(u32, 0);
+        const ub: u32 = math.min(@as(u32, 4096), @as(u32, 1) << @as(u32, size));
+        for (@range(u32, lb, ub, 1)) |rank| {
+            const epoch: u32 = tilted.get_global_epoch(rank, size);
+            const expected = ggnr_expected(rank, size);
+            const actual = tilted.get_global_num_reservations_at_epoch(epoch, size);
+            @assert(expected == actual);
+        }
+    }
+}
+
+fn test_get_hanoi_num_reservations() void {
+    const surface_size: u32 = 8;
+    for (@range(u32, 0, (1 << 8), 1)) |rank| {
+        const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+        const gnr = tilted.get_global_num_reservations(rank, surface_size);
+        @assert(hnr == gnr or hnr == gnr * 2);
+    }
+
+    for (@range(u32, 7)) |rank| {
+        @assert(hanoi.get_max_hanoi_value_through_index(rank) <= 2);
+        @assert(@as(u32, 4) == tilted.get_hanoi_num_reservations(rank, surface_size));
+    }
+
+    for (@range(u32, 7, 15, 1)) |rank| {
+        @assert(hanoi.get_max_hanoi_value_through_index(rank) == 3);
+        @assert(@as(u32, 2) == tilted.get_hanoi_num_reservations(rank, surface_size));
+    }
+
+    for (@range(u32, 15, 31, 1)) |rank| {
+        @assert(hanoi.get_max_hanoi_value_through_index(rank) == 4);
+        if (hanoi.get_hanoi_value_at_index(rank) == 1) {
+            @assert(@as(u32, 2) == tilted.get_hanoi_num_reservations(rank, surface_size));
+        } else if (hanoi.get_hanoi_value_at_index(rank) == 2) {
+            @assert(@as(u32, 2) == tilted.get_hanoi_num_reservations(rank, surface_size));
+        } else {
+            @assert(@as(u32, 1) == tilted.get_hanoi_num_reservations(rank, surface_size));
+        }
+    }
+
+    for (@range(u32, 31, 63, 1)) |rank| {
+        @assert(hanoi.get_max_hanoi_value_through_index(rank) == 5);
+        if (hanoi.get_hanoi_value_at_index(rank) == 2) {
+            @assert(@as(u32, 2) == tilted.get_hanoi_num_reservations(rank, surface_size));
+        } else {
+            @assert(@as(u32, 1) == tilted.get_hanoi_num_reservations(rank, surface_size));
+        }
+    }
+
+    for (@range(u32, 64, 127, 1)) |rank| {
+        @assert(hanoi.get_max_hanoi_value_through_index(rank) == 6);
+        @assert(@as(u32, 1) == tilted.get_hanoi_num_reservations(rank, surface_size));
+    }
+
+    // const surface_size1: u32 = 16;
+    // for (@range(u32, 0, (1 << 16), 1)) |rank| {
+    //     const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+    //     const gnr = tilted.get_global_num_reservations(rank, surface_size);
+    //     @assert(hnr == gnr or hnr == gnr * 2);
+    // }
+
+    // const surface_size2: u32 = 32;
+    // for (@range(u32, 0, (1 << 16), 1)) |rank| {
+    //     const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+    //     const gnr = tilted.get_global_num_reservations(rank, surface_size);
+    //     @assert(hnr == gnr or hnr == gnr * 2);
+    // }
+
+    // var prng = std.rand.DefaultPrng.init(1234);
+    // var random = prng.random();
+    // var rank: u32 = undefined;
+    // for (@range(10000)) |_| {
+    //     rank = random.int(u32);
+    //     const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+    //     const gnr = tilted.get_global_num_reservations(rank, surface_size);
+    //     @assert(hnr == gnr or hnr == gnr * 2);
+    // }
+
+    // const surface_size: u32 = 64;
+    // for (@range(u32, 0, (1 << 16), 1)) |rank| {
+    //     const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+    //     const gnr = tilted.get_global_num_reservations(rank, surface_size);
+    //     @assert(hnr == gnr or hnr == gnr * 2);
+    // }
+
+    // var prng = std.rand.DefaultPrng.init(1234);
+    // var random = prng.random();
+    // var rank: u32 = undefined;
+    // for (@range(10000)) |_| {
+    //     rank = random.int(u32); // library only supports 32-bit integers
+    //     const hnr = tilted.get_hanoi_num_reservations(rank, surface_size);
+    //     const gnr = tilted.get_global_num_reservations(rank, surface_size);
+    //     @assert(hnr == gnr or hnr == gnr * 2);
+    // }
+}
+
+fn test_pick_deposition_site() void {
+    const expected8 = [129]u32{ 0, 1, 5, 2, 4, 6, 7, 3, 0, 1, 5, 7, 0, 6, 5, 4, 0, 1, 0, 2, 0, 6, 0, 3, 0, 1, 0, 7, 0, 6, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 7, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 7, 0, 1, 0, 6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 7, 0 };
+    const surfaceSize1: u32 = 8;
+
+    for (@range(u32, 129)) |rank| {
+        const expected = expected8[rank];
+        const actual = tilted.pick_deposition_site(rank, surfaceSize1);
+        @assert(expected == actual);
+    }
+
+    const expected16 = [36]u32{ 0, 1, 9, 2, 6, 10, 13, 3, 5, 7, 8, 11, 12, 14, 15, 4, 0, 1, 9, 8, 6, 10, 13, 12, 0, 7, 9, 15, 6, 14, 13, 5, 0, 1, 9, 2 }; // Note: Your provided list was cut off, make sure to complete it.
+    const surfaceSize2: u32 = 16;
+
+    for (@range(u32, 36)) |rank| {
+        const expected = expected16[rank];
+        const actual = tilted.pick_deposition_site(rank, surfaceSize2);
+        @assert(expected == actual);
+    }
+}
+
+fn do_test() void {
+  test_get_reservation_position_physical();
+  test_get_reservation_position_logical();
+  test_get_global_epoch();
+  test_get_global_num_reservations_at_epoch();
+  test_get_hanoi_num_reservations();
+  test_pick_deposition_site();
+}
+

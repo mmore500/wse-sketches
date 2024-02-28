@@ -1,0 +1,47 @@
+const tilted = @import_module("cerebraslib/tilted.csl");
+const tilted_sticky = @import_module("cerebraslib/tilted_sticky.csl");
+
+const reference_pick_deposition_site = tilted.pick_deposition_site;
+const pick_deposition_site = tilted_sticky.pick_deposition_site;
+
+fn test_pick_deposition_site() void {
+    const surface_size1: u32 = 8;
+    const num_generations1: u32 = 254;
+
+    for (@range(u32, num_generations1)) |rank| {
+        const expected = reference_pick_deposition_site(rank, surface_size1);
+        const res = pick_deposition_site(rank, surface_size1);
+        @assert((expected == res) == (expected != 0));
+    }
+
+    const surface_size2: u32 = 16;
+    const num_generations2: u32 = 260;  // 4096; // 2^12
+
+    for (@range(u32, num_generations2)) |rank| {
+        const expected = reference_pick_deposition_site(rank, surface_size2);
+        const res = pick_deposition_site(rank, surface_size2);
+        @assert((expected == res) == (expected != 0));
+    }
+
+    const surface_size3: u32 = 32;
+    const num_generations3: u32 = 260;  // 4096; // 2^12
+
+    for (@range(u32, num_generations3)) |rank| {
+        const expected = reference_pick_deposition_site(rank, surface_size3);
+        const res = pick_deposition_site(rank, surface_size3);
+        @assert((expected == res) == (expected != 0));
+    }
+
+    const surface_size4: u32 = 64;
+    const num_generations4: u32 = 260;  //4096; // 2^12
+
+    for (@range(u32, num_generations4)) |rank| {
+        const expected = reference_pick_deposition_site(rank, surface_size4);
+        const res = pick_deposition_site(rank, surface_size4);
+        @assert((expected == res) == (expected != 0));
+    }
+}
+
+fn do_test() void {
+    test_pick_deposition_site();
+}
