@@ -1,0 +1,18 @@
+param memcpy_params: comptime_struct;
+const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
+
+var genome = @zeros([3]u32);
+var ptr_genome : [*]u32 = &genome;
+
+fn dolaunch() void {
+  genome[0] = 2863311530; // 10101010101010101010101010101010
+  genome[1] = 4294967295; // 11111111111111111111111111111111
+  genome[2] = 4042322160; // 00001111000011110000111100001111
+  memcpy.unblock_cmd_stream();
+}
+
+comptime {  
+  @export_symbol(ptr_genome, "genome");
+  @export_symbol(dolaunch);
+  @rpc(@get_data_task_id(memcpy.LAUNCH));
+}
