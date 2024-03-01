@@ -283,15 +283,10 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-print(data)
+bin_data = [''.join(bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3))[16:] for i in range(0, 27, 3)]
+new_data = [eval(f"0b{num}") for num in bin_data]
 
-# re-arrange data to consecutively group wavelets from each PE 
-newData = [data[i][j][k] for i in range(nCol) for j in range(nRow) for k in range(nWav)]
-
-# create a new list with each group of nWav wavelets converted into a single string
-binData = [''.join(bin(int(newData[i + j]))[2:].zfill(32) for j in range(3)) for i in range(0, nRow * nCol * nWav, nWav)]
-
-df = pd.DataFrame(binData, columns=["bitfield"])
+df = pd.DataFrame(new_data, columns=["bitfield"])
 df.to_csv('out.csv', index=False)
 
 # runner.dump("corefile.cs1")
