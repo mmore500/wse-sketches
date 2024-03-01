@@ -1,13 +1,25 @@
 param memcpy_params: comptime_struct;
+param peId: i16;
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
+const math = @import_module("<math>");
 
 var genome = @zeros([3]u32);
 var ptr_genome : [*]u32 = &genome;
 
+
+
 fn dolaunch() void {
-  genome[0] = 2863311530; // 10101010101010101010101010101010
-  genome[1] = 4294967295; // 11111111111111111111111111111111
-  genome[2] = 4042322160; // 00001111000011110000111100001111
+
+  var binary: u32 = 0;
+  for(@range(u32, peId)) |i| {
+    const two = @as(f32, 2);
+    const j = @as(f32, i);
+    binary += @as(u32, math.pow(two, j));
+  }
+  genome[0] = 4294901760; // 11111111111111110000000000000000
+  genome[1] = 4042322160; // 11110000111100001111000011110000
+  genome[2] = binary; // 
+
   memcpy.unblock_cmd_stream();
 }
 

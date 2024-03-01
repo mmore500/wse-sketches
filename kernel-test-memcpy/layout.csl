@@ -11,6 +11,7 @@ const memcpy = @import_module("<memcpy/get_params>", .{
 
 layout {
   @set_rectangle(nCol, nRow);
+  var peId: u16 = 1;
 
   for (@range(i32, nCol)) |x| {
     for (@range(i32, nRow)) |y| {
@@ -18,9 +19,11 @@ layout {
         x, y,
         "kernel.csl",
         .{
+          .peId = peId,
           .memcpy_params = memcpy.get_params(x),
         }
       );
+      peId += 1;
     }
   }
 
