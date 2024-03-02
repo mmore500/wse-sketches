@@ -10,15 +10,20 @@ var ptr_genome : [*]u32 = &genome;
 
 fn dolaunch() void {
 
+  // value: 11111111111111110000000000000000
+  // stored little endian: 00000000000000001111111111111111
+  genome[0] = 4294901760;
+
+  // value: 11110000111100001111000011110000
+  // stored little endian: 11110000111100001111000011110000
+  genome[1] = 4042322160;
+
   var binary: u32 = 0;
   for(@range(u32, peId)) |i| {
-    const two = @as(f32, 2);
     const j = @as(f32, i);
-    binary += @as(u32, math.pow(two, j));
+    binary += @as(u32, math.pow(2.0, j));
   }
-  genome[0] = 4294901760; // 11111111111111110000000000000000
-  genome[1] = 4042322160; // 11110000111100001111000011110000
-  genome[2] = binary; // 
+  genome[2] = binary;
 
   memcpy.unblock_cmd_stream();
 }
