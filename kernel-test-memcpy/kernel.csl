@@ -21,7 +21,7 @@ fn dolaunch() void {
   var binary: u32 = 0;
   for(@range(u32, peId)) |i| {
     const j = @as(f32, i);
-    binary += @as(u32, math.pow(2.0, j));
+    binary += @as(u32, math.pow(@as(f32, 2.0), j));
   }
   genome[2] = binary;
 
