@@ -40,13 +40,18 @@ runner.memcpy_d2h(
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 
-bin_data = [''.join(bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3))[16:] for i in range(0, 27, 3)] 
+bin_data = [
+    "".join(
+        bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3)
+    )[16:]
+    for i in range(0, 27, 3)
+]
 # bin_data = [''.join([bin(x)[2:].zfill(8) for x in data.ravel().view(np.uint8)][i:i+12])[16:] for i in range(0, 108, 12)] # alternative approach
 
 new_data = [eval(f"0b{num}") for num in bin_data]
 
 df = pd.DataFrame(new_data, columns=["bit_field"])
-df.to_csv('out.csv', index=False)
+df.to_csv("out.csv", index=False)
 
 runner.stop()
 
