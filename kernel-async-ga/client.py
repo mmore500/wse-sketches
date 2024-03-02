@@ -9,7 +9,7 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
     MemcpyOrder,
 )  # pylint: disable=no-name-in-module
 
-nRow, nCol, nWav = 3, 3, 3
+nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir")
