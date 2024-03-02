@@ -23,7 +23,7 @@ fn dolaunch() void {
   memcpy.unblock_cmd_stream();
 }
 
-comptime {  
+comptime {
   @export_symbol(ptr_genome, "genome");
   @export_symbol(dolaunch);
   @rpc(@get_data_task_id(memcpy.LAUNCH));
