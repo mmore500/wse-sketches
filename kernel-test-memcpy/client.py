@@ -1,6 +1,5 @@
 import numpy as np
 import argparse
-import pandas as pd
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -9,7 +8,8 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
     MemcpyOrder,
 )
 
-nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
+nRow, nCol, nWav = 5, 4, 3  # number of rows, columns, and genome words
+wavSize = 32  # number of bits in a wavelet
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir")
@@ -23,7 +23,7 @@ runner.run()
 runner.launch("dolaunch", nonblock=False)
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, 3), np.uint32)
+out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
 
 runner.memcpy_d2h(
     out_tensors_u32,
@@ -40,18 +40,36 @@ runner.memcpy_d2h(
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 
-bin_data = [
-    "".join(
-        bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3)
-    )[16:]
-    for i in range(0, 27, 3)
+genome_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
-# bin_data = [''.join([bin(x)[2:].zfill(8) for x in data.ravel().view(np.uint8)][i:i+12])[16:] for i in range(0, 108, 12)] # alternative approach
+genome_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
+]
 
-new_data = [eval(f"0b{num}") for num in bin_data]
+assert len(genome_ints) == nRow * nCol
+sentry_bit = 1 << (nWav * wavSize)
+for genome_int in genome_ints:
+    print(bin(genome_int | sentry_bit))
 
-df = pd.DataFrame(new_data, columns=["bit_field"])
-df.to_csv("out.csv", index=False)
+
+genome_hexstrings = [
+    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
+    for genome_int in genome_ints
+]
+for genome_hexstring in genome_hexstrings:
+    assert len(genome_hexstring) == nWav * wavSize // 4
+
+    word1_hexstring = genome_hexstring[0:8]
+    word1 = int.from_bytes(bytes.fromhex(word1_hexstring), byteorder="little")
+    assert word1 == 4294901760
+
+    word2_hexstring = genome_hexstring[8:16]
+    word2 = int.from_bytes(bytes.fromhex(word2_hexstring), byteorder="little")
+    assert word2 == 4042322160
+
+word3_hexstrings = map(lambda x: x[16:24], genome_hexstrings)
+assert len(set(word3_hexstrings)) == nRow * nCol
 
 runner.stop()
 

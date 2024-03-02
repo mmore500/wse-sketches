@@ -1,5 +1,5 @@
-const nRow = 3;
-const nCol = 3;
+const nRow = 5;
+const nCol = 4;
 
 const LAUNCH: color = @get_color(9);
 
