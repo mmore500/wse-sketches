@@ -1,7 +1,5 @@
-import numpy as np
 import argparse
 
-from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
     SdkRuntime,
 )  # pylint: disable=no-name-in-module
@@ -12,7 +10,7 @@ parser.add_argument("--cmaddr", help="IP:port for CS system")
 args = parser.parse_args()
 
 # Path to ELF and simulation output files
-runner = SdkRuntime("out", cmaddr=args.cmaddr)
+runner = SdkRuntime(args.name, cmaddr=args.cmaddr)
 
 runner.load()
 runner.run()
