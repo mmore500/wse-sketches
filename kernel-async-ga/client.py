@@ -283,11 +283,16 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-bin_data = [''.join(bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3))[16:] for i in range(0, 27, 3)]
+bin_data = [
+    "".join(
+        bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3)
+    )[16:]
+    for i in range(0, 27, 3)
+]
 new_data = [eval(f"0b{num}") for num in bin_data]
 
 df = pd.DataFrame(new_data, columns=["bitfield"])
-df.to_csv('out.csv', index=False)
+df.to_csv("out.csv", index=False)
 
 # runner.dump("corefile.cs1")
 runner.stop()
