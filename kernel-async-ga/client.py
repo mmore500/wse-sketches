@@ -10,6 +10,7 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
 )  # pylint: disable=no-name-in-module
 
 nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
+wavSize = 32  # number of bits in a wavelet
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir")
@@ -283,16 +284,26 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-bin_data = [
-    "".join(
-        bin(data.byteswap().ravel()[i + j])[2:].zfill(32) for j in range(3)
-    )[16:]
-    for i in range(0, 27, 3)
+genome_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
-new_data = [eval(f"0b{num}") for num in bin_data]
+genome_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
+]
 
-df = pd.DataFrame(new_data, columns=["bitfield"])
-df.to_csv("out.csv", index=False)
+# display genome values
+assert len(genome_ints) == nRow * nCol
+print("------------------------------------------------ genome binary strings")
+for genome_int in genome_ints:
+    print(np.binary_repr(genome_int, width=nWav * wavSize))
+
+print("--------------------------------------------------- genome hex strings")
+for genome_int in genome_ints:
+    print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
+
+# save genome values to a file
+df = pd.DataFrame(genome_ints, columns=["bitfield"])
+df.to_csv("genomes.csv", index=False)
 
 # runner.dump("corefile.cs1")
 runner.stop()
