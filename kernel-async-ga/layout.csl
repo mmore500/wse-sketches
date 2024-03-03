@@ -53,7 +53,7 @@ layout {
   @export_name("sendCounter_S", [*]u16, true);
   @export_name("sendCounter_E", [*]u16, true);
   @export_name("sendCounter_W", [*]u16, true);
-  @export_name("genome", [*]f32, true);
+  @export_name("genome", [*]u32, true);
   @export_name("whoami", [*]i16, true);
   @export_name("whereami_x", [*]i16, true);
   @export_name("whereami_y", [*]i16, true);

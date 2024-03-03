@@ -70,8 +70,8 @@ var ptr_sendCounter_E : [*]u16 = &sendCounter_E;
 var sendCounter_W = @zeros([1]u16);
 var ptr_sendCounter_W : [*]u16 = &sendCounter_W;
 
-var genome = @zeros([1]f32);  // samples 0th poopulation element (convenient)
-var ptr_genome : [*]f32 = &genome;
+var genome = @zeros([population_.gSize]u32);  // samples 0th population element (convenient)
+var ptr_genome : [*]u32 = &genome;
 
 // report back layout params (sanity check)
 var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
@@ -388,7 +388,9 @@ task cycleTask(cycle: u16) void {
   // --------------------------------------------------------------------------
   population_.do_generation();
   // sample 0th element of population for telemetry
-  genome[0] = @as(f32, population_._calc_ith_fitness(0));
+  for(@range(u16, population_.gSize)) |i| {
+    genome[i] = population_._get_ith_genome(0)[i];
+  }
 
   // handle send flags, load send buffer from pop and start next async send
   // --------------------------------------------------------------------------

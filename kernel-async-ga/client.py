@@ -1,5 +1,6 @@
 import numpy as np
 import argparse
+import pandas as pd
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -8,7 +9,8 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
     MemcpyOrder,
 )  # pylint: disable=no-name-in-module
 
-nRow, nCol = 3, 3
+nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
+wavSize = 32  # number of bits in a wavelet
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir")
@@ -266,7 +268,7 @@ print(data)
 
 print("genome values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow), np.float32)
+out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
 
 runner.memcpy_d2h(
     out_tensors_u32,
@@ -275,14 +277,33 @@ runner.memcpy_d2h(
     0,  # y0
     nCol,  # width
     nRow,  # height
-    1,  # num wavelets
+    nWav,  # num wavelets
     streaming=False,
     data_type=memcpy_dtype,
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.float32))
-print(data)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+genome_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+genome_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
+]
+
+# display genome values
+assert len(genome_ints) == nRow * nCol
+print("------------------------------------------------ genome binary strings")
+for genome_int in genome_ints:
+    print(np.binary_repr(genome_int, width=nWav * wavSize))
+
+print("--------------------------------------------------- genome hex strings")
+for genome_int in genome_ints:
+    print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
+
+# save genome values to a file
+df = pd.DataFrame(genome_ints, columns=["bitfield"])
+df.to_csv("genomes.csv", index=False)
 
 # runner.dump("corefile.cs1")
 runner.stop()

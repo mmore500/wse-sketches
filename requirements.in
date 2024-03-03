@@ -11,5 +11,8 @@ tqdm
 
 # binder
 ipykernel
+more_itertools
 nb-clean
+joblib==1.3.2
 jupyter
+watermark==2.4.3
