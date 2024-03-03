@@ -10,6 +10,9 @@ ruff
 tqdm
 
 # binder
+alifedata_phyloinformatics_convert==0.16.2
+hstrat==1.11.1
+git+https://github.com/mmore500/hstrat-surface-concept.git@v0.3.0#egg=hsurf
 ipykernel
 more_itertools
 nb-clean
