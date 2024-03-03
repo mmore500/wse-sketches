@@ -23,7 +23,7 @@ Requires [Cerebras SDK](https://www.cerebras.net/developers/sdk-request/), avail
 
 See our [Continuous Integration config](https://github.com/mmore500/wse-sketches-mirror/blob/master/.github/workflows/ci.yaml) for detailed instructions on installing dependencies and running project components.
 
-Note that the `test-csl` continuous integration components do not run within the scope of the public-facing `wse-sketches` repository in order to protect Cerebras' intellectual property. 
+Note that the `test-csl` continuous integration components do not run within the scope of the public-facing `wse-sketches` repository in order to protect Cerebras' intellectual property.
 
 ## Contact
 
