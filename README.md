@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/mmore500/wse-sketches/actions/workflows/ci.yaml/badge.svg)](https://github.com/mmore500/wse-sketches/actions/workflows/ci.yaml)
 [![GitHub stars](https://img.shields.io/github/stars/mmore500/wse-sketches.svg?style=flat-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/wse-sketches)
+[![DOI](https://zenodo.org/badge/650194447.svg)](https://zenodo.org/doi/10.5281/zenodo.10779280)
 
 Development work for agent-based evolution/epidemiological modeling on the Cerebras Wafer-scale Engine (WSE) hardware.
 Incoprorates [hereditary stratigraphy](https://github.com/mmore500/hstrat) methodology for distributed tracking of agent phylogenies.
@@ -24,6 +25,27 @@ Requires [Cerebras SDK](https://www.cerebras.net/developers/sdk-request/), avail
 See our [Continuous Integration config](https://github.com/mmore500/wse-sketches-mirror/blob/master/.github/workflows/ci.yaml) for detailed instructions on installing dependencies and running project components.
 
 Note that the `test-csl` continuous integration components do not run within the scope of the public-facing `wse-sketches` repository in order to protect Cerebras' intellectual property.
+
+## Citing
+
+If wse-sketches contributes to a scientific publication, please cite it as
+
+> Matthew Andres Moreno and Connor Yang. (2024). mmore500/wse-sketches. Zenodo. https://doi.org/10.5281/zenodo.10779280
+
+```bibtex
+@software{moreno2024wse,
+  author = {Matthew Andres Moreno and Connor Yang},
+  title = {mmore500/wse-sketcyes},
+  month = mar,
+  year = 2024,
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.10779280},
+  url = {https://doi.org/10.5281/zenodo.10779280}
+}
+```
+
+Consider also citing [hsurf](https://github.com/mmore500/hstrat-surface-concept/blob/master/README.md#citing) and [hstrat](https://hstrat.readthedocs.io/en/stable/citing.html).
+And don't forget to leave a [star on GitHub](https://github.com/mmore500/pecking/stargazers)!
 
 ## Contact
 
