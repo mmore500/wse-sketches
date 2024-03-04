@@ -1,0 +1,4 @@
+run = "make -C tex fresh; make -C tex-access-proposal fresh"
+
+[nix]
+channel = "stable-22_11"
