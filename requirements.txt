@@ -100,7 +100,8 @@ exceptiongroup==1.2.0
 executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.1
-    # via nbformat
+    # via nbformat<<<<<<< Updated upstream
+
 fonttools==4.49.0
     # via matplotlib
 fqdn==1.5.1
