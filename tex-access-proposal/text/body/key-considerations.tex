@@ -1,0 +1,85 @@
+\section{Key Considerations} \label{sec:key-Considerations}
+
+\begin{enumerate} \itshape
+\item Using the SDK requires programming in CSL, a C-like language designed specifically for the problem of massively parallel programming on the CS-2.
+What is your experience with HPC programming paradigms and languages, such as MPI, OpenMP, CUDA, OpenCL, etc.?
+\end{enumerate}
+
+Dr. Moreno extensive experience working with HPC technologies, most notably developing asynchronous, best-effort computing approaches using MPI and C++.
+He has also received training in GPU programming (e.g., OpenCL, CUDA).
+
+Dr. Dolson and Dr. Zaman are both experienced systems-level programmers.
+
+\begin{enumerate}[resume] \itshape
+\item What are the underlying computational algorithms you're interested in exploring?
+What existing software packages or libraries use these algorithms?
+\end{enumerate}
+
+The core algorithm is an island-style GA.
+i.e., Empirical (cite), MABE (cite), and others.
+These frameworks serial processing on traditional HPC hardware.
+
+\begin{enumerate}[resume] \itshape
+\item How is this problem bottlenecked on current hardware?
+Is the problem more bottlenecked by memory bandwidth, or communication costs associated with scaling up across distributed compute nodes?
+\end{enumerate}
+
+Memory bandwidth and synchronization costs to exchange population members.
+Compute bound memory latency.
+
+\begin{enumerate}[resume] \itshape
+\item What range of problem sizes are you interested in addressing?
+For example, how much memory does your problem use?
+How does memory usage or program run-time scale with problem size?
+\end{enumerate}
+
+We are interested in developing population-scale, cross-scale simulations with hundreds of millions of agents.
+The memory usage of the program and run-time scale linearly with problem size, either defined as evolutionary duration or population size.
+Precise memory usage depends largely on the agent genomes used.
+Including instrumentation, a meaningful simulation size could feasibly be achieved using on the order of 4 words of memory per agent.
+
+\begin{enumerate}[resume] \itshape
+\item What portion of your algorithm do you plan to port to the CS-2?
+Why are you interested in exploring this part of your algorithm?
+\end{enumerate}
+
+We plan to port the core evolutionary generational loop to the CS-2 to as an island model-style genetic algorithm.
+The stages are 1) migration, 2) selection, 3) replication with mutation.
+We are interested in porting it because it is the most coputationally intensive to scale and because it is embarassingly parallel.
+
+Postprocessing to analyze evolved traits, and reconstruct evolutionary history will take place off-device.
+
+\begin{enumerate}[resume] \itshape
+\item The CS-2 offers native half and single precision data types.
+What precision does your algorithm or use case need?
+\end{enumerate}
+
+Due to the agent-based modeling, this is a primarily discrete domain.
+However, floating point types may be used to represent traits.
+Becuase they are only used for comparisons between agents, single or half precision suffice.
+
+\begin{enumerate}[resume] \itshape
+\item The CS-2 is a network-attached accelerator. At a high level, the CSL programming model is similar to that of CUDA, in which data is moved between host CPU nodes and the device (CS-2) on which computational kernels are launched.
+How often will data need to be moved between the wafer and the worker nodes?
+\end{enumerate}
+
+For preliminary versions of the project, we are planning to only collect data at the end of execution the through the Cerebras memcpy infrastructure.
+As the model is self-contained, no data except for PE code will need to be moved onto the device.
+
+In the future, we are interested in exploring samples throughout the evolutionary process to serve as a kind of ``fossil record.''
+
+\begin{enumerate}[resume] \itshape
+\item Describe your general plan to map your problem onto 850,000 cores. In answering this question, it might be helpful to recall some details of the CS-2 architecture.
+The 850,000 cores are laid out in a mesh, with each core connected on fabric to its four nearest neighbors on the East, South, North, and West.
+Memory is distributed among the cores, with each core having 48 KB of local memory.
+64-bit local memory reads and writes take roughly a cycle, as does sending and receiving 32-bit messages between the four neighboring cores.
+\end{enumerate}
+
+We plan to exploit an island model genetic algorithm where each PE is an island and genomes migrate between adjacent islands.
+As natural systems are typically asynchronous in nature, synchronization is not a concern.
+We plan to use CSL asynchronous send/receive operations to implement migration.
+
+Genomes will be represented as contiguous bufers of u32 and each PE's population as a contiguous buffer of genome data using a simple synchronous generational model (i.e., a swap buffer.)
+Population-level operations (e.g., selection, reproduction, mutation) will take advantage of the CSL's data structure descriptors.
+The local memory is sufficient for a population size on the order of hundreds or low thousands.
+This could give a globl population size on the order of hundreds of millions.
