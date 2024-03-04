@@ -2,7 +2,3 @@
 	path = tex/binder
 	url = https://github.com/mmore500/wse-sketches.git
 	branch = binder
-[submodule "tex-access-proposal/binder"]
-	path = tex-access-proposal/binder
-	url = https://github.com/mmore500/wse-sketches.git
-	branch = binder
