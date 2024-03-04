@@ -35,7 +35,7 @@ If wse-sketches contributes to a scientific publication, please cite it as
 ```bibtex
 @software{moreno2024wse,
   author = {Matthew Andres Moreno and Connor Yang},
-  title = {mmore500/wse-sketcyes},
+  title = {mmore500/wse-sketches},
   month = mar,
   year = 2024,
   publisher = {Zenodo},
