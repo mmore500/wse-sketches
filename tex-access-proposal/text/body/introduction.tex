@@ -1,13 +1,18 @@
 \section{Introduction} \label{sec:introduction}
 
-example \citep{gagliardi2019international}
+Agent-Based Model Simulation (ABMS) can address problems in basic science and applied sectors ranging from infrastructure to public health to
+telecommunications.
+The defining trait of agent-based modeling is cross-scale dynamics.
+However, to fully realize this potential, ABMS require sufficient scale to capture the systems' emergent behaviors.
 
-\input{fig/hsurf-schematic.tex}
+artificial life (open-ended evolution) and evolutionary epidemiology, ecology, AND blah as well as scenarios where replicating entities like cultural artifacts or computer viruses.
+
+Emerging class of fabric-based architectures epitomized by the Cerebras Wafer Scale Engine have great promise \citep{lauterbach2021path,lie2022cerebras}.
+However, needs methodological development
+In particular, need to be able to observe.
+Phylogenetic history is an important part of that (steal citations from arxiv papers)
+
 \input{fig/runtime-posthoc-schematic.tex}
-\input{fig/validation-example.tex}
-
-We are interested in developing applications of the Cerebras CS-2 to agent-based evolutionary modeling of epidemiological scenarios.
-The unique capabilities of the CS-2 platform will allow us to push the boundaries of model-based inquiry, allowing investigation of new questions at the magnitude of continental or global-scale population structure and at the resolution of individual-level immunological responses.
 
 A particular focus of our work is in the design of new algorithms to improve the observability of agent-based evolutionary simulations at scale through extraction of agent (e.g., pathogen) phylogenetic histories.
 This information is known to provide insight into underlying evolutionary/epidemiological dynamics within a system.
@@ -17,13 +22,9 @@ Historically, simulation phylogenies have typically only been collected using a 
 To overcome this limitation, we have proposed a new class of reconstruction-based approaches to phylogenetic tracking in silico.
 These approaches require no data collection during simulation runtime; instead, they use post hoc comparisons between end-state agents to deduce approximate phylogenetic history.
 
-We have successfully demonstrated aspects of this approach (published in existing work as the hstrat Python library), with present work revising the underlying algorithms to better suit resource-constrained environments such as CS-2 Processor Elements.
-Early evaluations of this revised approach have achieved high-quality reconstruction of phylogenetic histories for tens of thousands of fully-distributed agents using just 96 bits of tracking information per agent.
-We are actively porting this new algorithm to the cerebras software language, and have a prototype kernel already up and running with the Cerebras SDK at \url{https://github.com/mmore500/wse-sketches}.
+\section{Objectives} \label{sec:objectives}
 
-With access to CS-2 hardware, we plan to evaluate the viability of reconstruction-based methodology for in silico phylogenetic tracking at scale in production and then incorporate it within large-scale epidemiological modeling experiments performed via a custom CSL kernel.
-
-I am collaborating on this project with Dr. Emily Dolson (Michigan State University), Dr. Luis Zaman (University of Michigan), and undergraduate researchers Anika Ranjan and Connor Yang, cc'ed.
+Technical demonstration and evaluation of methodology stitched together into answering technical questions about huge-scale phylogenetic structure that existing approaches have yet been able to address.
 
 Objective one: technology demonstration of reconstruction at wafer scale.
 Validate by running under two simple evolutionary conditions that expect to produce different phylogenetic structure.
@@ -41,6 +42,44 @@ Objective three: what is the relationship between individual phylogenies and spe
 Another objective: does streaming samples off the chip asynchronously bias phylometrics (as opposed to collecting everything all at the end.
 
 Relatedly: are phylometrics time invariant to duration of simulation?
+
+
+Early evaluations of this revised approach have achieved high-quality reconstruction of phylogenetic histories for tens of thousands of fully-distributed agents using just 96 bits of tracking information per agent.
+
+
+Order-of-magnitude increases in tractable model scales are possible through 1) Parallel Discrete Event Simulation (PDES) approaches and 2) emerging high-performance computing (HPC) accelerator hardware.
+These approaches potentially synergize; in the emerging class of fabric-based architectures, compute elements interface primarily with neighbors, a paradigm suited to the locally-structured interaction networks common in ABMS/PDES.
+Of course, these approaches also pose unique challenges, many centering on difficulty maintaining sufficient historical state to run the model and collect data without exceeding the tight memory limits of processor elements.
+%In particular, the limited communication with external (``host'') devices in fabric-based accelerator architectures inhibits retrieving data from ABMS/PDES.
+%but these approaches pose challenges individually and in combination.
+% Success hinges on reconciling the irregular computational profile of PDES with the capabilities (and limitations) of accelerator hardware.
+%One major performance challenge is limitations to host-device communication.
+%Notably, in the emerging class of fabric-based architectures, many accelerator compute elements interface only with local neighbors rather than with an overarching host, creating communication challenges.
+
+To advance on this front, we propose a fundamental re-frame of simulation that shifts from a paradigm of ``complete,'' deterministic data observability to dynamic, inquiry-driven sampling akin to approaches traditionally used to study physical systems.
+In exchange, this relaxation to ``best-effort'' observability addresses bandwidth/storage limitations, enables on-the-fly queries, and tolerates intermittent disruption.
+We will leverage the space-time memory paradigm to provide an efficient, robust interface between PDES and dynamic, inquiry-driven data extraction while preserving the integrity of underlying simulation.
+
+
+example \citep{gagliardi2019international}
+
+
+We are interested in developing applications of the Cerebras CS-2 to agent-based evolutionary modeling of epidemiological scenarios.
+The unique capabilities of the CS-2 platform will allow us to push the boundaries of model-based inquiry, allowing investigation of new questions at the magnitude of continental or global-scale population structure and at the resolution of individual-level immunological responses.
+
+A particular focus of our work is in the design of new algorithms to improve the observability of agent-based evolutionary simulations at scale through extraction of agent (e.g., pathogen) phylogenetic histories.
+This information is known to provide insight into underlying evolutionary/epidemiological dynamics within a system.
+Further, comparison of observed phylogenies against simulation phylogenies can be used to evaluate hypotheses for underlying dynamics within real-life evolutionary/epidemiological systems.
+
+Historically, simulation phylogenies have typically only been collected using a centralized, complete record-keeping approach suited to serial simulation.
+To overcome this limitation, we have proposed a new class of reconstruction-based approaches to phylogenetic tracking in silico.
+These approaches require no data collection during simulation runtime; instead, they use post hoc comparisons between end-state agents to deduce approximate phylogenetic history.
+
+
+With access to CS-2 hardware, we plan to evaluate the viability of reconstruction-based methodology for in silico phylogenetic tracking at scale in production and then incorporate it within large-scale epidemiological modeling experiments performed via a custom CSL kernel.
+
+I am collaborating on this project with Dr. Emily Dolson (Michigan State University), Dr. Luis Zaman (University of Michigan), and undergraduate researchers Anika Ranjan and Connor Yang, cc'ed.
+
 
 
 \noindent\textbf{Introduction:}
