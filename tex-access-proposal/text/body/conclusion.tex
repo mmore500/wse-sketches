@@ -1,5 +1,9 @@
 \section{Conclusion} \ref{sec:conclusion}
 
+To advance on this front, we propose a fundamental re-frame of simulation that shifts from a paradigm of ``complete,'' deterministic data observability to dynamic, inquiry-driven sampling akin to approaches traditionally used to study physical systems.
+In exchange, this relaxation to ``best-effort'' observability addresses bandwidth/storage limitations, enables on-the-fly queries, and tolerates intermittent disruption.
+We will leverage the space-time memory paradigm to provide an efficient, robust interface between PDES and dynamic, inquiry-driven data extraction while preserving the integrity of underlying simulation.
+
 Laying the foundations for an entirely new class of simulation on the WSE: PDES/ABMS.
 Wafer-scale integration has the potential to have significant impacts on ABMS --- lots of agents to generate multiscale dynamics with low-latency interactions between agents being a key.
 
@@ -8,3 +12,16 @@ This has led to ready-made solutions.
 The technical infrastructure necessary for the project is largely in place through use of the hardware simulator Cerebras SDK.
 
 We look forward to answering questions around phylogenetic scale, with a primary emphasis on generating general-purpose methodologies and reusable software tools that can catalyze research in this area.
+
+
+We will use our expanded scale to capture within-host and between-host pathogen behaviors, and evaluate evolved pathogen traits that balance trade-offs occurring across scales.
+Using space-time buffers, we will support 1) asynchronous interactions between simulation components (e.g., host agents, pathogen agents, geographic locales) and 2) dynamic, inquiry-driven data extraction (Fig. \ref{fig:model-schematic}).
+
+% ADDITIONAL IDEAS
+% collaboratorships/scientific networking
+% generally, having a record of recent interactioons with other agents
+% patent record/phylogeny of ideas in "scientific enterprise"
+% generally, agent behavior based on a rough history of recent experience
+Proposed strategies will generalize across ABMS/PDES domains where sampled observations can fulfill experimental objectives.
+For example, in congestion models (e.g., road traffic, internet traffic), statistical measures of net bandwidth or backups at critical sites can suffice to assess network-level outcomes and coarsened histories attached to individual agents can show underlying dynamics (e.g., position across time).
+%

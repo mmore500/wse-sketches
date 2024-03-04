@@ -1,0 +1,26 @@
+\section{Objectives} \label{sec:objectives}
+
+With access to CS-2 hardware, we plan to evaluate the viability of reconstruction-based methodology for \textit{in silico} phylogenetic tracking at scale in production and then incorporate it within large-scale epidemiological modeling experiments performed via a custom CSL kernel.
+Technical demonstration and evaluation of methodology stitched together into answering technical questions about huge-scale phylogenetic structure that existing approaches have yet been able to address.
+
+Application areas are general evolutionary theory/understanding, which has applications in many sectors including ecology, natural history, application-oriented evolutionary computation.
+Prelude to more targeted work in evolutionary epidemiology.
+
+\subsection{Technology Demonstration and Scaling Evaluation}
+Objective one: technology demonstration of reconstruction at wafer scale.
+Validate by running under two simple evolutionary conditions that expect to produce different phylogenetic structure.
+See if we can recover that phylogenetic structure.
+
+Also, observe scalability of asynchronous evolutionary approach.
+
+\subsection{Effects of Scale in time and space on Phylogenetic Structure}
+Objective two: are phylogenetic structure metrics scale invariant?
+Run several evolutionary conditions with small colletions of PEs and large collections of PEs
+Test for differences in phylogenetic structure metrics.
+(how to control for reconstruction quality?)
+
+Relatedly: are phylometrics time invariant to duration of simulation?
+Another objective: does streaming samples off the chip asynchronously bias phylometrics (as opposed to collecting everything all at the end.
+
+
+% Objective three: what is the relationship between individual phylogenies and species-level phylogenies?
