@@ -10,7 +10,10 @@ Migration between PEs links the populations into a network of a single populatio
 To minimize synchronization costs, we adopt a fully asynchronous approach to migration between neighboring PEs.
 Evolutionary processes tend to occur in asynchronous manner with arbitrary factors influencing things, so this is a reasonable relaxation to make.
 
+\input{fig/async-ga-schematic.tex}
+
 In the core of the algorithm, each PE performs an update cycle, which comprises several steps.
+Figure \ref{fig:async-ga-schematic} provides a schematic overview.
 
 The first step of this update loopis to handle migration.
 Each PE has an immigration buffer and an emigration buffer for each cardinal neighbor.
