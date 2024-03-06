@@ -1,26 +1,44 @@
 \section{Proposed Work} \label{sec:objectives}
 
-With access to CS-2 hardware, we plan to evaluate the viability of reconstruction-based methodology for \textit{in silico} phylogenetic tracking at scale in production and then incorporate it within large-scale epidemiological modeling experiments performed via a custom CSL kernel.
-Technical demonstration and evaluation of methodology stitched together into answering technical questions about huge-scale phylogenetic structure that existing approaches have yet been able to address.
+Our project will unfold in three phases:
+\begin{enumerate}
+\item \textbf{Algorithm Validation}: compare replicates evolutionary runs across selection pressure levels, and evaluate capability of instrumentation and reconstruction pipeline to detect expected effect on phylogenetic structure in wafer-scale agent populations;
+\item \textbf{Scalability Analysis}: assess stability, efficiency, and migration throughput of asynchronous agent exchange between PEs in collections ranging from hundreds of PEs, to thousands, to full wafer scale; and
+\item \textbf{Phylogenetic Structure Across Population Scales}: exploit WSE scale capabilities to answer fundamental questions of how common phylogeny structure metrics vary with scale in time and space.
+\end{enumerate}
 
-Application areas are general evolutionary theory/understanding, which has applications in many sectors including ecology, natural history, application-oriented evolutionary computation.
-Prelude to more targeted work in evolutionary epidemiology.
+Proposed work will provide a technical demonstration and evaluation of novel approaches that harness CS-2 capabilities for ABM, opening up an entirely new class of HPC applications for wafer scale technology.
+We will exploit this prototype software to answer foundational questions about how phylogenetic structure differs across orders-of-magnitude changes in population size.
 
-\subsection{Technology Demonstration and Scaling Evaluation}
-Objective one: technology demonstration of reconstruction at wafer scale.
-Validate by running under two simple evolutionary conditions that expect to produce different phylogenetic structure.
-See if we can recover that phylogenetic structure.
+\subsection{Algorithm Validation}
 
-Also, observe scalability of asynchronous evolutionary approach.
+Initial work will augment existing software tests and hardware-simulation integration tests (Section \ref{sec:existing-work}) to prove out the capability of newly-developed genome annotations and phylogeny reconstruction processes to recover accurate, actionable depiction of evolutionary history.
+We will generate experimental replicates across several levels of selection pressure by varying the tournament size in our island model genetic algorithm.
+This property has well-defined expectations for effects on sum branch length in phylogenetic structure, allowing us to evaluate the capability of the developed genome instrumentation and tree reconstruction pipeline to recover expected effects from wafer-scale agent populations.
 
-\subsection{Effects of Scale in time and space on Phylogenetic Structure}
-Objective two: are phylogenetic structure metrics scale invariant?
-Run several evolutionary conditions with small colletions of PEs and large collections of PEs
-Test for differences in phylogenetic structure metrics.
-(how to control for reconstruction quality?)
+\subsection{Scalability Analysis}
 
-Relatedly: are phylometrics time invariant to duration of simulation?
-Another objective: does streaming samples off the chip asynchronously bias phylometrics (as opposed to collecting everything all at the end.
+To assess the scalability of asynchronous agent exchange between PEs within the Cerebras architecture, we will perform replicate benchmark experiments at collective sizes of 850k, 85k, 8.5k and 850 PEs.
+At each scale, we will assess the following metrics:
+\begin{itemize}
+\item uniformity of cycle count across processor elements,
+\item mean per-PE generational turnover rate, and
+\item net migration per-PE per unit time.
+\end{itemize}
 
+\subsection{Phylogenetic Structure Across Population Scales}
 
-% Objective three: what is the relationship between individual phylogenies and species-level phylogenies?
+We will apply the unique capabilities of WSE-enabled simulation to test the scaling properties of common phylogenetic structure metrics, including the Colless-like index, mean evolutionary distinctiveness, mean pairwise distance, and sum branch length.
+Several of these metics are generally assumed to be perfectly or nearly scale invariant \citep{TODOaskemily}.
+For those that explicitly scale with tree size (e.g., sum branch length) we will apply conventional normalization approaches.
+Due aspects of spatial structure introduced under the lattice island model, we expect to observe scale-dependence outcomes across metrics despite normalization.
+However the effect sign and size is difficult to predict \textit{a priori}, and will be the focus of our investigation.
+Findings will strengthen theory foundations of evolutionary science, especially due to the influence of two-dimensional spatial structure within many natural systems.
+Strengthened theory will benefit applications in many sectors including ecology, natural history, application-oriented evolutionary computation.
+
+% We will collect under selection pressure and with small colletions of PEs and large collections of PEs
+% Test for differences in phylogenetic structure metrics.
+% (how to control for reconstruction quality?)
+% Relatedly: are phylometrics time invariant to duration of simulation?
+% Another objective: does streaming samples off the chip asynchronously bias phylometrics (as opposed to collecting everything all at the end.
+

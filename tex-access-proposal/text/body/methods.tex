@@ -1,42 +1,59 @@
 \section{Methods} \label{sec:methods}
 
-In this section, we describe the primary two algorithmic components for our on-device simulation: the memory- and compute-efficient genetic design used to annotate genome material to facilitate robust post-hoc phylogenetic reconstruction, and the compute-communicate cycle used to instantiate an evolutionary process with the genetic architecture across the WSE engine.
+In this section, we describe the primary two algorithmic components for our on-device simulation:
+\begin{enumerate}
+\item the asynchronous compute-communicate cycle used to instantiate an island model evolutionary process across the WSE engine, and
+\item the lightweight hereditary stratigraphy element used to annotate virtual genomes and facilitate robust post-hoc phylogenetic reconstruction.
+\end{enumerate}
 
 \subsection{Asynchronous Island-model Evolutionary Computaiton}
 
-We apply an island-model genetic algorithm, which is a commonly used approach to doing evolutionary computation in parallel and distributed computing \citep{kozaTODO}.
-In this scheme, each processor elemement (PE) has an independent population.
-Migration between PEs links the populations into a network of a single population.
-To minimize synchronization costs, we adopt a fully asynchronous approach to migration between neighboring PEs.
-Evolutionary processes tend to occur in asynchronous manner with arbitrary factors influencing things, so this is a reasonable relaxation to make.
+We apply an island-model genetic algorithm to instantiate an evolutionary process spanning PEs.
+Island-model approaches are common in applications of parallel and distributed computing to evolutionary computation \citep{kozaTODO}.
+Under this model, each processor elemement (PE) hosts an independent population.
+Migration between PEs stitches island populations together into a common gene pool.
 
 \input{fig/async-ga-schematic.tex}
 
-In the core of the algorithm, each PE performs an update cycle, which comprises several steps.
+Core kernel activity proceeds via an update cycle performed on eacch PE, which comprises several steps.
 Figure \ref{fig:async-ga-schematic} provides a schematic overview.
 
-The first step of this update loopis to handle migration.
-Each PE has an immigration buffer and an emigration buffer for each cardinal neighbor.
-On simulation startup, an asynchronous receive request is opened to accept genomes from the neighbor into the immigration buffer.
-The emigration buffer is populated with individuals from the population and an asynchronous send request is opened to dispatch wavelets containing genome data from the emigration buffer to the neighbor.
-For both operations, a callback is registered to set the send complete or receive complete flag variable for that cardinal direction once the asynchronous operation is satisfied.
-Each update cycle, the flags are tested for.
-If they are set, then genomes from the transfer buffers are sampled from and/or mixed into the main population, as appropriate for the detected flag, set flags are reset, and new send and/or receive requests are registered.
+The first step of this update loop is to handle migration, depicted as blue-red arrows in Figure \ref{fig:async-ga-schematic}.
+We adopt a fully asynchronous approach to migration between neighboring PEs.
+Evolutionary processes tend to occur in asynchronous manner with arbitrary factors influencing things, so this is a reasonable relaxation to make.
 
-The remainder of the update loop handles evolutionary operations witin the scope of the executing PE.
-Each genome within the population is evaluated to produce a floating point fitness value based on a user-defined criteria.
-For the purposes of the work in this project, we will use a trivial fitness function that explicitly models additive accumulation of beneficial/deleterious mutations.
-Then, tournament selection is applied.
-For each slot in the next generaiton is filled with the highest of $n$ sampled values, with ties broken randomly.
-A swap buffer is used to collect individuals for the next generation.
-A mutational operator is applied across all genomes in the next population, then the process repeats.
-A self-activating wavelet is dispatched to execute the next cycle of the loop.
+Each PE maintains independent immigration buffers and emigration buffers dedicated to each cardinal neighbor, depicted in blue and red, respectively, in Figure \ref{fig:async-ga-schematic}.
+On simulation startup, an asynchronous DSD receive operation is opened to accept genomes from neighboring PEs into the appropriate immigration buffer.
+At startup, additionally, the emigration buffer is populated with one or more genomes copied the population.
+Then, an asynchronous send request is opened to dispatch wavelets containing genome data from the emigration buffer to the neighbor.
+Both operations register an on-completion callback to set a ``send complete'' or ``receive complete'' flag variable associated with their corresponding buffer.
 
-The source code for this kernel can be viewed at \url{https://hopth.ru/cl}.
-Importantly, the implementation is defined modularly with respect to genome size, layout, and fitness evaluation criteria.
-This will allow us to readily adjust the particulars of simulation as needed for each project component.
+Each update cycle, the the main update loop tests all ``send complete'' and ``receive complete'' flags.
+For each immigration flag that is set, corresponding received genomes are written into the main population buffer, replacing randomly-chosen population members.
+Then, the flag is reset a new receive request is initiated.
+Likewise, for each emigration flag set, corresponding send buffers are re-populated with randomly sampled genomes from the main population buffer.
+Corresponding flags are then reset and new send requests initiated.
+The bottom right corner of Figure \ref{fig:async-ga-schematic} summarizes this process.
 
-A key question will be the extent to which intentionally desynchronizing affects performance, stability, and computation quality.
+The remainder of the mmain update loop handles evolutionary operations witin the scope of the executing PE.
+Each genome within the population is evaluated to produce a floating point fitness value.
+Modular implementation ensures evaluation criteria can chosen appropriate for underlying experimental objectives.
+For the purposes this project, we will use a trivial fitness function that explicitly models additive accumulation of beneficial/deleterious mutations as a floating point value within each genome.
+
+After evaluation, tournament selection is applied.
+Each slot in the next generaiton is populated with a genome exhibiting maximal fitness among $n$ randomly sampled individuals, ties broken randomly.
+
+Finally, a mutational operator is applied across all genomes in the next population.
+As with evaluation criteria, modular implementation allows mutation operations to be defined based on experimental objectives.
+Here, we use a simple gaussian mutation on each genome's stored fitness value.
+At this point, hereditary stratigraphy annotations --- discussed next --- are updated to reflect an elapsed generation.
+
+The process then repeats, with self-activating wavelet dispatched to execute the next cycle of the main update loop.
+
+Kernel source code implementing described procedures can be viewed at \url{https://hopth.ru/cl}.
+Our implementation is defined modularly with respect to genome size, layout, mutational operator, and fitness evaluation criteria, allowing for direct re-use of produced software for follow-on evolution experiments on WSE hardware.
+
+% A key question will be the extent to which intentionally desynchronizing affects performance, stability, and computation quality.
 
 \subsection{Distributed Phylogenetic Tracking}
 
