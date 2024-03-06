@@ -57,25 +57,24 @@ Our implementation is defined modularly with respect to genome size, layout, mut
 
 \subsection{Distributed Phylogenetic Tracking}
 
-In pilot work with dynamically curated space-time memory buffers, we have achieved highly-scalable phylogenetic tracking in ABMS modelling of evolutionary processes \citep{morenoHstratPythonPackage2022, morenoHereditaryStratigraphyGenome2022}.
-Our approach, hereditary stratigraphy (HStrat), uses a reconstruction-based strategy akin to how biologists build phylogenies.
-Using heritable generational fingerprints, we achieve fast, accurate reconstruction.
-To prevent $\mathcal{O}(n)$ space complexity, not all fingerprints can be kept.
-Instead, we use a constant-time indexing scheme to map a stream of fingerprints onto a fixed-width memory buffer such that entries evicted by new placements maintain a temporally-representative sampling over elapsed time, either evenly (``steady'') or recency-biased (``tilted'') (Fig. \ref{fig:hstrat-schematic}).
-Time stamps can be positionally inferred  --- a several-fold savings for small data objects. For example, single-bit checkpoints produce good quality phylogenies using only 12 bytes per genome \citep{moreno2023toward}.
+Our approach to analysis of evolutionary history for wafer-scale simulation draws inspiration from the inference-based paradigm used to characterize history in natural systems.
+This approach is fully-distributed, with ancestry information contained within genomes themselves rather than in any external tracking mechanism.
+Just as mutational drift encodes ancestry information in DNA genomes, the inference-based paradigm requires only local updates to individual genomes at runtime as generations elapse.
 
-It is necessary to optimize reconstruction to get high quality results with tractable genome sizes and limit the impact on memory usage and bandwidth usage.
-Hereditary stratigraphy \citep{moreno2022hereditary} was designed to do this.
+Recent work introducing \textit{hereditary stratigraphy} (HStrat) methodology has explored how best to organize genetic material to maximize reconstruction quality and minimize memory footprint \citep{morenoHstratPythonPackage2022, morenoHereditaryStratigraphyGenome2022}.
+Proposed work bundles HStrat material with underlying agent genomes as an instrumentative ornament, entirely neutral with respect to agent traits or fitness.
 
-We have successfully demonstrated aspects of this approach (published in existing work as the hstrat Python library), with present work revising the underlying algorithms to better suit resource-constrained environments such as CS-2 Processor Elements.
-Existing work targets traditional HPC environments \citep{moreno2022hstrat},
-However, a highly compact, without advanced data structures is necessary to support the Cerebras WSE.
-This led to development of unpublished variant of existing hereditary stratigraphy, the hereditary stratigraphic surface.
+The hereditary stratigraphy algorithm associates each generation along individual lineages with an identifying ``fingerprint'' value.
+Each time a generation elapses, all offspring generate a new identifier value.
+Within each offspring, generated identifiers append to an inherited running chronological record of fingerprint values.
+To prevent $\mathcal{O}(n)$ space complexity as generations elapse, not all fingerprints can be kept.
+Instead, excess fingerprints are pruned away according to a deterministic programme that ensures retention of fingerprint values from checkpoint generations spaced across evolutionary history.
 
 \input{fig/hsurf-schematic.tex}
 
-Instead of being maintained within a sorted list, lineage checkpoint markers are stored in a flat buffer.
-This couples curation --- adding a checkpoint implicitly removes the checkpoint it overwrites.
-The indexing scheme can be computed in $\mathcal{O(1)}$ time with respect to the size of the buffer and to the number of generaitons elapsed.
-
-This genome has two components: a generation counter and the checkpoint marker buffer.
+Limitations of the Cerebras WSE environnment required significant elaboration of hereditary stratigraphy algorithms to minimize memory use, avoid complex data structures with dynamically allocated memory, and minimize iterative computation.
+We use a constant-time indexing scheme that maps each lineage's fingerprint stream onto a fixed-width memory buffer such that eviction of existing fingerprint values by new placements maintains a temporally-representative sampling over elapsed time (Figure \ref:hstrat-schematic a), either evenly (``steady'') or recency-biased (``tilted'') (Figure \ref{fig:hsurf-schematic} b).
+Time stamps can be positionally inferred and thus do not need to be stored --- a several-fold savings that enables fingerprint values to be shrunk down and packed together.
+Single-bit checkpoints have been shown to produce good quality phylogenies using only 96 bits per genome \citep{moreno2023toward}.
+The semantic structure of hstrat annotations streamlines \textit{post hoc} phylogenetic reconstruction, which essentially boils down to a simple trie-building procedure
+\citep{todopreprintmoreno}.
