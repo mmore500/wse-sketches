@@ -1,31 +1,14 @@
 \section{Conclusion} \label{sec:conclusion}
 
-field of evolutionary computation is a particularly good thematic and algorithmic fit
+In this proposal, we lay foundations to harness wafer-scale computing to achieve order-of-magnitude scale-up for agent-based modeling.
+This will allow researchers to study entirely new classes of cross-scale dynamics currently out of reach in many ABM application areas.
+To advance on this front, we explore a fundamental re-frame of simulation that shifts from a paradigm of ``complete,'' perfect data observability to dynamic, approximate observability akin to estimation approaches traditionally used to study physical systems.
 
-To advance on this front, we propose a fundamental re-frame of simulation that shifts from a paradigm of ``complete,'' deterministic data observability to dynamic, inquiry-driven sampling akin to approaches traditionally used to study physical systems.
-In exchange, this relaxation to ``best-effort'' observability addresses bandwidth/storage limitations, enables on-the-fly queries, and tolerates intermittent disruption.
-We will leverage the space-time memory paradigm to provide an efficient, robust interface between PDES and dynamic, inquiry-driven data extraction while preserving the integrity of underlying simulation.
+Within ABM, our proposed work focuses in particular on the topic of evolutionary computation.
+We will harness new cutting-edge approaches to distributed phylogenetic tracking to answer fundamental questions about the relationship between phylogenetic structure and population scale.
+These new methods, and extensive development targeting the Cerebras CSL using the SDK hardware simulator, position our project to hit the ground running.
+In conducting experiments evaluating phylogenetic structure, we include steps to demonstrate and evaluate the underlying introduced novel technical approaches.
 
-Laying the foundations for an entirely new class of simulation on the WSE: PDES/ABMS.
-Wafer-scale integration has the potential to have significant impacts on ABMS --- lots of agents to generate multiscale dynamics with low-latency interactions between agents being a key.
-
-Extensive algorithm and methods development targeting massively distributed computational modalities such as the Cerebras WSE.
-This has led to ready-made solutions.
-The technical infrastructure necessary for the project is largely in place through use of the hardware simulator Cerebras SDK.
-
-We look forward to answering questions around phylogenetic scale, with a primary emphasis on generating general-purpose methodologies and reusable software tools that can catalyze research in this area.
-
-
-We will use our expanded scale to capture within-host and between-host pathogen behaviors, and evaluate evolved pathogen traits that balance trade-offs occurring across scales.
-Using space-time buffers, we will support 1) asynchronous interactions between simulation components (e.g., host agents, pathogen agents, geographic locales) and 2) dynamic, inquiry-driven data extraction (Fig. \ref{fig:model-schematic}).
-Prelude to more targeted work in evolutionary epidemiology.
-
-
-% ADDITIONAL IDEAS
-% collaboratorships/scientific networking
-% generally, having a record of recent interactioons with other agents
-% patent record/phylogeny of ideas in "scientific enterprise"
-% generally, agent behavior based on a rough history of recent experience
-Proposed strategies will generalize across ABMS/PDES domains where sampled observations can fulfill experimental objectives.
-For example, in congestion models (e.g., road traffic, internet traffic), statistical measures of net bandwidth or backups at critical sites can suffice to assess network-level outcomes and coarsened histories attached to individual agents can show underlying dynamics (e.g., position across time).
-%
+Potential extensions of this work repurposing dynamic cross-temporal sampling algorithms designed for HStrat to target new applications BMS/PDES domains and increase their observability by dnyamically recording time series activity at critical simulation sites or to extract coarsened histories of individual agents like position across time.
+Within our own research agenda, this work will scaffold more targeted work in evolutionary epidemiology We will use our expanded scale to capture within-host and between-host pathogen behaviors, and evaluate evolved pathogen traits that balance trade-offs occurring across scales.
+We hope our findings, and reusable software tools produced for the work, catalyze transformative research in this area.
