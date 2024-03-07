@@ -6,16 +6,16 @@ In this section, we describe the primary two algorithmic components for our on-d
 \item the lightweight hereditary stratigraphy element used to annotate virtual genomes and facilitate robust post-hoc phylogenetic reconstruction.
 \end{enumerate}
 
-\subsection{Asynchronous Island-model Evolutionary Computaiton}
+\subsection{Asynchronous Island-model Evolutionary Computation}
 
 We apply an island-model genetic algorithm to instantiate an evolutionary process spanning PEs.
 Island-model approaches are common in applications of parallel and distributed computing to evolutionary computation \citep{kozaTODO}.
-Under this model, each processor elemement (PE) hosts an independent population.
+Under this model, each processor element (PE) hosts an independent population.
 Migration between PEs stitches island populations together into a common gene pool.
 
 \input{fig/async-ga-schematic.tex}
 
-Core kernel activity proceeds via an update cycle performed on eacch PE, which comprises several steps.
+Core kernel activity proceeds via an update cycle performed on each PE, which comprises several steps.
 Figure \ref{fig:async-ga-schematic} provides a schematic overview.
 
 The first step of this update loop is to handle migration, depicted as blue-red arrows in Figure \ref{fig:async-ga-schematic}.
@@ -28,30 +28,30 @@ At startup, additionally, the emigration buffer is populated with one or more ge
 Then, an asynchronous send request is opened to dispatch wavelets containing genome data from the emigration buffer to the neighbor.
 Both operations register an on-completion callback to set a ``send complete'' or ``receive complete'' flag variable associated with their corresponding buffer.
 
-Each update cycle, the the main update loop tests all ``send complete'' and ``receive complete'' flags.
+Each update cycle, the main update loop tests all ``send complete'' and ``receive complete'' flags.
 For each immigration flag that is set, corresponding received genomes are written into the main population buffer, replacing randomly-chosen population members.
 Then, the flag is reset a new receive request is initiated.
 Likewise, for each emigration flag set, corresponding send buffers are re-populated with randomly sampled genomes from the main population buffer.
 Corresponding flags are then reset and new send requests initiated.
 The bottom right corner of Figure \ref{fig:async-ga-schematic} summarizes this process.
 
-The remainder of the mmain update loop handles evolutionary operations witin the scope of the executing PE.
+The remainder of the main update loop handles evolutionary operations within the scope of the executing PE.
 Each genome within the population is evaluated to produce a floating point fitness value.
-Modular implementation ensures evaluation criteria can chosen appropriate for underlying experimental objectives.
+Modular implementation ensures evaluation criteria can be chosen appropriate for underlying experimental objectives.
 For the purposes this project, we will use a trivial fitness function that explicitly models additive accumulation of beneficial/deleterious mutations as a floating point value within each genome.
 
 After evaluation, tournament selection is applied.
-Each slot in the next generaiton is populated with a genome exhibiting maximal fitness among $n$ randomly sampled individuals, ties broken randomly.
+Each slot in the next generation is populated with a genome exhibiting maximal fitness among $n$ randomly sampled individuals, ties broken randomly.
 
 Finally, a mutational operator is applied across all genomes in the next population.
 As with evaluation criteria, modular implementation allows mutation operations to be defined based on experimental objectives.
-Here, we use a simple gaussian mutation on each genome's stored fitness value.
+Here, we use a simple Gaussian mutation on each genome's stored fitness value.
 At this point, hereditary stratigraphy annotations --- discussed next --- are updated to reflect an elapsed generation.
 
 The process then repeats, with self-activating wavelet dispatched to execute the next cycle of the main update loop.
 
 Kernel source code implementing described procedures can be viewed at \url{https://hopth.ru/cl}.
-Our implementation is defined modularly with respect to genome size, layout, mutational operator, and fitness evaluation criteria, allowing for direct re-use of produced software for follow-on evolution experiments on WSE hardware.
+Our implementation is defined modularity with respect to genome size, layout, mutational operator, and fitness evaluation criteria, allowing for direct re-use of produced software for follow-on evolution experiments on WSE hardware.
 
 % A key question will be the extent to which intentionally desynchronizing affects performance, stability, and computation quality.
 
@@ -72,10 +72,10 @@ Instead, excess fingerprints are pruned away according to a deterministic progra
 
 \input{fig/hsurf-schematic.tex}
 
-Limitations of the Cerebras WSE environnment required significant elaboration of hereditary stratigraphy algorithms to minimize memory use, avoid complex data structures with dynamically allocated memory, and minimize iterative computation.
+Limitations of the Cerebras WSE environment required significant elaboration of hereditary stratigraphy algorithms to minimize memory use, avoid complex data structures with dynamically allocated memory, and minimize iterative computation.
 We use a constant-time indexing scheme that maps each lineage's fingerprint stream onto a fixed-width memory buffer such that eviction of existing fingerprint values by new placements maintains a temporally-representative sampling over elapsed time (Figure \ref:hstrat-schematic a), either evenly (``steady'') or recency-biased (``tilted'') (Figure \ref{fig:hsurf-schematic} b).
-We call this approoach ``surface''-based to distinguish it from earlier hereditary stratigraphy methods.
+We call this approach ``surface''-based to distinguish it from earlier hereditary stratigraphy methods.
 Time stamps can be positionally inferred and thus do not need to be stored --- a several-fold savings that enables fingerprint values to be shrunk down and packed together.
 Single-bit checkpoints have been shown to produce good quality phylogenies using only 96 bits per genome \citep{moreno2023toward}.
-The semantic structure of hstrat annotations streamlines \textit{post hoc} phylogenetic reconstruction, which essentially boils down to a simple trie-building procedure
+The semantic structure of HStrat annotations streamlines \textit{post hoc} phylogenetic reconstruction, which essentially boils down to a simple trie-building procedure
 \citep{todopreprintmoreno}.

@@ -79,7 +79,7 @@ We plan to exploit an island model genetic algorithm where each PE is an island 
 As natural systems are typically asynchronous in nature, synchronization is not a concern.
 We plan to use CSL asynchronous send/receive operations to implement migration.
 
-Genomes will be represented as contiguous bufers of u32 and each PE's population as a contiguous buffer of genome data using a simple synchronous generational model (i.e., a swap buffer.)
+Genomes will be represented as contiguous buffers of u32 and each PE's population as a contiguous buffer of genome data using a simple synchronous generational model (i.e., a swap buffer.)
 Population-level operations (e.g., selection, reproduction, mutation) will take advantage of the CSL's data structure descriptors.
 The local memory is sufficient for a population size on the order of hundreds or low thousands.
-This could give a globl population size on the order of hundreds of millions.
+This could give a global population size on the order of hundreds of millions.
