@@ -3,18 +3,18 @@
 Agent-Based Modeling (ABM) has gained increasing adoption as a method to answer basic science questions and inform policy decisions.
 Despite a wide berth of application domains --- spanning sectors like spanning transportation infrastructure, public health, telecommunications, materials science and more --- much ABM work is unified by a common theme of interest in cross-scale dynamics.
 To provide such insight, ABM require sufficient scale to capture systems' emergent behaviors.
-Advances in high-performance computing (HPC) have already yielded paradigm-shifting improvements to the capabilities of ABM. 
-However, across domains key questions still remain out of computaitonal reach.
+Advances in high-performance computing (HPC) have already yielded paradigm-shifting improvements to the capabilities of ABM.
+However, across domains key questions still remain out of computational reach.
 
 Significant untapped potential for ABM scale-up has been identified in hardware-accelerator-enabled computation.
 Rapid advances in the capability of accelerator devices, driven in particular by market demand for deep learning operations, is anticipated to play a key role in future advances in ABM capabilities \citep{deptofenergyTODO}.
-Within this category, the emerging class of fabric-based acelerators, most notably the recently-introduced 850,000 core Cerebras CS-2 Wafer Scale Engine (WSE) \citep{lauterbach2021path,lie2022cerebras}, is a particularly exciting --- and fairly uncharted, with applications to HPC workloads still in early days.
+Within this category, the emerging class of fabric-based accelerators, most notably the recently-introduced 850,000 core Cerebras CS-2 Wafer Scale Engine (WSE) \citep{lauterbach2021path,lie2022cerebras}, is a particularly exciting --- and fairly uncharted, with applications to HPC workloads still in early days.
 This paradigm interfaces multitudinous processor elements (PEs) in a physical lattice, with PEs executing independently using individual on-chip memory and local PEs interacting through a network-like interface.
 
 \subsection{Objectives}
 
 This proposal establishes foundation for next-generation accelerator-enabled ABM computation by  decentralized, approximate data export  agent-based evolutionary simulation.
-In particular, we will evaluate asynchronous approaches for ABM migration/interaction on the WSE architecture to power agent-based evolution simulatioons, incorporating cutting-edge methods for distributed approximate phylogenetic (i.e., anestry tree) tracking.
+In particular, we will evaluate asynchronous approaches for ABM migration/interaction on the WSE architecture to power agent-based evolution simulations, incorporating cutting-edge methods for distributed approximate phylogenetic (i.e., ancestry tree) tracking.
 
 Proposed work advances two technical objectives:
 \begin{enumerate}
@@ -29,7 +29,7 @@ In this proposal, we focus on one science objective:
 \end{enumerate}
 
 Proposed work falls within the domain of agent-based evolution modeling, and uses it to explores phylogenetics-related inquiry by leveraging Cerebras WSE hardware.
-Our dual technical objectives constitute significant advancement of methodological capabilities within digital evolution, and our project will directly address fundmnetal open questions within the domain of phylogenetic theory.
+Our dual technical objectives constitute significant advancement of methodological capabilities within digital evolution, and our project will directly address fundamental open questions within the domain of phylogenetic theory.
 However, findings and methodologies will also generalize to other ABM domains beyond evolutionary simulation and to broader classes of highly-distributed HPC architectures.
 
 \subsection{Agent-based Evolution Simulation}
@@ -41,7 +41,7 @@ Evolutionary biology provides the fundamental foothold to efforts to address the
 
 Mathematical and computational modeling complements natural history field work and benchtop evolution experiments as a crucial third leg to stand evolutionary inquiry.
 Simulation-based approaches provide key capabilities complementary to work with natural systems: complete observability, arbitrary manipulability, and rapid generational turnover \citep{pennock}.
-Within this context, agent-based simulation plays an important connective role between natural systems and abstracted, aggregate-based mathemmatical and numerical models.
+Within this context, agent-based simulation plays an important connective role between natural systems and abstracted, aggregate-based mathematical and numerical models.
 Agent-based approaches instantiate \textit{bona fide} evolutionary processes that track populations of virtual genommes subject to mutation, heredity, and selection \citep{pennnock}.
 This characteristic incorporates some of the critical complications and subtleties characteristic of natural systems --- e.g., arbitrary agent behavior, sophisticated agent-agent interactions, complex genotype-phenotype maps, albeit at significantly reduced scope and sophistication.
 
