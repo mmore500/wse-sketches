@@ -1,4 +1,4 @@
- apalike-ejor v1.2.0
+% apalike-ejor v1.2.0
 % Copyright (C) 2021 Adam Rumpf
 %
 % BibTeX `apalike-ejor' bibliography style, forked from the `apalike' style,
