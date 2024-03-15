@@ -1,4 +1,6 @@
-const nCycle = 40;
+param globalSeed: u16;
+param nCycle: u16;
+
 const nRow = 3;
 const nCol = 3;
 const popSize = 32;
@@ -29,6 +31,8 @@ layout {
         "kernel.csl",
         .{
           .peId = peId,
+          // + 1 ensures nonzero local seed
+          .localSeed = globalSeed * nRow * nCol + peId + 1,
           .x = x,
           .y = y,
           .nCycle = nCycle,

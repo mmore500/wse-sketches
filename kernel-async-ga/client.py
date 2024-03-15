@@ -1,6 +1,7 @@
 import numpy as np
 import argparse
 import pandas as pd
+import json
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -300,9 +301,15 @@ for genome_int in genome_ints:
 print("--------------------------------------------------- genome hex strings")
 for genome_int in genome_ints:
     print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
+# {args.name}
+with open(f"out/out.json", encoding='utf-8') as json_file:
+  compile_data = json.load(json_file)
+
+globalSeed = int(compile_data["params"]["globalSeed"])
 
 # save genome values to a file
 df = pd.DataFrame(genome_ints, columns=["bitfield"])
+df["globalSeed"] = globalSeed 
 df.to_csv("genomes.csv", index=False)
 
 # runner.dump("corefile.cs1")
