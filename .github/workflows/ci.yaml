@@ -116,18 +116,21 @@ jobs:
           ./kernel-async-ga/compile.sh
           ./kernel-async-ga/execute.sh
 
-      - name: Upload output as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: genomes
-          path: ./kernel-async-ga/concatenated_genomes.csv
-
-
       - name: Test async-ga, genome_hsurftiltedsticky
         run: |
           export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_hsurftiltedsticky.csl"
           ./kernel-async-ga/compile.sh
           ./kernel-async-ga/execute.sh
+
+      - name: Generate csv files
+        run: |
+          ./kernel-async-ga/test.csv
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: genomes
+          path: ./kernel-async-ga/concatenated_genomes.csv
 
   test-cerebraslib:
     name: Test cerebraslib
