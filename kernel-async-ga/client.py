@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 import pandas as pd
 import json
+import uuid
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -14,7 +15,7 @@ nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--name", help="the test compile output dir")
+parser.add_argument("--name", help="the test compile output dir", default="out")
 parser.add_argument("--cmaddr", help="IP:port for CS system")
 args = parser.parse_args()
 
@@ -301,16 +302,23 @@ for genome_int in genome_ints:
 print("--------------------------------------------------- genome hex strings")
 for genome_int in genome_ints:
     print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
-# {args.name}
-with open(f"out/out.json", encoding='utf-8') as json_file:
+
+# prevent polars from reading as int64 and overflowing
+genome_hex = (np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4) for genome_int in genome_ints)
+
+with open(f"{args.name}/out.json", encoding='utf-8') as json_file:
   compile_data = json.load(json_file)
 
 globalSeed = int(compile_data["params"]["globalSeed"])
+nCycle = int(compile_data["params"]["nCycle"])
 
 # save genome values to a file
-df = pd.DataFrame(genome_ints, columns=["bitfield"])
+df = pd.DataFrame(genome_hex, columns=["bitfield"])
 df["globalSeed"] = globalSeed 
-df.to_csv("genomes.csv", index=False)
+df["nCycle"] = nCycle
+df["replicate"] = str(uuid.uuid4())
+
+df.to_csv(f"genomes_{globalSeed}_{nCycle}.csv", index=False)
 
 # runner.dump("corefile.cs1")
 runner.stop()
