@@ -2,8 +2,6 @@
 
 set -e
 
-export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_frozenliteral.csl"
-
 for cmd in "export ASYNC_GA_GLOBAL_SEED=1 ASYNC_GA_NCYCLE=20" \
           "export ASYNC_GA_GLOBAL_SEED=2 ASYNC_GA_NCYCLE=50" \
           "export ASYNC_GA_GLOBAL_SEED=3 ASYNC_GA_NCYCLE=100" \
