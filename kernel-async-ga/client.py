@@ -286,12 +286,8 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-genome_bytes = [
-    inner.view(np.uint8).tobytes() for outer in data for inner in outer
-]
-genome_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
-]
+genome_bytes = [inner.view(np.uint8).tobytes() for outer in data for inner in outer]
+genome_ints = [int.from_bytes(genome, byteorder="big") for genome in genome_bytes]
 
 # display genome values
 assert len(genome_ints) == nRow * nCol
@@ -304,17 +300,20 @@ for genome_int in genome_ints:
     print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
 
 # prevent polars from reading as int64 and overflowing
-genome_hex = (np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4) for genome_int in genome_ints)
+genome_hex = (
+    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
+    for genome_int in genome_ints
+)
 
-with open(f"{args.name}/out.json", encoding='utf-8') as json_file:
-  compile_data = json.load(json_file)
+with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
+    compile_data = json.load(json_file)
 
 globalSeed = int(compile_data["params"]["globalSeed"])
 nCycle = int(compile_data["params"]["nCycle"])
 
 # save genome values to a file
 df = pd.DataFrame(genome_hex, columns=["bitfield"])
-df["globalSeed"] = globalSeed 
+df["globalSeed"] = globalSeed
 df["nCycle"] = nCycle
 df["replicate"] = str(uuid.uuid4())
 
