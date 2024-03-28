@@ -124,7 +124,7 @@ jobs:
 
       - name: Generate csv files
         run: |
-          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_hsurftiltedsticky_tagged"
+          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_hsurftiltedsticky_tagged.csl"
           ./kernel-async-ga/test.sh
 
       - name: Upload output as artifact
