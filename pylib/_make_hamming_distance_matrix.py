@@ -1,5 +1,5 @@
-import io
 import numbers
+import io
 import typing
 
 import dendropy as dp

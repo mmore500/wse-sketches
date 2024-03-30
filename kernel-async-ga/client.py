@@ -1,3 +1,6 @@
+import json
+import uuid
+
 import numpy as np
 import argparse
 import pandas as pd
@@ -13,7 +16,7 @@ nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--name", help="the test compile output dir")
+parser.add_argument("--name", help="the test compile output dir", default="out")
 parser.add_argument("--cmaddr", help="IP:port for CS system")
 args = parser.parse_args()
 
@@ -284,12 +287,8 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-genome_bytes = [
-    inner.view(np.uint8).tobytes() for outer in data for inner in outer
-]
-genome_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
-]
+genome_bytes = [inner.view(np.uint8).tobytes() for outer in data for inner in outer]
+genome_ints = [int.from_bytes(genome, byteorder="big") for genome in genome_bytes]
 
 # display genome values
 assert len(genome_ints) == nRow * nCol
@@ -301,9 +300,25 @@ print("--------------------------------------------------- genome hex strings")
 for genome_int in genome_ints:
     print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
 
+# prevent polars from reading as int64 and overflowing
+genome_hex = (
+    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
+    for genome_int in genome_ints
+)
+
+with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
+    compile_data = json.load(json_file)
+
+globalSeed = int(compile_data["params"]["globalSeed"])
+nCycle = int(compile_data["params"]["nCycle"])
+
 # save genome values to a file
-df = pd.DataFrame(genome_ints, columns=["bitfield"])
-df.to_csv("genomes.csv", index=False)
+df = pd.DataFrame(genome_hex, columns=["bitfield"])
+df["globalSeed"] = globalSeed
+df["nCycle"] = nCycle
+df["replicate"] = str(uuid.uuid4())
+
+df.to_csv(f"genomes_{globalSeed}_{nCycle}.csv", index=False)
 
 # runner.dump("corefile.cs1")
 runner.stop()

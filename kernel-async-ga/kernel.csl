@@ -30,6 +30,7 @@ param popSize: u16;  // how many genomes in each local population?
 param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
+param localSeed: u16;  // seed value for PE RNG
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -441,7 +442,7 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   whoami[0] = peId;  // record layout params for telemetry
   whereami_x[0] = x;
   whereami_y[0] = y;
-  random.set_global_prng_seed(peId + 1);  // zero seed seems to break RNG...
+  random.set_global_prng_seed(localSeed);  // zero seed seems to break RNG...
   desync();
   population_.init_module();
   dispatchRecv_N();  // open initial recv requests

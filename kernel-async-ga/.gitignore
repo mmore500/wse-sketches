@@ -4,4 +4,4 @@ simfab_traces/
 *.log
 *.out
 
-genomes.csv
+*.csv
