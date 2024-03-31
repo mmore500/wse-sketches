@@ -30,7 +30,7 @@ param popSize: u16;  // how many genomes in each local population?
 param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
-param localSeed: u16;
+param localSeed: u16;  // seed value for PE RNG
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
