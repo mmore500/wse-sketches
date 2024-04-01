@@ -23,9 +23,7 @@ def draw_biopython_tree(
         BioPhylo.draw(
             biopy_tree,
             axes=plt.gca(),
-            label_func=lambda node: ""
-            if not node.is_terminal()
-            else node.name,
+            label_func=lambda node: "" if not node.is_terminal() else node.name,
             do_show=False,
         )
 
