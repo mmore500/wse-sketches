@@ -12,7 +12,6 @@ def draw_biopython_tree(
     line_width: float = 4.0,
     drop_overlapping_labels: bool = False,
 ) -> mpl_Figure:
-
     biopy_tree = copy.deepcopy(tree)
 
     with plt.rc_context(

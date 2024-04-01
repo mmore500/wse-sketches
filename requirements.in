@@ -8,6 +8,7 @@ black==22.10.0
 pytest
 ruff
 tqdm
+joinem
 
 # binder
 alifedata_phyloinformatics_convert==0.16.2
