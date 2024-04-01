@@ -22,16 +22,15 @@ agent-based modeling, digital evolution, genetic algorithms, phylogenetics, evol
 
 \subsection{How many CS-2 hours are requested? Provide comments.}
 
-40 hours
+80 hours
 
-We anticipate that half an hour of computetime for each replicate will be sufficient to observe extremely deep evolutionary processes (i.e., on the order of a million generations).
-So, 10 hours for the validation experiments
+We anticipate that between a half hour and a full hour of compute time for each replicate will be sufficient to observe very deep evolutionary processes (i.e., on the order of a million generations).
+We estimate 10 hours for validation experiments and 30 hours for our main experiments exploring interactions between population scale and phylogenetic structure.
 
-For the scaling experiments, 10 minutes of runtime times ten replicates times three scale treatments is 5 hours.
+We have budgeted 20 hours of compute time for scale-up benchmarking experiments.
+We estimate 20 minutes of runtime likely sufficient per replicate, and plan 20 replicates per each of our 3 scale treatments.
 
-TODO how many hours for the other experiments?
-
-We have included an extra 10 hours for any unforseen circumstances.
+An additional 20 hours are included to account for debugging, testing, and any unforseen circumstances.
 
 \subsection{Describe your research team.}
 
@@ -44,18 +43,28 @@ The lead researcher on this project is Dr. Matthew Andres Moreno.
 Dr. Moreno is a postdoctoral researcher at University of Michigan with affiliations with the Ecology and Evolutionary Biology Department, the Center for the Study of Complex Systems, and the Michigan Institute for Data Science.
 His work is supported through the Schmidt AI in Science postdoctoral fellowship.
 
-TODO talk about development of hstrat, DISHTINY, and Conduit.
+Dr. Moreno gained extensive experience in software engineering for scientific software during his graduate training, with a special emphasis on parallel/distributed computing.
+Application of high-performance computing for digital evolution simulation has since become an ongoing theme of Dr. Moreno's research.
+In addition to his current work on decentralized phylogenetic tracking, he has also investigated application of asynchronous and best-effort computing strategies for scalable simulations of evolving digital multicells.
+These projects led to the development of the hstrat and dishtiny/conduit software libraries, respectively, which can be found on his GitHub profile at \url{https://github.com/mmore500/}.
+He has also been active in training and mentoring activities within the scientific computing and software development communities, notably serving as the lead organizer for the Workshop for Avida-Ed Software Development (WAVES) research experience for undergraduates program in 2020 and 2021.
+Training materials and capstone projects from the workshop can be viewed at \url{https://mmore500.com/waves}.
 More information about Dr. Moreno's research can be found at \url{https://mmore500.com/research/}.
 
 Dr. Emily Dolson and Dr. Luis Zaman are close collaborators, taking on an advisory role in this project.
 
 Dr. Zaman is an assistant professor at University of Michigan with affiliations to Ecology and Evolutionary Biology and the Center for the Study of Complex Systems.
-TODOagent-based modeling, although he has since also developed a strong.
+The ZE3 lab studies host-parasite co-evolution dynamics.
+In addition to work with benchtop experiments involving bacteria and phage models, Dr. Zaman has extensive experience harnessing the simulation tools like the Avida Digital Evolution platform to conduct sophisticated \textit{in silico} experiments.
 Dr. Zaman serves as Dr. Moreno's postdoctoral advisor.
 
 Dr. Emily Dolson is an assistant processor at Michigan State University, primarily affiliated to the Computer Science and Engineering department.
 She is also affiliated with the Ecology, Evolution, and Behavior program.
-TODO talk about expertise with phylogenetic methods and involvement devleloping hstrat methods/software.
+A leading theme of Dr. Dolson's ongoing work is incorporation of phylogenetic methods into digital evolution work, with specific projects focusing on diagnostics for application-oriented evolutionary algorithms and characterization of open-ended evolutionary dynamics with artificial life systems, among other areas.
+Her work incorporates special focus on biomedical applications for developed techniques to assess and manipulate evolutionary dynamics, drawing from her oncology-focused postdoctoral training at the Cleveland Clinic.
+Dr. Dolson also brings an extensive software engineering background to the project.
+Among other software contributions, she led development of extensive phylogenetic tracking tools for the Empirical C++ library.
+This project can be viewed at \url{https://github.com/emilydolson/phylotrackpy}.
 
 Undergraduate researchers Connor Yang and Anika Ranjan are involved in the project through the Undergraduate Research Opportunities Program at University of Michigan.
 Connor's primary role is in software development, including contributing Cerebras Software Language code to be used in the project.
