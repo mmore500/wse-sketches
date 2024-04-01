@@ -239,10 +239,15 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      - run: make -C tex/
-      - run: 'cat tex/*.log || :'
+      - run: (make -C tex/ || (cat tex/*.log && false))
       - name: Upload output as artifact
         uses: actions/upload-artifact@v2
         with:
           name: manuscript
           path: tex/${{ github.event.repository.name }}-draft.pdf
+      - run: (make -C tex-access-proposal/ || (cat tex-access-proposal/*.log && false))
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: access-proposal
+          path: tex-access-proposal/${{ github.event.repository.name }}-draft.pdf
