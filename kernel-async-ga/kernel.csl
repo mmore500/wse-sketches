@@ -81,6 +81,8 @@ var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
 var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 
 // timestamp buffers, ensure an even number for 32-bit word memcpy
+var tscControlBuffer = @zeros([(time.tsc_size_words + 1) / 2]u32);
+var ptr_tscControlBuffer : [*]u32 = &tscControlBuffer;
 var tscEndBuffer = @zeros([(time.tsc_size_words + 1) / 2]u32);
 var ptr_tscEndBuffer : [*]u32 = &tscEndBuffer;
 var tscStartBuffer = @zeros([(time.tsc_size_words + 1) / 2]u32);
@@ -459,6 +461,9 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   dispatchRecv_E();
   dispatchRecv_W();
   @mov16(cycleDsd, 0);  // send wavelet to self, trigger first cycle
+  @ptrcast(*[3]u16, &tscControlBuffer).*[0] = 1;
+  @ptrcast(*[3]u16, &tscControlBuffer).*[1] = 3;
+  @ptrcast(*[3]u16, &tscControlBuffer).*[2] = 7;
   time.get_timestamp(@ptrcast(*[3]u16, &tscStartBuffer));
 }
 
@@ -540,6 +545,7 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_whoami, "whoami");
   @export_symbol(ptr_whereami_x, "whereami_x");
   @export_symbol(ptr_whereami_y, "whereami_y");
+  @export_symbol(ptr_tscControlBuffer, "tscControlBuffer");
   @export_symbol(ptr_tscEndBuffer, "tscEndBuffer");
   @export_symbol(ptr_tscStartBuffer, "tscStartBuffer");
   @export_symbol(dolaunch);

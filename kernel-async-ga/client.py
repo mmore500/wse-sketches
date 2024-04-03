@@ -277,6 +277,32 @@ runner.memcpy_d2h(
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
 print(data)
 
+print("tscControl values ====================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("tscControlBuffer"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    tscSizeWords // 2,  # num values
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+tscControl_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+tscControl_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in tscControl_bytes
+]
+print(tscControl_ints)
+
 print("tscStart values ======================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
