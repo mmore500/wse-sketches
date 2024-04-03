@@ -119,6 +119,8 @@ hstrat==1.11.1
     #   hsurf
 hsurf @ git+https://github.com/mmore500/hstrat-surface-concept.git@v0.3.0
     # via -r requirements.in
+hurry-filesize==0.9
+    # via nbmetalog
 idna==3.6
     # via
     #   anyio
@@ -136,10 +138,13 @@ interval-search==0.5.2
 ipykernel==6.29.0
     # via
     #   -r requirements.in
+    #   ipynbname
     #   jupyter
     #   jupyter-console
     #   jupyterlab
     #   qtconsole
+ipynbname==2023.2.0.0
+    # via nbmetalog
 ipython==8.20.0
     # via
     #   hsurf
@@ -226,6 +231,7 @@ jupyterlab-widgets==3.0.9
 keyname==0.6.0
     # via
     #   hstrat
+    #   nbmetalog
     #   teeplot
 kiwisolver==1.4.5
     # via matplotlib
@@ -286,6 +292,8 @@ nbformat==5.9.2
     #   nb-clean
     #   nbclient
     #   nbconvert
+nbmetalog==0.2.6
+    # via -r requirements.in
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.2.1
@@ -346,6 +354,7 @@ pandas==1.5.3
     #   backstrip
     #   hstrat
     #   hsurf
+    #   nbmetalog
     #   pandera
     #   seaborn
     #   statsmodels
@@ -422,7 +431,9 @@ python-slugify==8.0.4
 pytz==2023.4
     # via pandas
 pyyaml==6.0.1
-    # via jupyter-events
+    # via
+    #   jupyter-events
+    #   nbmetalog
 pyzmq==25.1.2
     # via
     #   ipykernel

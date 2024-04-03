@@ -19,6 +19,7 @@ git+https://github.com/mmore500/hstrat-surface-concept.git@v0.3.0#egg=hsurf
 ipykernel
 more_itertools
 nb-clean
+nbmetalog
 joblib==1.3.2
 jupyter
 teeplot
