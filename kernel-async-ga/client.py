@@ -299,7 +299,7 @@ tscControl_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
 tscControl_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in tscControl_bytes
+    int.from_bytes(genome, byteorder="little") for genome in tscControl_bytes
 ]
 print(tscControl_ints)
 
@@ -325,7 +325,7 @@ tscStart_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
 tscStart_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in tscStart_bytes
+    int.from_bytes(genome, byteorder="little") for genome in tscStart_bytes
 ]
 print(tscStart_ints)
 
@@ -351,7 +351,7 @@ tscEnd_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
 tscEnd_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in tscEnd_bytes
+    int.from_bytes(genome, byteorder="little") for genome in tscEnd_bytes
 ]
 print(tscEnd_ints)
 
