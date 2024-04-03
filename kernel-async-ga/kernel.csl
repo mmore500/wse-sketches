@@ -461,7 +461,7 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   dispatchRecv_E();
   dispatchRecv_W();
   @mov16(cycleDsd, 0);  // send wavelet to self, trigger first cycle
-  @ptrcast(*[3]u16, &tscControlBuffer).*[0] = 511;
+  @ptrcast(*[3]u16, &tscControlBuffer).*[0] = 507;
   @ptrcast(*[3]u16, &tscControlBuffer).*[1] = 3;
   @ptrcast(*[3]u16, &tscControlBuffer).*[2] = 7;
   time.get_timestamp(@ptrcast(*[3]u16, &tscStartBuffer));
