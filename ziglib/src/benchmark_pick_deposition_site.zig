@@ -66,7 +66,7 @@ pub fn benchmark_pick_deposition_site(
             surface_size,
         );
         writer.print(
-            "{},{},{},{},{s}\n",
+            "{},{},{},{},{s},{s},{s}\n",
             .{
                 duration,
                 replicate,
