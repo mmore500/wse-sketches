@@ -158,7 +158,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: genomes
-          path: ./kernel-async-ga/concatenated_genomes.csv
+          path: ./kernel-async-ga/a=concatenated_genomes+flavor=genome_hsurftiltedsticky_tagged+ext=.csv
 
   test-cerebraslib:
     name: Test cerebraslib

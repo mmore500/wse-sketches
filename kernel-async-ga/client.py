@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import uuid
 
 import numpy as np
@@ -18,6 +19,9 @@ wavSize = 32  # number of bits in a wavelet
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir", default="out")
 parser.add_argument("--cmaddr", help="IP:port for CS system")
+parser.add_argument(
+    "--genomeFlavor", help="specify what genome source is used", default=""
+)
 args = parser.parse_args()
 
 # Path to ELF and simulation output files
@@ -311,14 +315,23 @@ with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
 
 globalSeed = int(compile_data["params"]["globalSeed"])
 nCycle = int(compile_data["params"]["nCycle"])
+genomeFlavor = args.genomeFlavor or "unknown"
 
 # save genome values to a file
 df = pd.DataFrame(genome_hex, columns=["bitfield"])
+df["genomeFlavor"] = genomeFlavor
 df["globalSeed"] = globalSeed
 df["nCycle"] = nCycle
 df["replicate"] = str(uuid.uuid4())
 
-df.to_csv(f"genomes_{globalSeed}_{nCycle}.csv", index=False)
+df.to_csv(
+    "a=genomes"
+    f"+flavor={genomeFlavor}"
+    f"+seed={globalSeed}"
+    f"+ncycle={nCycle}"
+    "+ext=.csv",
+    index=False,
+)
 
 # runner.dump("corefile.cs1")
 runner.stop()
