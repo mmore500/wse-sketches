@@ -1,11 +1,9 @@
+import argparse
 import json
 import uuid
 
 import numpy as np
-import argparse
 import pandas as pd
-import json
-import uuid
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
