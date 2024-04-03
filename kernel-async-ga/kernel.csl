@@ -38,6 +38,7 @@ const math = @import_module("<math>");
 // memcpy module for copying data and launching functions from the host
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
+const time = @import_module("<time>");
 
 const genome_ = @import_module(genomeImpl, .{ .peId = peId });
 const population_ = @import_module("cerebraslib/population.csl", .{
@@ -78,6 +79,12 @@ var ptr_genome : [*]u32 = &genome;
 var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
 var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
 var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
+
+// timestamp buffers, ensure an even number for 32-bit word memcpy
+var tscEndBuffer = @zeros([time.tsc_size_words + time.tsc_size_words % 2]u16);
+var ptr_tscEndBuffer : [*]u16 = &tscEndBuffer;
+var tscStartBuffer = @zeros([time.tsc_size_words + time.tsc_size_words % 2]u16);
+var ptr_tscStartBuffer : [*]u16 = &tscStartBuffer;
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -428,6 +435,7 @@ task cycleTask(cycle: u16) void {
   if (cycle < nCycle) {
     @mov16(cycleDsd, cycle + 1);  // send wavelet to self, trigger next cycle
   } else {
+  time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
     memcpy.unblock_cmd_stream();  // terminate
   }
 }
@@ -439,6 +447,7 @@ task cycleTask(cycle: u16) void {
 fn desync() void { for (@range(u16, @random16() % 256)) |i| { @random16(); } }
 
 fn dolaunch() void { // launched by RPC (remote procedure call)
+  time.enable_tsc();
   whoami[0] = peId;  // record layout params for telemetry
   whereami_x[0] = x;
   whereami_y[0] = y;
@@ -450,6 +459,7 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   dispatchRecv_E();
   dispatchRecv_W();
   @mov16(cycleDsd, 0);  // send wavelet to self, trigger first cycle
+  time.get_timestamp(@ptrcast(*[3]u16, &tscStartBuffer));
 }
 
 // bind tasks =================================================================
@@ -530,6 +540,8 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_whoami, "whoami");
   @export_symbol(ptr_whereami_x, "whereami_x");
   @export_symbol(ptr_whereami_y, "whereami_y");
+  @export_symbol(ptr_tscEndBuffer, "tscEndBuffer");
+  @export_symbol(ptr_tscStartBuffer, "tscStartBuffer");
   @export_symbol(dolaunch);
 
   @rpc(@get_data_task_id(memcpy.LAUNCH)); // direct remote procedure calls

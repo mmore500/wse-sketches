@@ -61,5 +61,7 @@ layout {
   @export_name("whoami", [*]i16, true);
   @export_name("whereami_x", [*]i16, true);
   @export_name("whereami_y", [*]i16, true);
+  @export_name("tscEndBuffer", [*]u16, true);
+  @export_name("tscStartBuffer", [*]u16, true);
   @export_name("dolaunch", fn()void);
 }

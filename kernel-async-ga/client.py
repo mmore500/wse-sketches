@@ -15,6 +15,9 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
 
 nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
+tscSizeWords = 3  # number of 16-bit values in 48-bit timestamp values
+tscSizeWords += tscSizeWords % 2  # make even multiple of 32-bit words
+tscTicksPerSecond = 850 * 10**6  # 850 MHz
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir", default="out")
@@ -110,6 +113,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+cycle_counts = data.flat
 print(data)
 
 
@@ -272,6 +276,77 @@ runner.memcpy_d2h(
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
 print(data)
+
+print("tscStart values ======================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("tscStartBuffer"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    tscSizeWords // 2,  # num values
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+tscStart_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+tscStart_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in tscStart_bytes
+]
+print(tscStart_ints)
+
+print("tscEnd values ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("tscEndBuffer"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    tscSizeWords // 2,  # num values
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+tscEnd_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+tscEnd_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in tscEnd_bytes
+]
+print(tscEnd_ints)
+
+print("tsc diffs ============================================================")
+tscDiff_ints = [end - start for start, end in zip(tscStart_ints, tscEnd_ints)]
+print(tscDiff_ints)
+
+print("-------------------------------------------------------------- seconds")
+tscDiff_seconds = [diff / tscTicksPerSecond for diff in tscDiff_ints]
+print(tscDiff_seconds)
+
+print("---------------------------------------------------------- nanoseconds")
+tscDiff_nanoseconds = [seconds * 10**9 for seconds in tscDiff_seconds]
+print(tscDiff_nanoseconds)
+
+print("------------------------------------------------ nanoseconds per cycle")
+tscDiff_nanoseconds = [
+    ns / cycle for (ns, cycle) in zip(tscDiff_nanoseconds, cycle_counts)
+]
+print(tscDiff_nanoseconds)
+
 
 print("genome values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
