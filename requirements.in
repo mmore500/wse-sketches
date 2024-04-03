@@ -2,6 +2,7 @@
 dendropy
 opytional
 pandas
+scipy
 
 # qa
 black==22.10.0
