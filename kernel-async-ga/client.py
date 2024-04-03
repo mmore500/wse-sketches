@@ -366,8 +366,12 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-genome_bytes = [inner.view(np.uint8).tobytes() for outer in data for inner in outer]
-genome_ints = [int.from_bytes(genome, byteorder="big") for genome in genome_bytes]
+genome_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+genome_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
+]
 
 # display genome values
 assert len(genome_ints) == nRow * nCol
