@@ -81,10 +81,10 @@ var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
 var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
 
 // timestamp buffers, ensure an even number for 32-bit word memcpy
-var tscEndBuffer = @zeros([time.tsc_size_words + time.tsc_size_words % 2]u16);
-var ptr_tscEndBuffer : [*]u16 = &tscEndBuffer;
-var tscStartBuffer = @zeros([time.tsc_size_words + time.tsc_size_words % 2]u16);
-var ptr_tscStartBuffer : [*]u16 = &tscStartBuffer;
+var tscEndBuffer = @zeros([(time.tsc_size_words + 1) / 2]u32);
+var ptr_tscEndBuffer : [*]u32 = &tscEndBuffer;
+var tscStartBuffer = @zeros([(time.tsc_size_words + 1) / 2]u32);
+var ptr_tscStartBuffer : [*]u32 = &tscStartBuffer;
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
