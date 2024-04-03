@@ -12,6 +12,7 @@ joinem
 
 # binder
 alifedata_phyloinformatics_convert==0.16.2
+backstrip==0.2.4
 biopython
 hstrat==1.11.1
 git+https://github.com/mmore500/hstrat-surface-concept.git@v0.3.0#egg=hsurf
