@@ -5,6 +5,7 @@ import uuid
 
 import numpy as np
 import pandas as pd
+from scipy import stats as sps
 
 from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -134,8 +135,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(recvN)
 
 print("recv counter S ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -154,8 +155,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(recvS)
 
 print("recv counter E ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -174,8 +175,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(recvE)
 
 print("recv counter W ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -194,8 +195,13 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(recvW)
+
+print("recv counter sum =====================================================")
+recvSum = [*map(sum, zip(recvN.flat, recvS.flat, recvE.flat, recvW.flat))]
+print(recvSum)
+print(f"{np.mean(recvSum)=} {np.std(recvSum)=} {sps.sem(recvSum)=}")
 
 print("send counter N ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -214,7 +220,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
 print(data)
 
 print("send counter S ========================================================")
@@ -234,8 +240,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(sendS)
 
 print("send counter E ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -254,8 +260,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(sendE)
 
 print("send counter W ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -274,8 +280,13 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+print(sendW)
+
+print("send counter sum =====================================================")
+sendSum = [*map(sum, zip(sendN.flat, sendS.flat, sendE.flat, sendW.flat))]
+print(sendSum)
+print(f"{np.mean(sendSum)=} {np.std(sendSum)=} {sps.sem(sendSum)=}")
 
 print("tscControl values ====================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -356,22 +367,30 @@ tscEnd_ints = [
 print(tscEnd_ints)
 
 print("tsc diffs ============================================================")
-tscDiff_ints = [end - start for start, end in zip(tscStart_ints, tscEnd_ints)]
-print(tscDiff_ints)
+print("--------------------------------------------------------------- ticks")
+tsc_ticks = [end - start for start, end in zip(tscStart_ints, tscEnd_ints)]
+print(tsc_ticks)
+print(f"{np.mean(tsc_ticks)=} {np.std(tsc_ticks)=} {sps.sem(tsc_ticks)=}")
 
 print("-------------------------------------------------------------- seconds")
-tscDiff_seconds = [diff / tscTicksPerSecond for diff in tscDiff_ints]
-print(tscDiff_seconds)
+tsc_sec = [diff / tscTicksPerSecond for diff in tsc_ticks]
+print(tsc_sec)
+print(f"{np.mean(tsc_sec)=} {np.std(tsc_sec)=} {sps.sem(tsc_sec)=}")
 
-print("---------------------------------------------------------- nanoseconds")
-tscDiff_nanoseconds = [seconds * 10**9 for seconds in tscDiff_seconds]
-print(tscDiff_nanoseconds)
+print("---------------------------------------------------- seconds per cycle")
+tsc_cysec = [sec / ncy for (sec, ncy) in zip(tsc_sec, cycle_counts)]
+print(tsc_cysec)
+print(f"{np.mean(tsc_cysec)=} {np.std(tsc_cysec)=} {sps.sem(tsc_cysec)=}")
 
-print("------------------------------------------------ nanoseconds per cycle")
-tscDiff_nanoseconds = [
-    ns / cycle for (ns, cycle) in zip(tscDiff_nanoseconds, cycle_counts)
-]
-print(tscDiff_nanoseconds)
+print("---------------------------------------------------------- cycle hertz")
+tsc_cyhz = [1 / cysec for cysec in tsc_cysec]
+print(tsc_cyhz)
+print(f"{np.mean(tsc_cyhz)=} {np.std(tsc_cyhz)=} {sps.sem(tsc_cyhz)=}")
+
+print("--------------------------------------------------------- ns per cycle")
+tsc_cyns = [cysec * 1e9 for cysec in tsc_cysec]
+print(tsc_cyns)
+print(f"{np.mean(tsc_cyns)=} {np.std(tsc_cyns)=} {sps.sem(tsc_cyns)=}")
 
 
 print("genome values ========================================================")
