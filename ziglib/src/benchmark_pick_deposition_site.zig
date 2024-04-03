@@ -49,7 +49,7 @@ pub fn benchmark_pick_deposition_site(
 
     // write CSV header
     writer.print(
-        "Nanoseconds,Replicate,Num Operations,Surface Size,Policy\n",
+        "Nanoseconds,Replicate,Num Operations,Surface Size,Policy,Implementation,Language\n",
         .{},
     ) catch unreachable;
 
@@ -67,7 +67,15 @@ pub fn benchmark_pick_deposition_site(
         );
         writer.print(
             "{},{},{},{},{s}\n",
-            .{ duration, replicate, num_ops, surface_size, policy_name },
+            .{
+                duration,
+                replicate,
+                num_ops,
+                surface_size,
+                policy_name,
+                "surface",
+                "Zig",
+            },
         ) catch unreachable;
     }
 }
