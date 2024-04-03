@@ -6,8 +6,8 @@ cd "$(dirname "$0")"
 
 echo "CSLC ${CSLC}"
 
-ASYNC_GA_GENOME_SOURCE="${ASYNC_GA_GENOME_SOURCE:-cerebraslib/genome_bitdrift.csl}"
-echo "ASYNC_GA_GENOME_SOURCE ${ASYNC_GA_GENOME_SOURCE}"
+ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_bitdrift}"
+echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 
 ASYNC_GA_GLOBAL_SEED="${ASYNC_GA_GLOBAL_SEED:-0}"
 echo "ASYNC_GA_GLOBAL_SEED ${ASYNC_GA_GLOBAL_SEED}"
@@ -18,7 +18,7 @@ echo "ASYNC_GA_NCYCLE ${ASYNC_GA_NCYCLE}"
 # symlinks don't work and --import-path doesn't work, so this is a workaround
 trap "git checkout ./cerebraslib" EXIT
 rsync -rI "$(readlink -f cerebraslib)" .
-cp "${ASYNC_GA_GENOME_SOURCE}" "cerebraslib/genome.csl"
+cp "cerebraslib/${ASYNC_GA_GENOME_FLAVOR}.csl" "cerebraslib/genome.csl"
 
 # target a 2x2 region of interest
 # Every program using memcpy must use a fabric offset of 4,1, and if compiling
