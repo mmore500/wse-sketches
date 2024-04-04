@@ -37,7 +37,8 @@ fn _apply_mutation(genome: genomePtr_t) void {
     if (opscalar.p(0.999)) return;
     // mutate fitness value
     const fitness = calc_fitness_of(genome);
-    const mutated = fitness + random.random_normal_f32() * fitness / 1024;
+    const scale = (fitness + 1.0) / 1024.0;
+    const mutated = fitness + random.random_normal_f32() * scale;
     @ptrcast(*f32, genome).* = mutated;
 }
 
