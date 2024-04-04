@@ -37,15 +37,22 @@ fn has_elapsed_tsc(
     start_tsc: *const [3]u16,
     end_tsc: *const [3]u16,
 ) bool {
-    const start_lsb = @ptrcast([*]u32, start_tsc)[0];
-    const end_lsb = @ptrcast([*]u32, end_tsc)[0];
+    var start: u32 = 0;
+    var end: u32 = 0;
 
-    const msb_diff = end_tsc[2] - start_tsc[2];
+    @ptrcast([*]u16, &start)[0] = start_tsc.*[0];
+    @ptrcast([*]u16, &start)[1] = start_tsc.*[1];
+
+    @ptrcast([*]u16, &end)[0] = end_tsc.*[0];
+    @ptrcast([*]u16, &end)[1] = end_tsc.*[1];
+
+    const msb_diff = end_tsc.*[2] - start_tsc.*[2];
     if (msb_diff > 1) {
         return true;
     } else if (msb_diff == 1) {
-        return end_lsb + (0xFFFFFFFF - start_lsb) >= tsc;
+        return end + (0xFFFFFFFF - start) >= tsc;
     } else {
-        return end_lsb - start_lsb >= tsc;
+        @assert(end >= start); // WTF why is this necessary?? hangs without
+        return end - start >= tsc;
     }
 }
