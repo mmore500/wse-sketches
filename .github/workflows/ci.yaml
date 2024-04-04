@@ -149,6 +149,12 @@ jobs:
           ./kernel-async-ga/compile.sh
           ./kernel-async-ga/execute.sh
 
+      - name: Test async-ga, genome_hsurftiltedsticky_128
+        run: |
+          export ASYNC_GA_GENOME_SOURCE="cerebraslib/genome_hsurftiltedsticky_128.csl"
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
+
       - name: Generate sample tagged populations
         run: ./kernel-async-ga/generate_sample_tagged_populations.sh
 
