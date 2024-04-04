@@ -1,31 +1,42 @@
 /// Calculate the difference between the upper 32 bits of the 48-bit TSC values.
-fn calc_mostsig_elapsed(start_tsc: *[3]u16, end_tsc: *[3]u16) u32 {
+fn calc_mostsig_elapsed(
+    start_tsc: *const [3]u16,
+    end_tsc: *const [3]u16,
+) u32 {
     var start: u32 = 0;
     var end: u32 = 0;
 
-    @ptrcast([*]u16, &start)[0] = start_tsc[1];
-    @ptrcast([*]u16, &start)[1] = start_tsc[2];
+    @ptrcast([*]u16, &start)[0] = start_tsc.*[1];
+    @ptrcast([*]u16, &start)[1] = start_tsc.*[2];
 
-    @ptrcast([*]u16, &end)[0] = end_tsc[1];
-    @ptrcast([*]u16, &end)[1] = end_tsc[2];
+    @ptrcast([*]u16, &end)[0] = end_tsc.*[1];
+    @ptrcast([*]u16, &end)[1] = end_tsc.*[2];
 
     return end - start;
 }
 
 /// Convert seconds to TSC ticks, based on 850Mhz TSC frequency.
 fn ms_to_mostsig_tsc(ms: u32) u32 {
-    return ms * (850_000 >> 16);
+    return ms * (850000 >> 16);
 }
 
 /// Check if given number of milliseconds has elapsed between two TSC values.
-fn has_elapsed_ms(ms: u32, start_tsc: *[3]u16, end_tsc: *[3]u16) bool {
+fn has_elapsed_ms(
+    ms: u32,
+    start_tsc: *const [3]u16,
+    end_tsc: *const [3]u16,
+) bool {
     const mostsig_elapsed = calc_mostsig_elapsed(start_tsc, end_tsc);
     const mostsig_thresh = ms_to_mostsig_tsc(ms);
-    return ((mostsig_elapsed > mostsig_thresh) or (mostsig_elapsed == mostsig_thresh and end_tsc[0] >= start_tsc[0]));
+    return ((mostsig_elapsed > mostsig_thresh) or (mostsig_elapsed == mostsig_thresh and end_tsc.*[0] >= start_tsc.*[0]));
 }
 
 /// Check if given number of TSC ticks nave elapsed between two TSC values.
-fn has_elapsed_tsc(tsc: u32, start_tsc: *[3]u16, end_tsc: *[3]u16) bool {
+fn has_elapsed_tsc(
+    tsc: u32,
+    start_tsc: *const [3]u16,
+    end_tsc: *const [3]u16,
+) bool {
     const start_lsb = @ptrcast([*]u32, start_tsc)[0];
     const end_lsb = @ptrcast([*]u32, end_tsc)[0];
 
