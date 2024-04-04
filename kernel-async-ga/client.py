@@ -392,6 +392,25 @@ tsc_cyns = [cysec * 1e9 for cysec in tsc_cysec]
 print(tsc_cyns)
 print(f"{np.mean(tsc_cyns)=} {np.std(tsc_cyns)=} {sps.sem(tsc_cyns)=}")
 
+print("fitness =============================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_f32 = np.zeros((nCol, nRow), np.float32)
+
+runner.memcpy_d2h(
+    out_tensors_f32,
+    runner.get_id("fitness"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = memcpy_view(out_tensors_f32, np.dtype(np.float32))
+print(data)
 
 print("genome values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT

@@ -34,7 +34,7 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
     @assert(_validate(genome));
 }
 
-fn calc_fitness_of(genome: genomePtr_t) f16 {
+fn calc_fitness_of(genome: genomePtr_t) f32 {
     @assert(_validate(genome));
     return 0.0;
 }
