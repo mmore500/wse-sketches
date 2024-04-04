@@ -32,7 +32,7 @@ const swapDsd = @get_dsd(mem1d_dsd, .{
 const swapGenomeDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{bufSize} -> swap[i * @as(i16, gSize)],
 });
-var fitBuf = @zeros([popSize]f16);
+var fitBuf = @zeros([popSize]f32);
 const fitBufDsd = @get_dsd(mem1d_dsd, .{
     .tensor_access = |i|{popSize} -> fitBuf[i],
 });
@@ -45,7 +45,9 @@ const indexBufDsd = @get_dsd(mem1d_dsd, .{
 ///////////////////////////////////////////////////////////////////////////////
 
 // internal accessors ==========================================================
-fn _calc_ith_fitness(i: u16) f16 { return fitFun(_get_ith_genome(i)); }
+fn _calc_ith_fitness(i: u16) f32 {
+    return @as(f32, fitFun(_get_ith_genome(i)));
+}
 
 fn _elapse_ith_inheritance(i: u16) void { inheritFun(_get_ith_genome(i)); }
 
@@ -60,7 +62,7 @@ fn _get_swap_word(i: u16) u32 { return swap[i]; }
 fn _initialize_ith_genome(i: u16) void { initFun(_get_ith_genome(i)); }
 
 fn _sample_one_tournament() u16 {
-    var bestFit: f16 = math.NEGATIVE_INF(f16);
+    var bestFit: f32 = math.NEGATIVE_INF(f32);
     var bestIdx: u16 = 0;
     for (@range(i16, tournamentSize)) |i| {
         const idx = opscalar.unif16(popSize);
