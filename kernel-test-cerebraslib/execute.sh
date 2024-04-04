@@ -38,7 +38,7 @@ for dir in $dir_list END; do
 
         # Run the client.py script in the background for the current directory
         touch "${dir}.running"
-        ("${CS_PYTHON}" client.py --name "${dir}" && rm -f "${dir}.running" || touch "${dir}.failed") >/dev/null 2>&1 &
+        ("${CS_PYTHON}" client.py --name "${dir}" && rm -f "${dir}.running" || touch "${dir}.failed") >/dev/null 2>&1
 
         # Print the directory name to stdout for tqdm to track progress
         echo "${dir}"
