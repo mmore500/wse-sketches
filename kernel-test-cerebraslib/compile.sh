@@ -45,7 +45,6 @@ for test_module_path in ${test_module_paths} END; do
           while [ "$(jobs -r | wc -l)" -ge "$MAX_PROCESSES" ]; do
             wait -n
         done
-        "${CSLC}" layout.csl --fabric-dims=9,4 --fabric-offsets=4,1 --channels=1 --memcpy -o "out_${test_name}" --verbose >/dev/null 2>&1
-        echo "${test_module_path}"
+        "${CSLC}" layout.csl --fabric-dims=9,4 --fabric-offsets=4,1 --channels=1 --memcpy -o "out_${test_name}" --verbose
     fi
 done | python3 -m tqdm --total "${num_tests}" --unit test --unit_scale --desc "Compiling"
