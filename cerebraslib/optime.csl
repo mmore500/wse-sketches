@@ -1,3 +1,5 @@
+const time = @import_module("<time>");
+
 /// Calculate the difference between the upper 32 bits of the 48-bit TSC values.
 fn calc_mostsig_elapsed(
     start_tsc: *const [3]u16,
@@ -37,6 +39,15 @@ fn has_elapsed_ms(
     }
 }
 
+fn has_elapsed_ms_(
+    ms: u32,
+    start_tsc: *const [3]u16,
+) bool {
+    var tsc_end = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_end);
+    return has_elapsed_ms(ms, start_tsc, &tsc_end);
+}
+
 /// Check if given number of TSC ticks nave elapsed between two TSC values.
 fn has_elapsed_tsc(
     tsc: u32,
@@ -61,4 +72,13 @@ fn has_elapsed_tsc(
         @assert(end >= start); // WTF why is this necessary?? hangs without
         return end - start >= tsc;
     }
+}
+
+fn has_elapsed_tsc_(
+    tsc: u32,
+    start_tsc: *const [3]u16,
+) bool {
+    var tsc_end = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_end);
+    return has_elapsed_tsc(tsc, start_tsc, &tsc_end);
 }

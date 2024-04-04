@@ -69,6 +69,14 @@ fn test_has_elapsed_ms() void {
     @assert(optime.has_elapsed_ms(7200000, &tsc_start2, &tsc_end4));
 }
 
+fn test_has_elapsed_ms_() void {
+    var tsc_start = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_start);
+
+    @assert(optime.has_elapsed_ms_(0, &tsc_start));
+    @assert(!optime.has_elapsed_ms_(1, &tsc_start));
+}
+
 /// Check if given number of TSC ticks nave elapsed between two TSC values.
 fn test_has_elapsed_tsc() void {
     var tsc_start = [3]u16{ 0, 0, 0 };
@@ -98,6 +106,33 @@ fn test_has_elapsed_tsc() void {
     @assert(count == 0);
 
     @assert(!optime.has_elapsed_tsc(0x10000, &tsc_start, &tsc_end));
+}
+
+fn test_has_elapsed_tsc_() void {
+    var tsc_start = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_start);
+
+    var count: u32 = 0;
+    while (!optime.has_elapsed_tsc_(0, &tsc_start)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count == 0);
+
+    while (!optime.has_elapsed_tsc_(2, &tsc_start)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count > 0);
+
+    count = 0;
+    while (!optime.has_elapsed_tsc_(1, &tsc_start)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count == 0);
+
+    @assert(!optime.has_elapsed_tsc_(0x10000, &tsc_start));
 }
 
 fn do_test() void {
