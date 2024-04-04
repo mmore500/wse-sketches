@@ -149,9 +149,15 @@ jobs:
           ./kernel-async-ga/compile.sh
           ./kernel-async-ga/execute.sh
 
-      - name: Test async-ga, genome_hsurftiltedsticky_128
+      - name: Test async-ga, genome_purifyingonly
         run: |
-          export ASYNC_GA_GENOME_FLAVOR="genome_hsurftiltedsticky_128"
+          export ASYNC_GA_GENOME_FLAVOR="genome_purifyingonly"
+          ./kernel-async-ga/compile.sh
+          ./kernel-async-ga/execute.sh
+
+      - name: Test async-ga, genome_purifyingplus
+        run: |
+          export ASYNC_GA_GENOME_FLAVOR="genome_purifyingplus"
           ./kernel-async-ga/compile.sh
           ./kernel-async-ga/execute.sh
 

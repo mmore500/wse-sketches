@@ -21,6 +21,7 @@ param peId: u32;
 
 
 // module imports =============================================================
+const math = @import_module("<math>");
 const random = @import_module("<random>");
 
 const bitmanip = @import_module("cerebraslib/bitmanip.csl");
@@ -34,11 +35,13 @@ const genomePtr_t = [*]u32;
 
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
-    if (opscalar.p(0.999)) return;
+    var mutated = calc_fitness_of(genome);
+    const scale = (mutated + 1.0) / 1024.0;
+
+    if (opscalar.p(0.3)) {
+        mutated -= math.abs(random.random_normal_f32()) * scale;
+    }
     // mutate fitness value
-    const fitness = calc_fitness_of(genome);
-    const scale = (fitness + 1.0) / 1024.0;
-    const mutated = fitness + random.random_normal_f32() * scale;
     @ptrcast(*f32, genome).* = mutated;
 }
 
