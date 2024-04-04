@@ -1,0 +1,84 @@
+const time = @import_module("<time>");
+
+/// Calculate the difference between the upper 32 bits of the 48-bit TSC values.
+fn calc_mostsig_elapsed(
+    start_tsc: *const [3]u16,
+    end_tsc: *const [3]u16,
+) u32 {
+    var start: u32 = 0;
+    var end: u32 = 0;
+
+    @ptrcast([*]u16, &start)[0] = start_tsc.*[1];
+    @ptrcast([*]u16, &start)[1] = start_tsc.*[2];
+
+    @ptrcast([*]u16, &end)[0] = end_tsc.*[1];
+    @ptrcast([*]u16, &end)[1] = end_tsc.*[2];
+
+    return end - start;
+}
+
+/// Convert seconds to TSC ticks, based on 850Mhz TSC frequency.
+fn ms_to_mostsig_tsc(ms: u32) u32 {
+    return ms * (850000 >> 16);
+}
+
+/// Check if given number of milliseconds has elapsed between two TSC values.
+fn has_elapsed_ms(
+    ms: u32,
+    start_tsc: *const [3]u16,
+    end_tsc: *const [3]u16,
+) bool {
+    const mostsig_elapsed = calc_mostsig_elapsed(start_tsc, end_tsc);
+    const mostsig_thresh = ms_to_mostsig_tsc(ms);
+    if (mostsig_elapsed > mostsig_thresh) {
+        return true;
+    } else if (mostsig_elapsed == mostsig_thresh) {
+        return end_tsc.*[0] >= start_tsc.*[0];
+    } else {
+        return false;
+    }
+}
+
+fn has_elapsed_ms_(
+    ms: u32,
+    start_tsc: *const [3]u16,
+) bool {
+    var tsc_end = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_end);
+    return has_elapsed_ms(ms, start_tsc, &tsc_end);
+}
+
+/// Check if given number of TSC ticks nave elapsed between two TSC values.
+fn has_elapsed_tsc(
+    tsc: u32,
+    start_tsc: *const [3]u16,
+    end_tsc: *const [3]u16,
+) bool {
+    var start: u32 = 0;
+    var end: u32 = 0;
+
+    @ptrcast([*]u16, &start)[0] = start_tsc.*[0];
+    @ptrcast([*]u16, &start)[1] = start_tsc.*[1];
+
+    @ptrcast([*]u16, &end)[0] = end_tsc.*[0];
+    @ptrcast([*]u16, &end)[1] = end_tsc.*[1];
+
+    const msb_diff = end_tsc.*[2] - start_tsc.*[2];
+    if (msb_diff > 1) {
+        return true;
+    } else if (msb_diff == 1) {
+        return end + (0xFFFFFFFF - start) >= tsc;
+    } else {
+        @assert(end >= start); // WTF why is this necessary?? hangs without
+        return end - start >= tsc;
+    }
+}
+
+fn has_elapsed_tsc_(
+    tsc: u32,
+    start_tsc: *const [3]u16,
+) bool {
+    var tsc_end = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_end);
+    return has_elapsed_tsc(tsc, start_tsc, &tsc_end);
+}

@@ -1,0 +1,144 @@
+const time = @import_module("<time>");
+
+const optime = @import_module("cerebraslib/optime.csl");
+
+/// Calculate the difference between the upper 32 bits of the 48-bit TSC values.
+fn test_calc_mostsig_elapsed() void {
+    const tsc_zero = [3]u16{ 0, 0, 0 };
+    const tsc_one = [3]u16{ 1, 0, 0 };
+    const tsc_mid = [3]u16{ 0, 7, 0 };
+    const tsc_top = [3]u16{ 0, 0, 2 };
+    const tsc_top_plus_one = [3]u16{ 1, 0, 2 };
+
+    @assert(optime.calc_mostsig_elapsed(&tsc_zero, &tsc_zero) == 0);
+    @assert(optime.calc_mostsig_elapsed(&tsc_zero, &tsc_one) == 0);
+    @assert(optime.calc_mostsig_elapsed(&tsc_zero, &tsc_mid) == 7);
+    @assert(optime.calc_mostsig_elapsed(&tsc_one, &tsc_mid) == 7);
+    @assert(optime.calc_mostsig_elapsed(&tsc_zero, &tsc_top) == 0x20000);
+    @assert(optime.calc_mostsig_elapsed(&tsc_one, &tsc_top) == 0x20000);
+    @assert(optime.calc_mostsig_elapsed(&tsc_mid, &tsc_top) == 0x1FFF9);
+    @assert(optime.calc_mostsig_elapsed(&tsc_mid, &tsc_top_plus_one) == 0x1FFF9);
+    @assert(optime.calc_mostsig_elapsed(&tsc_top, &tsc_top) == 0);
+    @assert(optime.calc_mostsig_elapsed(&tsc_top, &tsc_top_plus_one) == 0);
+}
+
+/// Convert seconds to TSC ticks, based on 850Mhz TSC frequency.
+fn test_ms_to_mostsig_tsc() void {
+    @assert(optime.ms_to_mostsig_tsc(0) == 0);
+    @assert(optime.ms_to_mostsig_tsc(1) == 12);
+    @assert(optime.ms_to_mostsig_tsc(2) == optime.ms_to_mostsig_tsc(1) * 2);
+}
+
+/// Check if given number of milliseconds has elapsed between two TSC values.
+fn test_has_elapsed_ms() void {
+    const tsc_start1 = [3]u16{ 1, 0, 0 };
+    const tsc_end1 = [3]u16{ 1, 0, 0 };
+
+    @assert(optime.has_elapsed_ms(0, &tsc_start1, &tsc_end1));
+    @assert(!optime.has_elapsed_ms(1, &tsc_start1, &tsc_end1));
+    @assert(!optime.has_elapsed_ms(99, &tsc_start1, &tsc_end1));
+    @assert(!optime.has_elapsed_ms(7200000, &tsc_start1, &tsc_end1));
+
+    const tsc_end2 = [3]u16{ 0, 1, 0 };
+    @assert(optime.has_elapsed_ms(0, &tsc_start1, &tsc_end2));
+    @assert(optime.calc_mostsig_elapsed(&tsc_start1, &tsc_end2) == 1);
+    @assert(!optime.has_elapsed_ms(1, &tsc_start1, &tsc_end2));
+    @assert(!optime.has_elapsed_ms(99, &tsc_start1, &tsc_end2));
+    @assert(!optime.has_elapsed_ms(7200000, &tsc_start1, &tsc_end2));
+
+    const tsc_end3 = [3]u16{ 999, 14, 0 };
+    @assert(optime.has_elapsed_ms(0, &tsc_start1, &tsc_end3));
+    @assert(optime.has_elapsed_ms(1, &tsc_start1, &tsc_end3));
+    @assert(!optime.has_elapsed_ms(99, &tsc_start1, &tsc_end3));
+    @assert(!optime.has_elapsed_ms(7200000, &tsc_start1, &tsc_end3));
+
+    const tsc_start2 = [3]u16{ 8, 8, 0 };
+    @assert(optime.has_elapsed_ms(0, &tsc_start2, &tsc_end3));
+    @assert(!optime.has_elapsed_ms(1, &tsc_start2, &tsc_end3));
+    @assert(!optime.has_elapsed_ms(99, &tsc_start2, &tsc_end3));
+    @assert(!optime.has_elapsed_ms(7200000, &tsc_start2, &tsc_end3));
+
+    const tsc_end4 = [3]u16{ 0, 1, 9999 };
+    @assert(optime.has_elapsed_ms(0, &tsc_start1, &tsc_end4));
+    @assert(optime.has_elapsed_ms(1, &tsc_start1, &tsc_end4));
+    @assert(optime.has_elapsed_ms(99, &tsc_start1, &tsc_end4));
+    @assert(optime.has_elapsed_ms(7200000, &tsc_start1, &tsc_end4));
+    @assert(optime.has_elapsed_ms(0, &tsc_start2, &tsc_end4));
+    @assert(optime.has_elapsed_ms(1, &tsc_start2, &tsc_end4));
+    @assert(optime.has_elapsed_ms(99, &tsc_start2, &tsc_end4));
+    @assert(optime.has_elapsed_ms(7200000, &tsc_start2, &tsc_end4));
+}
+
+fn test_has_elapsed_ms_() void {
+    var tsc_start = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_start);
+
+    @assert(optime.has_elapsed_ms_(0, &tsc_start));
+    @assert(!optime.has_elapsed_ms_(1, &tsc_start));
+}
+
+/// Check if given number of TSC ticks nave elapsed between two TSC values.
+fn test_has_elapsed_tsc() void {
+    var tsc_start = [3]u16{ 0, 0, 0 };
+    var tsc_end = [3]u16{ 0, 0, 0 };
+
+    time.get_timestamp(&tsc_start);
+    time.get_timestamp(&tsc_end);
+
+    var count: u32 = 0;
+    while (!optime.has_elapsed_tsc(0, &tsc_start, &tsc_end)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count == 0);
+
+    while (!optime.has_elapsed_tsc(2, &tsc_start, &tsc_end)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count > 0);
+
+    count = 0;
+    while (!optime.has_elapsed_tsc(1, &tsc_start, &tsc_end)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count == 0);
+
+    @assert(!optime.has_elapsed_tsc(0x10000, &tsc_start, &tsc_end));
+}
+
+fn test_has_elapsed_tsc_() void {
+    var tsc_start = [3]u16{ 0, 0, 0 };
+    time.get_timestamp(&tsc_start);
+
+    var count: u32 = 0;
+    while (!optime.has_elapsed_tsc_(0, &tsc_start)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count == 0);
+
+    while (!optime.has_elapsed_tsc_(2, &tsc_start)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count > 0);
+
+    count = 0;
+    while (!optime.has_elapsed_tsc_(1, &tsc_start)) {
+        count += 1;
+        time.get_timestamp(&tsc_end);
+    }
+    @assert(count == 0);
+
+    @assert(!optime.has_elapsed_tsc_(0x10000, &tsc_start));
+}
+
+fn do_test() void {
+    test_calc_mostsig_elapsed();
+    test_ms_to_mostsig_tsc();
+    time.enable_tsc();
+    test_has_elapsed_ms();
+    test_has_elapsed_tsc();
+}
