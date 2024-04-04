@@ -1,0 +1,74 @@
+const time = @import("<time>");
+
+/// Calculate the difference between the upper 32 bits of the 48-bit TSC values.
+fn test_calc_mostsig_elapsed() void {
+    const tsc_zero: [3]u16 = [0, 0, 0];
+    const tsc_one: [3]u16 = [0, 0, 1];
+    const tsc_mid: [3]u16 = [0, 7, 0];
+    const tsc_top: [3]u16 = [2, 0, 0];
+    const tsc_top_plus_one: [3]u16 = [2, 0, 1];
+
+
+    @assert(calc_mostsig_elapsed(tsc_zero, tsc_zero) == 0);
+    @assert(calc_mostsig_elapsed(tsc_zero, tsc_one) == 0);
+    @assert(calc_mostsig_elapsed(tsc_zero, tsc_mid) == 7);
+    @assert(calc_mostsig_elapsed(tsc_one, tsc_mid) == 7);
+    @assert(calc_mostsig_elapsed(tsc_top, tsc_zero) == 0x20000);
+    @assert(calc_mostsig_elapsed(tsc_top, tsc_one) == 0x20000);
+    @assert(calc_mostsig_elapsed(tsc_top, tsc_mid) == 0x1FF9);
+    @assert(calc_mostsig_elapsed(tsc_top_plus_one, tsc_mid) == 0x1FF9);
+    @assert(calc_mostsig_elapsed(tsc_top, tsc_top) == 0);
+}
+
+/// Convert seconds to TSC ticks, based on 850Mhz TSC frequency.
+fn test_ms_to_mostsig_tsc() void {
+    @assert(ms_to_mostsig_tsc(0) == 0);
+    @assert(ms_to_mostsig_tsc(1) == 12);
+    @assert(ms_to_mostsig_tsc(2) == ms_to_mostsig_tsc(1) * 2);
+}
+
+/// Check if given number of milliseconds has elapsed between two TSC values.
+fn test_has_elapsed_ms() void {
+    var tsc_start = [3]u16{0, 0, 0};
+    var tsc_end = [3]u16{0, 0, 0};
+
+    time.get_timestamp(tsc_start);
+    time.get_timestamp(tsc_end);
+
+    var count: u32 = 0;
+    while (test_has_elapsed_ms(0, tsc_start, tsc_end)) {
+        count += 1;
+        time.get_timestamp(tsc_end);
+    }
+    @assert(count == 0);
+
+    while (test_has_elapsed_ms(1, tsc_start, tsc_end)) {
+        count += 1;
+        time.get_timestamp(tsc_end);
+    }
+    @assert(count > 0);
+}
+
+/// Check if given number of TSC ticks nave elapsed between two TSC values.
+fn test_has_elapsed_tsc() void {
+    // (tsc: u32, start_tsc: *[3]u16, end_tsc: *[3]u16) bool {
+    // const start_lsb = @ptrcast([*]u32, start_tsc)[0];
+    // const end_lsb = @ptrcast([*]u32, end_tsc)[0];
+
+    // const msb_diff = end_tsc[2] - start_tsc[2];
+    // if (msb_diff > 1) {
+    //     return true;
+    // } else if (msb_diff == 1) {
+    //     return end_lsb + (0xFFFFFFFF - start_lsb) >= tsc;
+    // } else {
+    //     return end_lsb - start_lsb >= tsc;
+    // }
+}
+
+fn do_test() void {
+    test_calc_mostsig_elapsed();
+    test_ms_to_mostsig_tsc();
+    time.enable_tsc();
+    test_has_elapsed_ms();
+    test_has_elapsed_tsc();
+}
