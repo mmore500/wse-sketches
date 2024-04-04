@@ -6,14 +6,14 @@ cd "$(dirname "$0")"
 
 export ASYNC_GA_GENOME_FLAVOR="genome_hsurftiltedsticky_tagged"
 echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
-for cmd in "export ASYNC_GA_GLOBAL_SEED=1 ASYNC_GA_NCYCLE=25" \
-          "export ASYNC_GA_GLOBAL_SEED=2 ASYNC_GA_NCYCLE=50" \
-          "export ASYNC_GA_GLOBAL_SEED=3 ASYNC_GA_NCYCLE=100" \
+for cmd in "export ASYNC_GA_GLOBAL_SEED=1 ASYNC_GA_NCYCLE_AT_LEAST=25" \
+          "export ASYNC_GA_GLOBAL_SEED=2 ASYNC_GA_NCYCLE_AT_LEAST=50" \
+          "export ASYNC_GA_GLOBAL_SEED=3 ASYNC_GA_NCYCLE_AT_LEAST=100" \
         ; do
-          # "export ASYNC_GA_GLOBAL_SEED=5 ASYNC_GA_NCYCLE=250" \
+          # "export ASYNC_GA_GLOBAL_SEED=5 ASYNC_GA_NCYCLE_AT_LEAST=250" \
   eval $cmd
   echo "ASYNC_GA_GLOBAL_SEED ${ASYNC_GA_GLOBAL_SEED}"
-  echo "ASYNC_GA_NCYCLE ${ASYNC_GA_NCYCLE}"
+  echo "ASYNC_GA_NCYCLE_AT_LEAST ${ASYNC_GA_NCYCLE_AT_LEAST}"
   ./compile.sh
   ./execute.sh
 

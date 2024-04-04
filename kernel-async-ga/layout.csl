@@ -1,5 +1,5 @@
 param globalSeed: u16;
-param nCycle: u16;
+param nCycleAtLeast: u16;
 
 const nRow = 3;
 const nCol = 3;
@@ -35,7 +35,7 @@ layout {
           .localSeed = globalSeed * nRow * nCol + peId + 1,
           .x = x,
           .y = y,
-          .nCycle = nCycle,
+          .nCycleAtLeast = nCycleAtLeast,
           .nRow = nRow,
           .nCol = nCol,
           .popSize = popSize,
