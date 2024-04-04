@@ -50,7 +50,7 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
     _step_instrumentation(genome);
 }
 
-fn calc_fitness_of(genome: genomePtr_t) f16 { return 0.0; }
+fn calc_fitness_of(genome: genomePtr_t) f32 { return 0.0; }
 
 fn initialize_one(genome: genomePtr_t) void {
     const gHalfWords: u16 = gSize * 2;
