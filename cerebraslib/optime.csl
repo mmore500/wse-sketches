@@ -28,7 +28,13 @@ fn has_elapsed_ms(
 ) bool {
     const mostsig_elapsed = calc_mostsig_elapsed(start_tsc, end_tsc);
     const mostsig_thresh = ms_to_mostsig_tsc(ms);
-    return ((mostsig_elapsed > mostsig_thresh) or (mostsig_elapsed == mostsig_thresh and end_tsc.*[0] >= start_tsc.*[0]));
+    if (mostsig_elapsed > mostsig_thresh) {
+        return true;
+    } else if (mostsig_elapsed == mostsig_thresh) {
+        return end_tsc.*[0] >= start_tsc.*[0];
+    } else {
+        return false;
+    }
 }
 
 /// Check if given number of TSC ticks nave elapsed between two TSC values.
