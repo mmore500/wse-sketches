@@ -75,6 +75,9 @@ var ptr_sendCounter_W : [*]u16 = &sendCounter_W;
 var genome = @zeros([population_.gSize]u32);  // samples 0th population element (convenient)
 var ptr_genome : [*]u32 = &genome;
 
+var fitness = @zeros([1]f32);  // samples 0th population element (convenient)
+var ptr_fitness : [*]f32 = &fitness;
+
 // report back layout params (sanity check)
 var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
 var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
@@ -401,6 +404,7 @@ task cycleTask(cycle: u16) void {
   for(@range(u16, population_.gSize)) |i| {
     genome[i] = population_._get_ith_genome(0)[i];
   }
+  fitness[0] = population_._calc_ith_fitness(0);
 
   // handle send flags, load send buffer from pop and start next async send
   // --------------------------------------------------------------------------
@@ -541,6 +545,7 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_sendCounter_S, "sendCounter_S");
   @export_symbol(ptr_sendCounter_E, "sendCounter_E");
   @export_symbol(ptr_sendCounter_W, "sendCounter_W");
+  @export_symbol(ptr_fitness, "fitness");
   @export_symbol(ptr_genome, "genome");
   @export_symbol(ptr_whoami, "whoami");
   @export_symbol(ptr_whereami_x, "whereami_x");

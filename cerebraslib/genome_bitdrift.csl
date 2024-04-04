@@ -30,7 +30,7 @@ const genomePtr_t = [*]u32;
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
     // mutate fitness value
-    const fitness = calc_fitness_of(genome);
+    const fitness = @ptrcast(*f16, genome).*;
     const mutated = fitness + @as(f16, random.random_normal_f32());
     @ptrcast(*f16, genome).* = mutated;
 }
@@ -48,7 +48,9 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
     _apply_mutation(genome); _step_instrumentation(genome);
 }
 
-fn calc_fitness_of(genome: genomePtr_t) f16 { return @ptrcast(*f16, genome).*; }
+fn calc_fitness_of(genome: genomePtr_t) f32 {
+    return @as(f32, @ptrcast(*f16, genome).*);
+}
 
 fn initialize_one(genome: genomePtr_t) void {
     const gHalfWords: u16 = gSize * 2;
