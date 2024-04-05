@@ -2,12 +2,35 @@
 
 \subsection{Project Title}
 
+Characterization of Phylogenetic Structure Across Population Scales using Wafer-scale Agent-based Evolution Simulation
+
 \subsection{Public overview}
 
 \begin{displayquote} \itshape
 Your overview should touch on your project's goals, how you plan to use ACCESS resources, and any software packages you need.
 Covering these topics helps us ensure you get connected with appropriate resources for your work.
 \end{displayquote}
+
+% Large-scale evolutionary processes underlie key problems in .
+Cross-scale dynamics of large-scale evolutionary processes also underly key questions in evolutionary biology, public health, medicine, and natural resources management.
+Understanding the dynamics of vast, evolving populations can help address challenges like communicable disease, antibiotic resistance, cancer treatment, and conservation biology, as well as addressing scientific questions related to ecological communities and evolutionary transitions in individuality (e.g., multicellularity).
+Emerging massively parallel hardware accelerators have immense potential to provide the extensive computation necessary to advance simulation experiments investigating these phenomena.
+However, critical methodological gaps prevent effective application of these accelerators to evolution simulations.
+Phylogenetic records (i.e., the history of evolutionary relatedness among organisms) are needed to fully understand the mode and tempo of evolution within simulated populations.
+However, existing phylogenetic tracking techniques are poorly aligned to new accelerators' highly distributed, many-processor architectures.
+
+Recently introduced hereditary stratigraphy algorithms provide a potential solution to collect phylogenetic data from large-scale in silico evolution experiments.
+These algorithms annotate simulated genomes with heritable markers that, after simulation ends, facilitate inference of phylogenetic history among end-state evolved agents.
+Our project builds on promising pilot work with hereditary stratigraphy algorithms, taking first steps to assess these algorithms' capabilities and limitations at scale on the Cerebras Wafer Scale Engine, a leading example of cutting-edge accelerator technology.
+As a case study, we will use tracking-enabled simulation to investigate fundamental questions about how the phylogenetic structure of natural systems is influenced by orders-of-magnitude differences in population size.
+
+Work will unfold in three phases:
+1. Algorithm Validation: compare replicate evolutionary runs across selection pressure levels, and evaluate the capability of hereditary stratigraphy to detect expected effects on phylogenetic structure in wafer-scale agent populations;
+2. Scalability Analysis: assess stability, efficiency, and throughput of tracking-enabled simulation in processor collections ranging from hundreds, to thousands, to full wafer scale; and
+3. Phylogenetic Structure Across Population Scales: exploit wafer-scale computation to assess how commonly measured aspects of phylogenetic structure vary with scale in generational depth and population size.
+
+Evaluated methods promise to enable currently intractable computational research, benefiting further explorations of evolutionary processes impacting public health, medicine, and beyond.
+Our project aims not only to shed light on fundamental questions about how aspects of phylogenetic structure emerge from evolutionary processes, but also to open new frontiers in what's possible for digital evolution research.
 
 \subsection{Keywords}
 
@@ -30,7 +53,17 @@ We estimate 10 hours for validation experiments and 30 hours for our main experi
 We have budgeted 20 hours of compute time for scale-up benchmarking experiments.
 We estimate 20 minutes of runtime likely sufficient per replicate, and plan 20 replicates per each of our 3 scale treatments.
 
-An additional 20 hours are included to account for debugging, testing, and any unforseen circumstances.
+An additional 20 hours are included to account for debugging, testing, and any unforeseen circumstances.
+
+\subsection{Mow much storage space is requested? Please, describe your data format and size in GB. Make sure to request as many GB of PSC Bridges-2 Ocean storage.}
+
+2000GB, CSV and Parquet files containing agent genomes and phylogenetic reconstructions
+
+Due to the CS-2 device's 44 GB of onboard memory, exporting the full end-state of an evolutionary simulation from the WSE hardware would occupy less than 50GB.
+Thus, a 1000 GB capacity would allow us to store data from at least 40 replicate experiments.
+We expect the storage footprint of reconstructed phylogenies to be no more than the size of the raw agent genome data, and allocate an additional 1000 GB for that purpose.
+
+Although later experiments may stream sampled agent genomes off of the device during runtime, we anticipate collecting no more than hundreds of GB of such data.
 
 \subsection{Describe your research team.}
 
