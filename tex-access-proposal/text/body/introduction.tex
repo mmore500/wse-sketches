@@ -6,6 +6,7 @@ To provide such insight, ABM require sufficient scale to capture systems' emerge
 Advances in high-performance computing (HPC) have already yielded paradigm-shifting improvements to the capabilities of ABM.
 However, across domains key questions still remain out of computational reach.
 
+\input{fig/runtime-posthoc-schematic.tex}
 Significant untapped potential for ABM scale-up has been identified in hardware-accelerator-enabled computation.
 Rapid advances in the capability of accelerator devices, driven in particular by market demand for deep learning operations, is anticipated to play a key role in future advances in ABM capabilities \citep{perumalla2022computer}.
 Within this category, the emerging class of fabric-based accelerators, most notably the recently-introduced 850,000 core Cerebras CS-2 Wafer Scale Engine (WSE) \citep{lauterbach2021path,lie2022cerebras}, is a particularly exciting --- and fairly uncharted, with applications to HPC workloads still in early days.
@@ -96,8 +97,6 @@ Simulation phylogenies have typically been collected using a centralized record-
 Record-keeping often involves pruning the records of extinct lineages to prevent memory bloat \citep{dolson2023phylotrack}.
 Although the direct-tracking approach is well suited to serial simulation substantial limitations and runtime overhead make scaling this up to highly parallel/distributed systems --- particularly those with low memory capacity like the Cerebras WSE --- essentially untenable \citep{moreno2024analysis}.
 
-\input{fig/runtime-posthoc-schematic.tex}
-
 To overcome this limitation to phylogenetic analysis within many-processor HPC contexts, we have proposed a new class of reconstruction-based approaches to phylogenetic tracking in silico \citep{moreno2022hereditary}.
 These approaches require no centralized data collection during simulation runtime; instead, they use post hoc comparisons between end-state agent genomes to deduce approximate phylogenetic history --- akin to how DNA-based analyses tell how lineages of contemporary organisms relate in natural history.
 Figure \ref{fig:runtime-posthoc-schematic} depicts our reconstruction-based strategy.
@@ -109,13 +108,13 @@ HStrat data is designed to be attached to the underlying genomes within particul
 Benchmarking experiments to evaluate HStrat performance have achieved high-quality reconstruction of phylogenetic histories for tens of thousands of fully-distributed agents using just 96 bits of tracking information per agent genome.
 Details on this methodology and our proposed approach to translate it to the WSE context is provided in Section \ref{sec:methods}.
 
-\subsection{Outline}
+% \subsection{Outline}
 
-The remainder of this proposal is structured as follows
-\begin{itemize}
-\item Section \ref{sec:objectives} describes proposed work,
-\item Section \ref{sec:methods} overviews proposed methods,
-\item Section \ref{sec:preliminary-work} reviews established work on this project,
-\item Section \ref{sec:conclusion} provides concluding remarks, and
-\item Section \ref{sec:key-considerations} recaps key technical considerations highlighted in the program solicitation.
-\end{itemize}
+% The remainder of this proposal is structured as follows
+% \begin{itemize}
+% \item Section \ref{sec:objectives} describes proposed work,
+% \item Section \ref{sec:methods} overviews proposed methods,
+% \item Section \ref{sec:preliminary-work} reviews established work on this project,
+% \item Section \ref{sec:conclusion} provides concluding remarks, and
+% \item Section \ref{sec:key-considerations} recaps key technical considerations highlighted in the program solicitation.
+% \end{itemize}

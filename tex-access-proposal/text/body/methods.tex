@@ -8,12 +8,11 @@ In this section, we describe the primary two algorithmic components for our on-d
 
 \subsection{Asynchronous Island-model Evolutionary Computation}
 
+\input{fig/async-ga-schematic.tex}
 We apply an island-model genetic algorithm to instantiate an evolutionary process spanning PEs.
 Island-model approaches are common in applications of parallel and distributed computing to evolutionary computation \citep{bennett1999building}.
 Under this model, each processor element (PE) hosts an independent population.
 Migration between PEs stitches island populations together into a common gene pool.
-
-\input{fig/async-ga-schematic.tex}
 
 Core kernel activity proceeds via an update cycle performed on each PE, which comprises several steps.
 Figure \ref{fig:async-ga-schematic} provides a schematic overview.
@@ -70,7 +69,7 @@ Within each offspring, generated identifiers append to an inherited running chro
 To prevent $\mathcal{O}(n)$ space complexity as generations elapse, not all fingerprints can be kept.
 Instead, excess fingerprints are pruned away according to a deterministic programme that ensures retention of fingerprint values from checkpoint generations spaced across evolutionary history.
 
-\input{fig/hsurf-schematic.tex}
+% \input{fig/hsurf-schematic.tex}
 
 Limitations of the Cerebras WSE environment required significant elaboration of hereditary stratigraphy algorithms to minimize memory use, avoid complex data structures with dynamically allocated memory, and minimize iterative computation.
 We use a constant-time indexing scheme that maps each lineage's fingerprint stream onto a fixed-width memory buffer such that eviction of existing fingerprint values by new placements maintains a temporally-representative sampling over elapsed time (Figure \ref{fig:hsurf-schematic}a), either evenly (``steady'') or recency-biased (``tilted'') (Figure \ref{fig:hsurf-schematic}b).
