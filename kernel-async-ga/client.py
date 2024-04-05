@@ -458,6 +458,8 @@ with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
 
 globalSeed = int(compile_data["params"]["globalSeed"])
 nCycleAtLeast = int(compile_data["params"]["nCycleAtLeast"])
+msecAtLeast = int(compile_data["params"]["msecAtLeast"])
+tscAtLeast = int(compile_data["params"]["tscAtLeast"])
 genomeFlavor = args.genomeFlavor or "unknown"
 
 # save genome values to a file
@@ -465,6 +467,8 @@ df = pd.DataFrame(genome_hex, columns=["bitfield"])
 df["genomeFlavor"] = genomeFlavor
 df["globalSeed"] = globalSeed
 df["nCycle"] = nCycleAtLeast
+df["msec"] = msecAtLeast
+df["tsc"] = tscAtLeast
 df["replicate"] = str(uuid.uuid4())
 
 df.to_csv(

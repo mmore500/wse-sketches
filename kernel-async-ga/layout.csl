@@ -1,5 +1,7 @@
 param globalSeed: u16;
 param nCycleAtLeast: u16;
+param msecAtLeast: u16;
+param tscAtLeast: u16;
 
 const nRow = 3;
 const nCol = 3;
@@ -36,6 +38,8 @@ layout {
           .x = x,
           .y = y,
           .nCycleAtLeast = nCycleAtLeast,
+          .msecAtLeast = msecAtLeast,
+          .tscAtLeast = tscAtLeast,
           .nRow = nRow,
           .nCol = nCol,
           .popSize = popSize,
