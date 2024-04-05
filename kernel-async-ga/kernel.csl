@@ -23,7 +23,9 @@
 param peId: i16;  // uid among PEs
 param x: i16;  // position within PE array
 param y: i16;
-param nCycle: u16;  // how many self-activation cycles to run for?
+param nCycleAtLeast: u16;  // how many self-activation cycles to run for?
+param msecAtLeast: u32;  // how many real-time milliseconds to run for?
+param tscAtLeast: u32;  // how many timestamp counter ticks to run for?
 param nRow: i16;  // how big is PE array?
 param nCol: i16;
 param popSize: u16;  // how many genomes in each local population?
@@ -47,6 +49,7 @@ const population_ = @import_module("cerebraslib/population.csl", .{
   .inheritFun = genome_.elapse_inheritance_of,
   .initFun = genome_.initialize_one, .peId = peId,
 });
+const optime = @import_module("cerebraslib/optime.csl");
 
 // global output variables ====================================================
 // for end-state telemetry, ptrs are necessary for memcpy infrastructure
@@ -364,8 +367,22 @@ fn dispatchRecv_W() void {
   recvCounter_W[0] += 1;  // counter only used for telemetry
 }
 
+// halt condition ============================================================
+fn shouldHalt(cycle: u16) bool {
+  const nCycleOk = cycle >= nCycleAtLeast;
+  const msecOk = optime.has_elapsed_ms_(
+    msecAtLeast,
+    @ptrcast(*[3]u16, &tscStartBuffer),
+  );
+  const tscOk = optime.has_elapsed_tsc_(
+    tscAtLeast,
+    @ptrcast(*[3]u16, &tscStartBuffer),
+  );
+  return nCycleOk and msecOk and tscOk;
+}
+
 // cycle task =================================================================
-// main program loop: self-activate with incrementing values until nCycle
+// main program loop: self-activate with incrementing values until nCycleAtLeast
 ///////////////////////////////////////////////////////////////////////////////
 const cycleDsd = @get_dsd(fabout_dsd, .{
     .extent = 1,
@@ -438,10 +455,10 @@ task cycleTask(cycle: u16) void {
   // trigger next cycle
   // --------------------------------------------------------------------------
   cycleCounter[0] = cycle;  // for telemetry
-  if (cycle < nCycle) {
+  if (!shouldHalt(cycle)) {
     @mov16(cycleDsd, cycle + 1);  // send wavelet to self, trigger next cycle
   } else {
-  time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
+    time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
     memcpy.unblock_cmd_stream();  // terminate
   }
 }

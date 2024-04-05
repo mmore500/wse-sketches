@@ -12,8 +12,14 @@ echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 ASYNC_GA_GLOBAL_SEED="${ASYNC_GA_GLOBAL_SEED:-0}"
 echo "ASYNC_GA_GLOBAL_SEED ${ASYNC_GA_GLOBAL_SEED}"
 
-ASYNC_GA_NCYCLE="${ASYNC_GA_NCYCLE:-40}"
-echo "ASYNC_GA_NCYCLE ${ASYNC_GA_NCYCLE}"
+ASYNC_GA_NCYCLE_AT_LEAST="${ASYNC_GA_NCYCLE_AT_LEAST:-40}"
+echo "ASYNC_GA_NCYCLE_AT_LEAST ${ASYNC_GA_NCYCLE_AT_LEAST}"
+
+ASYNC_GA_MSEC_AT_LEAST="${ASYNC_GA_MSEC_AT_LEAST:-0}"
+echo "ASYNC_GA_MSEC_AT_LEAST ${ASYNC_GA_MSEC_AT_LEAST}"
+
+ASYNC_GA_TSC_AT_LEAST="${ASYNC_GA_TSC_AT_LEAST:-0}"
+echo "ASYNC_GA_TSC_AT_LEAST ${ASYNC_GA_TSC_AT_LEAST}"
 
 # symlinks don't work and --import-path doesn't work, so this is a workaround
 trap "git checkout ./cerebraslib" EXIT
@@ -29,4 +35,4 @@ cp "cerebraslib/${ASYNC_GA_GENOME_FLAVOR}.csl" "cerebraslib/genome.csl"
 # 9x4 because compiler says
 # RuntimeError: Fabric dimension must be at least 9-by-4
 
-"${CSLC}" layout.csl --fabric-dims=10,5 --fabric-offsets=4,1 --channels=1 --memcpy --params=globalSeed:${ASYNC_GA_GLOBAL_SEED},nCycle:${ASYNC_GA_NCYCLE} -o out
+"${CSLC}" layout.csl --fabric-dims=10,5 --fabric-offsets=4,1 --channels=1 --memcpy --params=globalSeed:${ASYNC_GA_GLOBAL_SEED},nCycleAtLeast:${ASYNC_GA_NCYCLE_AT_LEAST},msecAtLeast:${ASYNC_GA_MSEC_AT_LEAST},tscAtLeast:${ASYNC_GA_TSC_AT_LEAST} -o out

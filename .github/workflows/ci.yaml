@@ -140,6 +140,9 @@ jobs:
       - name: Test async-ga, genome_bitdrift
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_bitdrift"
+          export ASYNC_GA_NCYCLE_AT_LEAST=0
+          export ASYNC_GA_MSEC_AT_LEAST=0
+          export ASYNC_GA_TSC_AT_LEAST=1000
           ./kernel-async-ga/compile.sh
           ./kernel-async-ga/execute.sh
 
