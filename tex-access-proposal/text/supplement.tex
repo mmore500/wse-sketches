@@ -53,7 +53,17 @@ We estimate 10 hours for validation experiments and 30 hours for our main experi
 We have budgeted 20 hours of compute time for scale-up benchmarking experiments.
 We estimate 20 minutes of runtime likely sufficient per replicate, and plan 20 replicates per each of our 3 scale treatments.
 
-An additional 20 hours are included to account for debugging, testing, and any unforseen circumstances.
+An additional 20 hours are included to account for debugging, testing, and any unforeseen circumstances.
+
+\subsection{Mow much storage space is requested? Please, describe your data format and size in GB. Make sure to request as many GB of PSC Bridges-2 Ocean storage.}
+
+2000GB, CSV and Parquet files containing agent genomes and phylogenetic reconstructions
+
+Due to the CS-2 device's 44 GB of onboard memory, exporting the full end-state of an evolutionary simulation from the WSE hardware would occupy less than 50GB.
+Thus, a 1000 GB capacity would allow us to store data from at least 40 replicate experiments.
+We expect the storage footprint of reconstructed phylogenies to be no more than the size of the raw agent genome data, and allocate an additional 1000 GB for that purpose.
+
+Although later experiments may stream sampled agent genomes off of the device during runtime, we anticipate collecting no more than hundreds of GB of such data.
 
 \subsection{Describe your research team.}
 
