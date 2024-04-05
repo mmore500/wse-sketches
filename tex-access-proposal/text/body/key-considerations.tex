@@ -6,7 +6,7 @@
 What is your experience with HPC programming paradigms and languages, such as MPI, OpenMP, CUDA, OpenCL, etc.?
 \end{enumerate}
 \noindent
-Dr. Moreno extensive experience working with HPC technologies, most notably developing asynchronous, best-effort computing approaches using MPI and C++.
+Dr. Moreno has extensive experience working with HPC technologies, most notably developing asynchronous, best-effort computing approaches using MPI and C++.
 He has also received training in GPU programming (e.g., OpenCL, CUDA).
 Dr. Dolson and Dr. Zaman are both experienced systems-level programmers.
 
@@ -35,14 +35,14 @@ How does memory usage or program run-time scale with problem size?
 We are interested in developing population-scale, cross-scale simulations with hundreds of millions of agents.
 The memory usage of the program and run-time scale linearly with problem size, either defined as evolutionary duration or population size.
 Precise memory usage depends largely on the agent genomes used.
-Including instrumentation, a meaningful simulation size could feasibly be achieved using on the order of 4 words of memory per agent.
+For smaller agent genomes, sized on the order of four words, thousands of agents could be supported per PE --- yielding a net whole-wafer population size on the order of a billion agents.
 
 \begin{enumerate}[resume] \itshape \bfseries
 \item What portion of your algorithm do you plan to port to the CS-2?
 % Why are you interested in exploring this part of your algorithm?
 \end{enumerate}
 \noindent
-We plan to port the core evolutionary generational loop to the CS-2 to as an island model-style genetic algorithm.
+We plan to port the core evolutionary generational loop to the CS-2 as an island model-style genetic algorithm.
 The stages are 1) migration, 2) selection, 3) replication with mutation.
 We are interested in porting it because it is the most computationally intensive to scale and because it is embarrassingly parallel.
 Postprocessing to analyze evolved traits, and reconstruct evolutionary history will take place off-device.
@@ -55,7 +55,7 @@ What precision does your algorithm or use case need?
 \noindent
 Due to the agent-based modeling, this is a primarily discrete domain.
 However, floating point types may be used to represent traits.
-Becuase they are only used for comparisons between agents, single or half precision suffice.
+Because they are only used for comparisons between agents, single or half precision suffice.
 
 \begin{enumerate}[resume] \itshape \bfseries
 \item %
@@ -64,8 +64,8 @@ Becuase they are only used for comparisons between agents, single or half precis
 How often will data need to be moved between the wafer and the worker nodes?
 \end{enumerate}
 \noindent
-For preliminary versions of the project, we are planning to only collect data at the end of execution the through the Cerebras memcpy infrastructure.
-As the model is self-contained, no data except for PE code will need to be moved onto the device.
+For preliminary versions of the project, we are planning to only collect data at the end of execution through the Cerebras memcpy infrastructure.
+As the model is self-contained, no data except for the PE code will need to be moved onto the device.
 In the future, we are interested in exploring samples throughout the evolutionary process to serve as a kind of ``fossil record.''
 
 \begin{enumerate}[resume] \itshape \bfseries
@@ -77,7 +77,7 @@ In the future, we are interested in exploring samples throughout the evolutionar
 \end{enumerate}
 \noindent
 We plan to exploit an island model genetic algorithm where each PE is an island and genomes migrate between adjacent islands.
-As natural systems are typically asynchronous in nature, synchronization is not a concern.
+As natural systems are typically asynchronous, synchronization is not a concern.
 We plan to use CSL asynchronous send/receive operations to implement migration.
 
 Genomes will be represented as contiguous buffers of u32 and each PE's population as a contiguous buffer of genome data using a simple synchronous generational model (i.e., a swap buffer.)
