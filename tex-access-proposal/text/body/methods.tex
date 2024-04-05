@@ -72,7 +72,7 @@ Instead, excess fingerprints are pruned away according to a deterministic progra
 % \input{fig/hsurf-schematic.tex}
 
 Limitations of the Cerebras WSE environment required significant elaboration of hereditary stratigraphy algorithms to minimize memory use, avoid complex data structures with dynamically allocated memory, and minimize iterative computation.
-We use a constant-time indexing scheme that maps each lineage's fingerprint stream onto a fixed-width memory buffer such that eviction of existing fingerprint values by new placements maintains a temporally-representative sampling over elapsed time (Figure \ref{fig:hsurf-schematic}a), either evenly (``steady'') or recency-biased (``tilted'') (Figure \ref{fig:hsurf-schematic}b).
+We use a constant-time indexing scheme that maps each lineage's fingerprint stream onto a fixed-width memory buffer such that eviction of existing fingerprint values by new placements maintains a temporally-representative sampling over elapsed time.
 We call this approach ``surface''-based to distinguish it from earlier hereditary stratigraphy methods.
 Time stamps can be positionally inferred and thus do not need to be stored --- a several-fold savings that enables fingerprint values to be shrunk down and packed together.
 Single-bit checkpoints have been shown to produce good quality phylogenies using only 96 bits per genome \citep{moreno2023toward}.
