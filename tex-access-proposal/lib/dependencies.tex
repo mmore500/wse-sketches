@@ -15,7 +15,9 @@
 \usepackage{hyperref}
 \usepackage{import}
 \usepackage{natbib}
-\usepackage[moderate]{savetrees} \usepackage{enumitem}
+% \usepackage[moderate]{savetrees}
+\usepackage{enumitem}
+\setlist{nosep,topsep=-\parskip,noitemsep}
 \usepackage{siunitx}
 \usepackage{subcaption}
 \usepackage{tabularx}
@@ -30,3 +32,10 @@
 
 % Define thick vertical lines for section dividers
 \newcolumntype{q}{!{\color{white} \vrule width 2pt}}
+
+\setlength\parindent{24pt}
+\captionsetup{font=small}
+\setlength{\bibsep}{0pt plus 0.3ex}
+
+\usepackage{ragged2e}
+\setlength{\RaggedRightParindent}{\parindent}
