@@ -24,8 +24,8 @@ param peId: i16;  // uid among PEs
 param x: i16;  // position within PE array
 param y: i16;
 param nCycleAtLeast: u16;  // how many self-activation cycles to run for?
-param msecAtLeast: u16;  // how many real-time milliseconds to run for?
-param tscAtLeast: u16;  // how many timestamp counter ticks to run for?
+param msecAtLeast: u32;  // how many real-time milliseconds to run for?
+param tscAtLeast: u32;  // how many timestamp counter ticks to run for?
 param nRow: i16;  // how big is PE array?
 param nCol: i16;
 param popSize: u16;  // how many genomes in each local population?
