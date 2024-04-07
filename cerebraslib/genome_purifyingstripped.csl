@@ -1,0 +1,39 @@
+param peId: u32;
+
+// memory layout ===============================================================
+// byte 0 FITNESS (f32, 4 bytes)
+// byte 1
+// byte 2
+// byte 3
+// TOTAL: 1 words -> 4 bytes
+
+
+// module imports =============================================================
+const math = @import_module("<math>");
+const random = @import_module("<random>");
+
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+
+// module config specs ========================================================
+const gSize: u16 = 1;
+const genome_t = [gSize]u32;
+const genomePtr_t = [*]u32;
+
+// internal functions =========================================================
+fn _apply_mutation(genome: genomePtr_t) void {
+    var mutated = calc_fitness_of(genome);
+    const scale = (mutated + 1.0) / 1024.0;
+
+    if (opscalar.p(0.3)) {
+        mutated -= math.abs(random.random_normal_f32()) * scale;
+    }
+    // mutate fitness value
+    @ptrcast(*f32, genome).* = mutated;
+}
+
+// public API =================================================================
+fn elapse_inheritance_of(genome: genomePtr_t) void { _apply_mutation(genome); }
+
+fn calc_fitness_of(genome: genomePtr_t) f32 { return @ptrcast(*f32, genome).*; }
+
+fn initialize_one(genome: genomePtr_t) void { @ptrcast(*f32, genome).* = 0.0; }
