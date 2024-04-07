@@ -221,7 +221,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
-print(data)
+print(sendN)
 
 print("send counter S ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
