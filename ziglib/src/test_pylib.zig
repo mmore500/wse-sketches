@@ -158,3 +158,49 @@ test "fast_pow2_divide comprehensive tests" {
         try std.testing.expectEqual(pylib.fast_pow2_divide(test_case.dividend, test_case.divisor), test_case.expected);
     }
 }
+
+// OEIS:A290255 sequence
+const A290255 = [_]u32{ 0, 1, 0, 2, 1, 0, 0, 3, 2, 1, 1, 0, 0, 0, 0, 4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+fn bit_count_immediate_zeros_reference(num: u32) u32 {
+    var count: u32 = 0;
+    var foundOne: bool = false;
+    var mask: u32 = 1 << 31;
+
+    while (mask != 0) {
+        if ((num & mask) != 0) {
+            if (foundOne) {
+                break;
+            }
+            foundOne = true;
+        } else if (foundOne) {
+            count += 1;
+        }
+        mask = mask >> 1;
+    }
+    if (foundOne) {
+        return count;
+    } else {
+        return 0;
+    }
+}
+
+test "bit_count_immediate_zeros_reference sequence tests" {
+    inline for (A290255, 0..) |expected, index| {
+        const n = index + 1; // Adjust based on how the sequence is defined in relation to its indices
+        const calculated = bit_count_immediate_zeros_reference(n);
+        // std.debug.print("n: {}, expected: {}, calculated: {}\n", .{ n, expected, calculated });
+        try std.testing.expectEqual(expected, calculated);
+    }
+}
+
+test "bit_count_immediate_zeros_reference_implementation" {
+    // Simplified test indices, static for simplicity
+    const testIndices = [_]u32{ 0, 1, 2, 3, 4, 1023, 1024, 2047, 2048, 0xFFFF_FFFE, 0xFFFF_FFFF };
+
+    for (testIndices) |n| {
+        const result1 = pylib.bit_count_immediate_zeros(n);
+        const result2 = bit_count_immediate_zeros_reference(n);
+        try std.testing.expectEqual(result1, result2);
+    }
+}
