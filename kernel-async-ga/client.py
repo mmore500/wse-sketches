@@ -16,6 +16,15 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
     MemcpyOrder,
 )  # pylint: disable=no-name-in-module
 
+
+# adapted from https://stackoverflow.com/a/31347222/17332200
+def add_bool_arg(parser, name, default=False):
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument("--" + name, dest=name, action="store_true")
+    group.add_argument("--no-" + name, dest=name, action="store_false")
+    parser.set_defaults(**{name: default})
+
+
 nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
 wavSize = 32  # number of bits in a wavelet
 tscSizeWords = 3  # number of 16-bit values in 48-bit timestamp values
@@ -24,12 +33,7 @@ tscTicksPerSecond = 850 * 10**6  # 850 MHz
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir", default="out")
-parser.add_argument(
-    "--suptrace",
-    default=True,
-    help="suppress simfab trace?",
-    action=argparse.BooleanOptionalAction,
-)
+add_bool_arg(parser, "suptrace", default=True)
 parser.add_argument("--cmaddr", help="IP:port for CS system")
 parser.add_argument(
     "--genomeFlavor", help="specify what genome source is used", default=""
