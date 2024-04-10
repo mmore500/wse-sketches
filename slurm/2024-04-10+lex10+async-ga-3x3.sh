@@ -77,7 +77,7 @@ export CS_PYTHON="${CS_PYTHON:-cs_python}"
 echo "CS_PYTHON \${CS_PYTHON}"
 export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
 echo "ASYNC_GA_GENOME_FLAVOR \${ASYNC_GA_GENOME_FLAVOR}"
-export ASYNC_GA_EXECUTE_FLAGS="--cmaddr \${CS_IP_ADDR}:9000"
+export ASYNC_GA_EXECUTE_FLAGS="--cmaddr \${CS_IP_ADDR}:9000 --no-suptrace"
 echo "ASYNC_GA_EXECUTE_FLAGS \${ASYNC_GA_EXECUTE_FLAGS}"
 
 echo "setup WORKDIR ----------------------------------------------------------"

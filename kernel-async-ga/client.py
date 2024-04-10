@@ -24,6 +24,12 @@ tscTicksPerSecond = 850 * 10**6  # 850 MHz
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir", default="out")
+parser.add_argument(
+    "--suptrace",
+    default=True,
+    help="suppress simfab trace?",
+    action=argparse.BooleanOptionalAction,
+)
 parser.add_argument("--cmaddr", help="IP:port for CS system")
 parser.add_argument(
     "--genomeFlavor", help="specify what genome source is used", default=""
@@ -35,7 +41,9 @@ print(args)
 
 print("do run ===============================================================")
 # Path to ELF and simulation output files
-runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
+runner = SdkRuntime(
+    "out", cmaddr=args.cmaddr, suppress_simfab_trace=args.suptrace
+)
 print("- SdkRuntime created")
 
 runner.load()
