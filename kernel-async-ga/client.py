@@ -1,3 +1,5 @@
+print("kernel-async-ga/client.py ============================================")
+print("======================================================================")
 import argparse
 import json
 import os
@@ -28,12 +30,22 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+print("args =================================================================")
+print(args)
+
+print("do run ===============================================================")
 # Path to ELF and simulation output files
 runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
+print("- SdkRuntime created")
 
 runner.load()
+print("- runner loaded")
+
 runner.run()
+print("- runner run ran")
+
 runner.launch("dolaunch", nonblock=False)
+print("- runner launch unblocked")
 
 print("whoami ===============================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
