@@ -1,3 +1,5 @@
+print("kernel-async-ga/client.py ============================================")
+print("======================================================================")
 import argparse
 import json
 import os
@@ -22,18 +24,36 @@ tscTicksPerSecond = 850 * 10**6  # 850 MHz
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir", default="out")
+parser.add_argument(
+    "--suptrace",
+    default=True,
+    help="suppress simfab trace?",
+    action=argparse.BooleanOptionalAction,
+)
 parser.add_argument("--cmaddr", help="IP:port for CS system")
 parser.add_argument(
     "--genomeFlavor", help="specify what genome source is used", default=""
 )
 args = parser.parse_args()
 
+print("args =================================================================")
+print(args)
+
+print("do run ===============================================================")
 # Path to ELF and simulation output files
-runner = SdkRuntime("out", cmaddr=args.cmaddr, suppress_simfab_trace=True)
+runner = SdkRuntime(
+    "out", cmaddr=args.cmaddr, suppress_simfab_trace=args.suptrace
+)
+print("- SdkRuntime created")
 
 runner.load()
+print("- runner loaded")
+
 runner.run()
+print("- runner run ran")
+
 runner.launch("dolaunch", nonblock=False)
+print("- runner launch unblocked")
 
 print("whoami ===============================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
