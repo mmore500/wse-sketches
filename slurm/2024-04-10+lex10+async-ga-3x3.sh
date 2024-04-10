@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")"
+
 WSE_SKETCHES_REVISION="475f2ea74736cc0a37258fbb3de24fcf26be6acf"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
