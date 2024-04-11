@@ -25,7 +25,12 @@ def add_bool_arg(parser, name, default=False):
     parser.set_defaults(**{name: default})
 
 
-nRow, nCol, nWav = 3, 3, 3  # number of rows, columns, and genome words
+# number of rows, columns, and genome words
+nCol = int(os.getenv("ASYNC_GA_NCOL", 3))
+nRow = int(os.getenv("ASYNC_GA_NROW", 3))
+nWav = int(os.getenv("ASYNC_GA_NWAV", 4))
+print(f"{nCol=}, {nRow=}, {nWav=}")
+
 wavSize = 32  # number of bits in a wavelet
 tscSizeWords = 3  # number of 16-bit values in 48-bit timestamp values
 tscSizeWords += tscSizeWords % 2  # make even multiple of 32-bit words
