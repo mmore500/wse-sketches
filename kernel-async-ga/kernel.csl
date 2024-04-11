@@ -140,12 +140,12 @@ const q_in_W: i16 = 4;
 // ============================================================================
 // asynchronously send genomes sampled from population to neighbors
 ///////////////////////////////////////////////////////////////////////////////
-const sendNumGenomes: u16 = 0;  // how many genomes to batch sending together?
+const sendNumGenomes: u16 = 1;  // how many genomes to batch sending together?
 const sendBufSize: u16 = sendNumGenomes * genome_.gSize;
 
 // send NORTH =================================================================
 // N/S share a queue, so they alternate; set flag 1 to start with N
-var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendFlag_N: u8 = 0;  // need refill? initialize 1 to trigger first fill
 var sendBuf_N = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_N[i],
