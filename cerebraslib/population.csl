@@ -119,11 +119,11 @@ fn _perform_selection_all() void {
     // }
 
     // alternate loop-based implementation
-    // for (@range(u16, gSize)) |w| {
-    //     for (@range(u16, popSize)) |i| {
-    //         buffer[i * gSize + w] = swap[indexBuf[i] + w];
-    //     }
-    // }
+    for (@range(u16, gSize)) |w| {
+        for (@range(u16, popSize)) |i| {
+            buffer[i * gSize + w] = swap[indexBuf[i] + w];
+        }
+    }
 }
 
 /// Place population buffer word indices for n randomly sampled genomes into
