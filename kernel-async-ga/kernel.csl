@@ -538,6 +538,10 @@ comptime {
     cycleColor,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
+  @set_local_color_config(  // make task wavelet bounce back from router
+    cooldownColor,
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
+  );
 
   // NORTH / SOUTH (vertical)
   // note use of color swaps: neighbor's outgoing color -> PE's incoming color
