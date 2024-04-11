@@ -66,7 +66,7 @@ fn _step_instrumentation(genome: genomePtr_t) void {
 
 // public API =================================================================
 fn elapse_inheritance_of(genome: genomePtr_t) void {
-    // _step_instrumentation(genome);
+    _step_instrumentation(genome);
 }
 
 fn calc_fitness_of(genome: genomePtr_t) f32 { return @ptrcast(*f32, genome).*; }
