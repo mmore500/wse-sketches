@@ -60,3 +60,16 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
 
     return position;
 }
+
+pub fn get_nth_segment_bin_width(n: u32, surface_size: u32) u32 {
+    // Validate the inputs with assertions.
+    assert(n >= 0);
+    assert(n < get_num_segments(surface_size));
+
+    const bit_length = 32 - @clz(surface_size);
+
+    assert(bit_length - 1 == get_nth_bin_width(0, surface_size));
+
+    // Compute and return the bin width for the nth segment.
+    return bit_length - n - 1;
+}
