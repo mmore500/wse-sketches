@@ -33,6 +33,7 @@ param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
 param localSeed: u16;  // seed value for PE RNG
+param cooldownCycles: u16;  // how long to wait for straggler wavelets?
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,6 +120,9 @@ const recvFinalizeTaskID_N: local_task_id = @get_local_task_id(14);
 const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
 const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
 const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
+
+const cooldownColor: color = @get_color(18);
+const cooldownTaskID: data_task_id = @get_data_task_id(cooldownColor);
 
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -389,6 +393,11 @@ const cycleDsd = @get_dsd(fabout_dsd, .{
     .fabric_color = cycleColor,
   },
 );
+const cooldownDsd = @get_dsd(fabout_dsd, .{
+    .extent = 1,
+    .fabric_color = cooldownColor,
+  },
+);
 task cycleTask(_: u16) void {
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
@@ -459,8 +468,26 @@ task cycleTask(_: u16) void {
     @mov16(cycleDsd, 0);  // send wavelet to self, trigger next cycle
   } else {
     time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
+    @mov16(cooldownDsd, 0);  // send wavelet to self, trigger cooldown
+  }
+}
+
+task cooldownTask(count: u16) void {
+  // ensure active receive requests are available to neighbors
+  var flag = false;
+  if (@as(bool, recvFlag_N)) { dispatchRecv_N(); recvFlag_N = 0; flag = true; }
+  if (@as(bool, recvFlag_S)) { dispatchRecv_S(); recvFlag_S = 0; flag = true; }
+  if (@as(bool, recvFlag_E)) { dispatchRecv_E(); recvFlag_E = 0; flag = true; }
+  if (@as(bool, recvFlag_W)) { dispatchRecv_W(); recvFlag_W = 0; flag = true; }
+
+  if (flag) { // receive request was filled, reset cooldown counter
+    @mov16(cooldownDsd, 0);  // send wavelet to self, trigger next cycle
+  } else if (count < cooldownCycles) {
+    @mov16(cooldownDsd, count + 1);  // send wavelet to self, trigger next cycle
+  } else { // no receive requests filled in last N cycles, halt
     memcpy.unblock_cmd_stream();  // terminate
   }
+
 }
 
 // launcher ===================================================================
@@ -500,6 +527,7 @@ comptime {
   @bind_local_task(recvFinalizeTask_E, recvFinalizeTaskID_E);
   @bind_local_task(recvFinalizeTask_W, recvFinalizeTaskID_W);
   @bind_data_task(cycleTask, cycleTaskID);
+  @bind_data_task(cooldownTask, cooldownTaskID);
 }
 
 // wavlet routing =============================================================

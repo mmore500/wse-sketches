@@ -4,6 +4,7 @@ param msecAtLeast: u32;
 param tscAtLeast: u32;
 param nRow: u16;
 param nCol: u16;
+param cooldownCycles: u32;
 
 const popSize = 32;
 const tournSize = 5;
@@ -37,6 +38,7 @@ layout {
           .localSeed = globalSeed * nRow * nCol + peId + 1,
           .x = x,
           .y = y,
+          .cooldownCycles = cooldownCycles,
           .nCycleAtLeast = nCycleAtLeast,
           .msecAtLeast = msecAtLeast,
           .tscAtLeast = tscAtLeast,
