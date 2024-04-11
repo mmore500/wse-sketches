@@ -4,7 +4,7 @@ set -e
 
 cd "$(dirname "$0")"
 
-WSE_SKETCHES_REVISION="0e3f827f08ee78b9120170cd02ae8075d88f405b"
+WSE_SKETCHES_REVISION="4fbeae26662421aacad21a7dc45f7d522a4c8b7a"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
 WORKDIR="${HOME}/2024-04-10/lex10+async-ga-3x3"
@@ -34,6 +34,11 @@ echo "ASYNC_GA_FABRIC_DIMS ${ASYNC_GA_FABRIC_DIMS}"
 
 export ASYNC_GA_ARCH_FLAG="--arch=wse2"
 echo "ASYNC_GA_ARCH_FLAG ${ASYNC_GA_ARCH_FLAG}"
+
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
+echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
+export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-4}"
+echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
 
 echo "do kernel compile ======================================================"
 ./kernel-async-ga/compile.sh
@@ -75,9 +80,9 @@ echo "CS_IP_ADDR \${CS_IP_ADDR}"
 
 export CS_PYTHON="${CS_PYTHON:-cs_python}"
 echo "CS_PYTHON \${CS_PYTHON}"
-export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR}"
 echo "ASYNC_GA_GENOME_FLAVOR \${ASYNC_GA_GENOME_FLAVOR}"
-export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_NWAV:-4}"
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_NWAV}"
 echo "ASYNC_GA_NWAV \${ASYNC_GA_NWAV}"
 export ASYNC_GA_EXECUTE_FLAGS="--cmaddr \${CS_IP_ADDR}:9000 --no-suptrace"
 echo "ASYNC_GA_EXECUTE_FLAGS \${ASYNC_GA_EXECUTE_FLAGS}"
