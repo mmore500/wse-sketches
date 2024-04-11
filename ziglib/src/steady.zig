@@ -52,7 +52,7 @@ pub fn get_nth_segment_bin_width(n: u32, surface_size: u32) u32 {
     assert(n >= 0);
     assert(n < get_num_segments(surface_size));
 
-    const bit_length = 32 - @clz(surface_size);
+    const bit_length = pylib.bit_length(surface_size);
 
     assert(bit_length - 1 == get_nth_bin_width(0, surface_size));
 
@@ -75,7 +75,7 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
 
     const completed_bins = pylib.bit_floor(m + 1) - 1;
 
-    assert(32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins) == 32 - @clz(completed_bins));
+    assert(32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins) == pylib.bit_length(completed_bins));
 
     assert(completed_bins >= m / 2 and completed_bins <= m);
     const completed_segments = 1 + (32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)); // Include 0th segment.
