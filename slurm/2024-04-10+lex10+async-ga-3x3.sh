@@ -94,7 +94,6 @@ echo "ASYNC_GA_NCYCLE_AT_LEAST \${ASYNC_GA_NCYCLE_AT_LEAST}"
 echo "setup WORKDIR ----------------------------------------------------------"
 cd "${WORKDIR}"
 echo "PWD \${PWD}"
-tree .
 
 echo "execute kernel program -------------------------------------------------"
 ./wse-sketches/kernel-async-ga/execute.sh
