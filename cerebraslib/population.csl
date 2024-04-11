@@ -175,5 +175,5 @@ fn init_module() void { _initialize_all(); }
 
 fn do_generation() void {
     _elapse_inheritance_all();
-    //_perform_selection_all();
+    _perform_selection_all();
 }
