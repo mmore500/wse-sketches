@@ -132,3 +132,7 @@ pub fn bit_invert(n: u32) u32 {
     const mask = (lhs << rhs) - 1;
     return n ^ mask;
 }
+
+pub fn bit_count_leading_ones(n: u32) u32 {
+    return bit_length(n) - bit_length(bit_invert(n));
+}

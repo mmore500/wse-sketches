@@ -237,3 +237,28 @@ test "test_bit_invert_known_values" {
         try std.testing.expect(result == test_case.expected);
     }
 }
+
+test "test_bit_count_leading_ones" {
+    const TestCase = struct {
+        n: u32,
+        expected: u32,
+    };
+
+    const testCases = [_]TestCase{
+        TestCase{ .n = 0b0, .expected = 0 },
+        TestCase{ .n = 0b1, .expected = 1 },
+        TestCase{ .n = 0b11, .expected = 2 },
+        TestCase{ .n = 0b111, .expected = 3 },
+        TestCase{ .n = 0b101, .expected = 1 },
+        TestCase{ .n = 0b1001, .expected = 1 },
+        TestCase{ .n = 0b1011, .expected = 1 },
+        TestCase{ .n = 0b1101, .expected = 2 },
+        TestCase{ .n = 0b11110000, .expected = 4 },
+        TestCase{ .n = 0b10000000, .expected = 1 },
+    };
+
+    for (testCases) |testCase| {
+        const result = pylib.bit_count_leading_ones(testCase.n);
+        try std.testing.expectEqual(testCase.expected, result);
+    }
+}
