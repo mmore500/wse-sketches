@@ -34,34 +34,20 @@ const genome_t = [gSize]u32;
 const genomePtr_t = [*]u32;
 
 // internal functions =========================================================
-fn _apply_mutation(genome: genomePtr_t) void {
-    var mutated = calc_fitness_of(genome);
-    const scale = (mutated + 1.0) / 1024.0;
-
-    if (opscalar.p(0.003)) {
-        mutated += math.abs(random.random_normal_f32()) * scale;
-    }
-    if (opscalar.p(0.3)) {
-        mutated -= math.abs(random.random_normal_f32()) * scale;
-    }
-    // mutate fitness value
-    @ptrcast(*f32, genome).* = mutated;
-}
-
 fn _step_instrumentation(genome: genomePtr_t) void {
     // elapse generation in bitfield
-    // if (opscalar.unifbool()) {
-    //     const rank = @ptrcast([*]u32, genome)[1];
-    //     const site = tilted.pick_deposition_site(rank, 64);
+    if (opscalar.unifbool()) {
+        const rank = @ptrcast([*]u32, genome)[1];
+        const site = tilted.pick_deposition_site(rank, 64);
 
-    //     const offset_bits: u16 = (4 + 4) * 8;
-    //     const target_bit = @as(u16, site) + offset_bits;
+        const offset_bits: u16 = (4 + 4) * 8;
+        const target_bit = @as(u16, site) + offset_bits;
 
-    //     bitmanip.flip_nth_bit(@ptrcast([*]u8, genome), target_bit);
-    // }
+        bitmanip.flip_nth_bit(@ptrcast([*]u8, genome), target_bit);
+    }
 
     // elapse generation in counter
-    // @ptrcast([*]u32, genome)[1] = 1;
+    @ptrcast([*]u32, genome)[1] = 1;
 }
 
 // public API =================================================================
