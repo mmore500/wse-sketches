@@ -61,7 +61,7 @@ fn _step_instrumentation(genome: genomePtr_t) void {
     // }
 
     // elapse generation in counter
-    @ptrcast([*]u32, genome)[1] += 1;
+    @ptrcast([*]u32, genome)[1] = 0;
 }
 
 // public API =================================================================
