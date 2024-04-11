@@ -33,29 +33,20 @@ test "test_get_nth_bin_width" {
         var bins = std.ArrayList(u32).init(std.heap.page_allocator);
         defer bins.deinit();
 
-        // Populate bins based on get_nth_bin_width.
         var n: u32 = 0;
         while (n < num_bins) : (n += 1) {
             bins.append(steady.get_nth_bin_width(n, surface_size)) catch unreachable;
         }
 
         if (surface_size == 1) {
-            // Special case the trivial case.
             try expect(bins.items.len == 0);
             continue;
         }
 
-        // Bin widths should be nonincreasing.
         var i: usize = 1;
         while (i < bins.items.len) : (i += 1) {
             try expect(bins.items[i - 1] >= bins.items[i]);
         }
-
-        // Additional checks converted from Python to Zig.
-        // Note: Zig does not have a direct equivalent for Python's Counter,
-        // so you would need to implement counting logic manually.
-
-        // More logic here...
     }
 }
 
@@ -66,16 +57,14 @@ test "test_get_nth_segment_position" {
         var bins = std.ArrayList(u32).init(std.heap.page_allocator);
         defer bins.deinit();
 
-        // Populate bins based on get_nth_bin_width.
         var n: u32 = 0;
         while (n < num_bins) : (n += 1) {
             bins.append(steady.get_nth_bin_width(n, surface_size)) catch unreachable;
         }
 
-        // Calculate cumulative sum of bins to simulate np.cumsum.
         var bin_positions = std.ArrayList(u32).init(std.heap.page_allocator);
         defer bin_positions.deinit();
-        bin_positions.append(0) catch unreachable; // Start with 0 for the initial position.
+        bin_positions.append(0) catch unreachable;
 
         var sum: u32 = 0;
         for (0..bins.items.len) |m| {
@@ -83,7 +72,6 @@ test "test_get_nth_segment_position" {
             bin_positions.append(sum) catch unreachable;
         }
 
-        // Test segment positions.
         var s: u32 = 1;
         const num_segments = steady.get_num_segments(surface_size);
         while (s < num_segments) : (s += 1) {
@@ -91,11 +79,8 @@ test "test_get_nth_segment_position" {
             const shift: u5 = @intCast(s - 1);
             var segment_first_bin_number: u32 = if (s > 0) temp << shift else 0;
             try expect(steady.get_nth_segment_position(s, surface_size) == bin_positions.items[segment_first_bin_number]);
-
-            // Additional checks based on the Python test.
         }
 
-        // Double check for surface_size > 2.
         if (surface_size > 2) {
             try expect(steady.get_nth_segment_position(num_segments - 1, surface_size) == surface_size - surface_size / 4 - 1);
         }
@@ -118,4 +103,37 @@ test "test_get_nth_segment_bin_width" {
     try expect(steady.get_nth_segment_bin_width(2, 32) == 3);
     try expect(steady.get_nth_segment_bin_width(3, 32) == 2);
     try expect(steady.get_nth_segment_bin_width(4, 32) == 1);
+}
+
+test "test_get_nth_bin_position" {
+    var surface_size: u32 = 1;
+    while (surface_size <= 1 << 19) : (surface_size *= 2) {
+        const num_bins = steady.get_num_bins(surface_size);
+        var cumulative_positions = std.ArrayList(u32).init(std.heap.page_allocator);
+        defer cumulative_positions.deinit();
+
+        // Initialize the first position to 0 to match Python's [0, *np.cumsum(bins)].
+        cumulative_positions.append(0) catch unreachable;
+
+        // Compute cumulative positions from bin widths.
+        var sum: u32 = 0;
+        for (0..num_bins) |n| {
+            const m: u32 = @intCast(n);
+            const bin_width = steady.get_nth_bin_width(m, surface_size);
+            sum += bin_width;
+            cumulative_positions.append(sum) catch unreachable;
+        }
+
+        // Compare the expected positions with those returned by get_nth_bin_position.
+        for (0..num_bins) |n| {
+            const m: u32 = @intCast(n);
+            const expected_position = cumulative_positions.items[n];
+            const actual_position = steady.get_nth_bin_position(m, surface_size);
+            try expect(expected_position == actual_position);
+        }
+
+        // Compare the last position with get_num_positions(surface_size).
+        const last_position = steady.get_num_positions(surface_size);
+        try expect(cumulative_positions.items[num_bins] == last_position);
+    }
 }

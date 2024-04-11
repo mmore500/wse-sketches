@@ -21,7 +21,8 @@ pub fn get_nth_bin_width(n: u32, surface_size: u32) u32 {
 }
 
 pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
-    assert(n < get_num_segments(surface_size) and n >= 0);
+    assert(n >= 0);
+    assert(n < get_num_segments(surface_size));
     var m = n;
 
     if (n == 0) {
@@ -56,4 +57,36 @@ pub fn get_nth_segment_bin_width(n: u32, surface_size: u32) u32 {
     assert(bit_length - 1 == get_nth_bin_width(0, surface_size));
 
     return bit_length - n - 1;
+}
+
+pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
+    assert(n >= 0);
+    assert(n < get_num_bins(surface_size));
+    const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
+    assert(bit_count == 1);
+
+    if (n == 0) {
+        return 0;
+    }
+
+    var m = n;
+
+    m -= 1;
+
+    const completed_bins = pylib.bit_floor(m + 1) - 1;
+
+    assert(32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins) == 32 - @clz(completed_bins));
+
+    assert(completed_bins >= m / 2 and completed_bins <= m);
+    const completed_segments = 1 + (32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)); // Include 0th segment.
+
+    var position = get_nth_segment_position(completed_segments, surface_size);
+
+    const num_unhandled_bins = m - completed_bins;
+    if (num_unhandled_bins > 0) {
+        const unhandled_segment_bin_width = get_nth_segment_bin_width(completed_segments, surface_size);
+        position += num_unhandled_bins * unhandled_segment_bin_width;
+    }
+
+    return position;
 }
