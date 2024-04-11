@@ -1,5 +1,5 @@
 param globalSeed: u16;
-param nCycleAtLeast: u16;
+param nCycleAtLeast: u32;
 param msecAtLeast: u32;
 param tscAtLeast: u32;
 param nRow: u16;
@@ -52,7 +52,7 @@ layout {
     }
   }
 
-  @export_name("cycleCounter", [*]u16, true);
+  @export_name("cycleCounter", [*]u32, true);
   @export_name("recvCounter_N", [*]u16, true);
   @export_name("recvCounter_S", [*]u16, true);
   @export_name("recvCounter_E", [*]u16, true);
