@@ -58,3 +58,46 @@ test "test_get_nth_bin_width" {
         // More logic here...
     }
 }
+
+test "test_get_nth_segment_position" {
+    var surface_size: u32 = 1;
+    while (surface_size <= 1 << 19) : (surface_size *= 2) {
+        const num_bins = steady.get_num_bins(surface_size);
+        var bins = std.ArrayList(u32).init(std.heap.page_allocator);
+        defer bins.deinit();
+
+        // Populate bins based on get_nth_bin_width.
+        var n: u32 = 0;
+        while (n < num_bins) : (n += 1) {
+            bins.append(steady.get_nth_bin_width(n, surface_size)) catch unreachable;
+        }
+
+        // Calculate cumulative sum of bins to simulate np.cumsum.
+        var bin_positions = std.ArrayList(u32).init(std.heap.page_allocator);
+        defer bin_positions.deinit();
+        bin_positions.append(0) catch unreachable; // Start with 0 for the initial position.
+
+        var sum: u32 = 0;
+        for (0..bins.items.len) |m| {
+            sum += bins.items[m];
+            bin_positions.append(sum) catch unreachable;
+        }
+
+        // Test segment positions.
+        var s: u32 = 1;
+        const num_segments = steady.get_num_segments(surface_size);
+        while (s < num_segments) : (s += 1) {
+            const temp: u32 = 1;
+            const shift: u5 = @intCast(s - 1);
+            var segment_first_bin_number: u32 = if (s > 0) temp << shift else 0;
+            try expect(steady.get_nth_segment_position(s, surface_size) == bin_positions.items[segment_first_bin_number]);
+
+            // Additional checks based on the Python test.
+        }
+
+        // Double check for surface_size > 2.
+        if (surface_size > 2) {
+            try expect(steady.get_nth_segment_position(num_segments - 1, surface_size) == surface_size - surface_size / 4 - 1);
+        }
+    }
+}
