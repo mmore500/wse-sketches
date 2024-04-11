@@ -102,7 +102,7 @@ fn _initialize_all() void {
 fn _perform_selection_all() void {
     _eval_fitness_all();
     // sample tournament returns word indices, so don't need to rescale
-    // @map(_sample_one_tournament, indexBufDsd);
+    @map(_sample_one_tournament, indexBufDsd);
 
     // back up main buffer to swap buffer
     // @mov32(swapDsd, bufferDsd);
