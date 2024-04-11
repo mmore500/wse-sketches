@@ -33,5 +33,6 @@ pub fn get_a048881_value_at_index(n: u32) u32 {
 }
 
 pub fn get_a083058_value_at_index(n: u32) u32 {
-    return n - pylib.bit_length(n) + if (n == 1) 1 else 0;
+    const add: u32 = if (n == 1) 1 else 0;
+    return n - pylib.bit_length(n) + add;
 }
