@@ -204,3 +204,40 @@ test "bit_count_immediate_zeros_reference_implementation" {
         try std.testing.expectEqual(result1, result2);
     }
 }
+
+test "test_bit_invert_known_values" {
+    const TestCase = struct {
+        n: u32,
+        expected: u32,
+    };
+
+    const cases = [_]TestCase{
+        // Here, we explicitly write out each case as provided
+        TestCase{ .n = 0b0, .expected = 0b0 },
+        TestCase{ .n = 0b1, .expected = 0b0 },
+        TestCase{ .n = 0b10, .expected = 0b1 },
+        TestCase{ .n = 0b11, .expected = 0b0 },
+        TestCase{ .n = 0b100, .expected = 0b11 },
+        TestCase{ .n = 0b101, .expected = 0b10 },
+        TestCase{ .n = 0b110, .expected = 0b1 },
+        TestCase{ .n = 0b111, .expected = 0b0 },
+        TestCase{ .n = 0b1000, .expected = 0b111 },
+        TestCase{ .n = 0b1001, .expected = 0b110 },
+        TestCase{ .n = 0b1010, .expected = 0b101 },
+        TestCase{ .n = 0b1011, .expected = 0b100 },
+        TestCase{ .n = 0b1100, .expected = 0b11 },
+        TestCase{ .n = 0b1101, .expected = 0b10 },
+        TestCase{ .n = 0b1110, .expected = 0b1 },
+        TestCase{ .n = 0b1111, .expected = 0b0 },
+        TestCase{ .n = 0b10000, .expected = 0b1111 },
+        TestCase{ .n = 0b100000, .expected = 0b11111 },
+        TestCase{ .n = 0b1000000, .expected = 0b111111 },
+        TestCase{ .n = 0b10000000, .expected = 0b1111111 },
+        TestCase{ .n = 0b100000000, .expected = 0b11111111 },
+    };
+
+    for (cases) |test_case| {
+        const result = pylib.bit_invert(test_case.n);
+        try std.testing.expect(result == test_case.expected);
+    }
+}

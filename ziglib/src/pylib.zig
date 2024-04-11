@@ -1,4 +1,5 @@
 const std = @import("std");
+const pylib = @import("pylib.zig");
 
 /// Perform fast mod using bitwise operations.
 ///
@@ -123,4 +124,11 @@ pub fn bit_count_immediate_zeros(x: u32) u32 {
     const droppedMsb = bit_drop_msb(x);
     const droppedMsbLen = if (droppedMsb == 0) 0 else @bitSizeOf(u32) - @clz(droppedMsb);
     return bitLen - droppedMsbLen - 1;
+}
+
+pub fn bit_invert(n: u32) u32 {
+    const lhs: u32 = 1;
+    const rhs: u5 = @intCast(pylib.bit_length(n));
+    const mask = (lhs << rhs) - 1;
+    return n ^ mask;
 }
