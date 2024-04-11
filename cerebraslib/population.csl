@@ -105,7 +105,7 @@ fn _perform_selection_all() void {
     @map(_sample_one_tournament, indexBufDsd);
 
     // back up main buffer to swap buffer
-    // @mov32(swapDsd, bufferDsd);
+    @mov32(swapDsd, bufferDsd);
 
     // DSD-based implementation
     // inject indices for selected genomes' words into main buffer
