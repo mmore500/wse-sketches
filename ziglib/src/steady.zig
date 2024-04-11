@@ -2,7 +2,7 @@ const std = @import("std");
 const assert = std.debug.assert;
 const pylib = @import("pylib.zig");
 
-pub fn get_num_positions(surfaceSize: i32) i32 {
+pub fn get_num_positions(surfaceSize: u32) u32 {
     return surfaceSize - 1;
 }
 
