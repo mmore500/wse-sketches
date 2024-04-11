@@ -35,6 +35,11 @@ echo "ASYNC_GA_FABRIC_DIMS ${ASYNC_GA_FABRIC_DIMS}"
 export ASYNC_GA_ARCH_FLAG="--arch=wse2"
 echo "ASYNC_GA_ARCH_FLAG ${ASYNC_GA_ARCH_FLAG}"
 
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
+echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
+export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-4}"
+echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
+
 echo "do kernel compile ======================================================"
 ./kernel-async-ga/compile.sh
 
@@ -75,9 +80,9 @@ echo "CS_IP_ADDR \${CS_IP_ADDR}"
 
 export CS_PYTHON="${CS_PYTHON:-cs_python}"
 echo "CS_PYTHON \${CS_PYTHON}"
-export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR}"
 echo "ASYNC_GA_GENOME_FLAVOR \${ASYNC_GA_GENOME_FLAVOR}"
-export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_NWAV:-4}"
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_NWAV}"
 echo "ASYNC_GA_NWAV \${ASYNC_GA_NWAV}"
 export ASYNC_GA_EXECUTE_FLAGS="--cmaddr \${CS_IP_ADDR}:9000 --no-suptrace"
 echo "ASYNC_GA_EXECUTE_FLAGS \${ASYNC_GA_EXECUTE_FLAGS}"
