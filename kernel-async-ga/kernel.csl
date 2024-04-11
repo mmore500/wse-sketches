@@ -50,6 +50,7 @@ const population_ = @import_module("cerebraslib/population.csl", .{
   .inheritFun = genome_.elapse_inheritance_of,
   .initFun = genome_.initialize_one, .peId = peId,
 });
+const ctrl = @import_module("cerebraslib/ctrl.csl");
 const optime = @import_module("cerebraslib/optime.csl");
 
 // global output variables ====================================================
@@ -97,7 +98,9 @@ var ptr_tscStartBuffer : [*]u32 = &tscStartBuffer;
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
-const sendColor_N: color = @get_color(0);
+const sendColorValue_N: u32 = 0;
+const sendColor_N: color = @get_color(sendColorValue_N);
+const ignoreTaskID: data_task_id = @get_data_task_id(sendColor_N);
 const recvColor_S: color = @get_color(1);
 const sendColor_E: color = @get_color(2);
 const recvColor_W: color = @get_color(3);
@@ -468,6 +471,13 @@ task cycleTask(_: u16) void {
     @mov16(cycleDsd, 0);  // send wavelet to self, trigger next cycle
   } else {
     time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
+    const ctrlDsd = @get_dsd(fabout_dsd, .{
+      .extent = 1, .fabric_color = sendColor_N, .control = true
+    });
+    const ctrlWave: u32 = comptime ctrl.ctrl(
+      false, ctrl.opcode_switch_advance, 0, sendColorValue_N
+    );
+    @mov32(ctrlDsd, ctrlWave);
     @mov16(cooldownDsd, 0);  // send wavelet to self, trigger cooldown
   }
 }
@@ -484,11 +494,17 @@ task cooldownTask(count: u16) void {
     @mov16(cooldownDsd, 0);  // send wavelet to self, trigger next cycle
   } else if (count < cooldownCycles) {
     @mov16(cooldownDsd, count + 1);  // send wavelet to self, trigger next cycle
-  } else { // no receive requests filled in last N cycles, halt
+  } else if (
+    @as(bool, sendFlag_N) or y == 0
+  ) {
     memcpy.unblock_cmd_stream();  // terminate
+  } else {
+    @mov16(cooldownDsd, 0);  // send wavelet to self, trigger next cycle
   }
 
 }
+
+task ignoreTask(data: u32) void { }
 
 // launcher ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -547,7 +563,17 @@ comptime {
   // note use of color swaps: neighbor's outgoing color -> PE's incoming color
   @set_local_color_config(
     sendColor_N,
-    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH }, .color_swap_y = true } },
+    .{
+      .routes = .{
+        .rx = .{ RAMP },
+        .tx = .{ NORTH },
+        .color_swap_y = true,
+      },
+      .switches = .{
+        // Upon a control wavelet, change the transmit direction to self
+        .pos1 = .{ .tx = RAMP },
+      },
+    },
   );
   @set_local_color_config(
     sendColor_S,
