@@ -1,5 +1,6 @@
 const std = @import("std");
 const assert = std.debug.assert;
+const pylib = @import("pylib.zig");
 
 /// How many surface sites are made available to the surface update algorithm?
 pub fn get_num_positions(surfaceSize: i32) i32 {
@@ -20,4 +21,11 @@ pub fn get_num_segments(surface_size: u32) u32 {
     if (num_bins == 0) return 0; // Special case for 0, as its bit length is 0.
     // Use the fact that bit length is the position of the highest set bit + 1.
     return 32 - @clz(num_bins);
+}
+
+pub fn get_nth_bin_width(n: u32, surface_size: u32) u32 {
+    // In Zig, `std.math.ctz(u32, value)` is used to count the number of trailing zeros.
+    // This is a direct substitute for `bit_count_immediate_zeros` in the Python code.
+    // The `+ 1` at the end accounts for the formula adjustment as per the Python function.
+    return pylib.bit_count_immediate_zeros(n + (surface_size >> 1)) + 1;
 }
