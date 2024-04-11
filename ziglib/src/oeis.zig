@@ -36,3 +36,13 @@ pub fn get_a083058_value_at_index(n: u32) u32 {
     const add: u32 = if (n == 1) 1 else 0;
     return n - pylib.bit_length(n) + add;
 }
+
+pub fn get_a083058_index_of_value(value: u32) u32 {
+    std.debug.assert(value >= 1);
+
+    const valueBitLength = pylib.bit_length(value);
+    const correction: bool = (pylib.bit_ceil(value) - value) <= valueBitLength and (pylib.bit_ceil(value) - value) > 0;
+    const first: u32 = if (value <= 2) 1 else 0;
+    const second: u32 = if (correction) 1 else 0;
+    return value + valueBitLength + first + second;
+}

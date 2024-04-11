@@ -65,3 +65,12 @@ test "test_get_a083058_value_at_index" {
         try std.testing.expect(oeis.get_a083058_value_at_index(j) == expected_sequence[i - 1]);
     }
 }
+
+test "test_get_a083058_index_of_value" {
+    for (1..1000) |value| {
+        const i: u32 = @intCast(value);
+        const index = oeis.get_a083058_index_of_value(i);
+        try std.testing.expect(value == oeis.get_a083058_value_at_index(index)); // Value matches its index in the sequence
+        try std.testing.expect(value != oeis.get_a083058_value_at_index(index - 1)); // Ensure previous index does not match the value
+    }
+}
