@@ -424,7 +424,7 @@ task cycleTask(_: u16) void {
 
   // apply replication/selection to population
   // --------------------------------------------------------------------------
-  // population_.do_generation();
+  population_.do_generation();
   // sample 0th element of population for telemetry
   for(@range(u16, population_.gSize)) |i| {
     genome[i] = population_._get_ith_genome(0)[i];
