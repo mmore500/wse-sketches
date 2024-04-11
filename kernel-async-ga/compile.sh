@@ -50,4 +50,4 @@ cp "cerebraslib/${ASYNC_GA_GENOME_FLAVOR}.csl" "cerebraslib/genome.csl"
 # 9x4 because compiler says
 # RuntimeError: Fabric dimension must be at least 9-by-4
 
-"${CSLC}" layout.csl ${ASYNC_GA_ARCH_FLAG} --fabric-dims=${ASYNC_GA_FABRIC_DIMS} --fabric-offsets=4,1 --channels=1 --memcpy --params=globalSeed:${ASYNC_GA_GLOBAL_SEED},nCycleAtLeast:${ASYNC_GA_NCYCLE_AT_LEAST},msecAtLeast:${ASYNC_GA_MSEC_AT_LEAST},tscAtLeast:${ASYNC_GA_TSC_AT_LEAST},nRow:${ASYNC_GA_NROW},nCol:${ASYNC_GA_NCOL},cooldownCycles:${ASYNC_GA_COOLDOWN_CYCLES} -o out
+"${CSLC}" layout.csl ${ASYNC_GA_ARCH_FLAG} --fabric-dims=${ASYNC_GA_FABRIC_DIMS} --fabric-offsets=4,1 --channels=1 --memcpy --params=globalSeed:${ASYNC_GA_GLOBAL_SEED},nCycleAtLeast:${ASYNC_GA_NCYCLE_AT_LEAST},msecAtLeast:${ASYNC_GA_MSEC_AT_LEAST},tscAtLeast:${ASYNC_GA_TSC_AT_LEAST},nRow:${ASYNC_GA_NROW},nCol:${ASYNC_GA_NCOL} -o out

@@ -33,7 +33,6 @@ param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
 param localSeed: u16;  // seed value for PE RNG
-param cooldownCycles: u16;  // how long to wait for straggler wavelets?
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,9 +97,7 @@ var ptr_tscStartBuffer : [*]u32 = &tscStartBuffer;
 
 // task IDs ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
-const sendColorValue_N: u32 = 0;
-const sendColor_N: color = @get_color(sendColorValue_N);
-const ignoreTaskID: data_task_id = @get_data_task_id(sendColor_N);
+const sendColor_N: color = @get_color(0);
 const recvColor_S: color = @get_color(1);
 const sendColor_E: color = @get_color(2);
 const recvColor_W: color = @get_color(3);
@@ -124,12 +121,10 @@ const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
 const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
 const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
 
-const cooldownColor: color = @get_color(18);
-const cooldownTaskID: data_task_id = @get_data_task_id(cooldownColor);
-
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
-const q_out_N: i16 = 0;  // input/output queue allocations are kind of fiddly
+// NOTE: N/S share a queue, so alternate sends; queue 0 is reserved for memcpy
+const q_out_N: i16 = 3;  // input/output queue allocations are kind of fiddly
 const q_out_S: i16 = 3;  // some hardware queues listed in docs seem to be
 const q_out_E: i16 = 2;  // already in use (maybe by memcpy?)
 const q_out_W: i16 = 1;  // but these seem to work
@@ -149,6 +144,7 @@ const sendNumGenomes: u16 = 1;  // how many genomes to batch sending together?
 const sendBufSize: u16 = sendNumGenomes * genome_.gSize;
 
 // send NORTH =================================================================
+// N/S share a queue, so they alternate; set flag 1 to start with N
 var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_N = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
@@ -175,7 +171,8 @@ fn dispatchSend_N() void {
 }
 
 // send SOUTH =================================================================
-var sendFlag_S: u8 = 1;  // need refill? initialize 1 to trigger first fill
+// N/S share a queue, so they alternate; set flag 0 to start with N
+var sendFlag_S: u8 = 0;  // need refill? initialize 1 to trigger first fill
 var sendBuf_S = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_S[i],
@@ -444,12 +441,16 @@ task cycleTask(_: u16) void {
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
     population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
-    if (y != 0) dispatchSend_N();  // except top row of PE array
+    // N/S share a queue, so alternate
+    if (y == nRow - 1) { dispatchSend_N(); }
+    else { dispatchSend_S(); }  // except top row of PE array
     sendFlag_N = 0;  // open send request has been handled, unset flag
   }
   if (isOddCycle and @as(bool, sendFlag_S)) {
     population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
-    if (y != nRow - 1) dispatchSend_S();  // except bottom row of PE array
+    // N/S share a queue, so alternate
+    if (y == 0) { dispatchSend_S(); }
+    else { dispatchSend_N(); }  // except bottom row of PE array
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
   if (isEvenCycle and @as(bool, sendFlag_E)) {
@@ -471,40 +472,9 @@ task cycleTask(_: u16) void {
     @mov16(cycleDsd, 0);  // send wavelet to self, trigger next cycle
   } else {
     time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
-    const ctrlDsd = @get_dsd(fabout_dsd, .{
-      .extent = 1, .fabric_color = sendColor_N, .control = true
-    });
-    const ctrlWave: u32 = comptime ctrl.ctrl(
-      false, ctrl.opcode_switch_advance, 0, sendColorValue_N
-    );
-    @mov32(ctrlDsd, ctrlWave);
-    @mov16(cooldownDsd, 0);  // send wavelet to self, trigger cooldown
-  }
-}
-
-task cooldownTask(count: u16) void {
-  // ensure active receive requests are available to neighbors
-  var flag = false;
-  if (@as(bool, recvFlag_N)) { dispatchRecv_N(); recvFlag_N = 0; flag = true; }
-  if (@as(bool, recvFlag_S)) { dispatchRecv_S(); recvFlag_S = 0; flag = true; }
-  if (@as(bool, recvFlag_E)) { dispatchRecv_E(); recvFlag_E = 0; flag = true; }
-  if (@as(bool, recvFlag_W)) { dispatchRecv_W(); recvFlag_W = 0; flag = true; }
-
-  if (flag) { // receive request was filled, reset cooldown counter
-    @mov16(cooldownDsd, 0);  // send wavelet to self, trigger next cycle
-  } else if (count < cooldownCycles) {
-    @mov16(cooldownDsd, count + 1);  // send wavelet to self, trigger next cycle
-  } else if (
-    @as(bool, sendFlag_N) or y == 0
-  ) {
     memcpy.unblock_cmd_stream();  // terminate
-  } else {
-    @mov16(cooldownDsd, 0);  // send wavelet to self, trigger next cycle
-  }
-
+ }
 }
-
-task ignoreTask(data: u32) void { }
 
 // launcher ===================================================================
 ///////////////////////////////////////////////////////////////////////////////
@@ -543,7 +513,6 @@ comptime {
   @bind_local_task(recvFinalizeTask_E, recvFinalizeTaskID_E);
   @bind_local_task(recvFinalizeTask_W, recvFinalizeTaskID_W);
   @bind_data_task(cycleTask, cycleTaskID);
-  @bind_data_task(cooldownTask, cooldownTaskID);
 }
 
 // wavlet routing =============================================================
@@ -554,26 +523,12 @@ comptime {
     cycleColor,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
-  @set_local_color_config(  // make task wavelet bounce back from router
-    cooldownColor,
-    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
-  );
 
   // NORTH / SOUTH (vertical)
   // note use of color swaps: neighbor's outgoing color -> PE's incoming color
   @set_local_color_config(
     sendColor_N,
-    .{
-      .routes = .{
-        .rx = .{ RAMP },
-        .tx = .{ NORTH },
-        .color_swap_y = true,
-      },
-      .switches = .{
-        // Upon a control wavelet, change the transmit direction to self
-        .pos1 = .{ .tx = RAMP },
-      },
-    },
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ NORTH }, .color_swap_y = true } },
   );
   @set_local_color_config(
     sendColor_S,
