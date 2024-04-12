@@ -25,7 +25,7 @@ layout {
   @set_rectangle(nCol, nRow);
 
   // assign code to each PE
-  var peId: u16 = 0;
+  var peId: u32 = 0;
   for (@range(i32, nCol)) |x| {
     for (@range(i32, nRow)) |y| {
       @set_tile_code(
