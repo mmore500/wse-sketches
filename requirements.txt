@@ -374,8 +374,10 @@ patsy==0.5.6
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phylotrackpy==0.2.0
-    # via alifedata-phyloinformatics-convert
+phylotrackpy @ git+https://github.com/emilydolson/phylotrackpy@v0.2.0
+    # via
+    #   -r requirements.in
+    #   alifedata-phyloinformatics-convert
 pillow==10.2.0
     # via matplotlib
 platformdirs==4.1.0
