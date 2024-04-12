@@ -2,7 +2,7 @@
 dendropy
 opytional
 pandas
-pyarrow
+fastparquet
 scipy
 
 # qa

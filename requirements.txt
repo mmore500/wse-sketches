@@ -68,6 +68,8 @@ comm==0.2.1
     #   ipywidgets
 contourpy==1.2.0
     # via matplotlib
+cramjam==2.8.3
+    # via fastparquet
 cycler==0.12.1
     # via matplotlib
 dataclasses==0.6
@@ -105,12 +107,16 @@ executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.1
     # via nbformat
+fastparquet==2024.2.0
+    # via -r requirements.in
 fonttools==4.49.0
     # via matplotlib
 fqdn==1.5.1
     # via jsonschema
 frozendict==2.4.1
     # via backstrip
+fsspec==2024.3.1
+    # via fastparquet
 gitdb==4.0.11
     # via gitpython
 gitpython==3.1.42
@@ -315,13 +321,13 @@ numpy==1.26.3
     #   backstrip
     #   biopython
     #   contourpy
+    #   fastparquet
     #   hstrat
     #   hsurf
     #   matplotlib
     #   pandas
     #   pandera
     #   patsy
-    #   pyarrow
     #   scipy
     #   seaborn
     #   statsmodels
@@ -338,6 +344,7 @@ overrides==7.7.0
     # via jupyter-server
 packaging==23.2
     # via
+    #   fastparquet
     #   hstrat
     #   ipykernel
     #   jupyter-server
@@ -356,6 +363,7 @@ pandas==1.5.3
     #   -r requirements.in
     #   alifedata-phyloinformatics-convert
     #   backstrip
+    #   fastparquet
     #   hstrat
     #   hsurf
     #   nbmetalog
@@ -406,8 +414,6 @@ pure-eval==0.2.2
     # via stack-data
 py==1.11.0
     # via retry
-pyarrow==15.0.2
-    # via -r requirements.in
 pycparser==2.21
     # via cffi
 pydantic==2.6.3

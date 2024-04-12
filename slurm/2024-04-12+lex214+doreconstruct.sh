@@ -37,16 +37,12 @@ import functools
 import multiprocessing as mp
 import random
 
-import alifedata_phyloinformatics_convert as apc
 from hstrat import hstrat
 from hsurf import hsurf
 from keyname import keyname as kn
 import more_itertools as mit
 import pandas as pd
 from tqdm import tqdm
-
-from pylib._draw_biopython_tree import draw_biopython_tree
-from pylib._val_to_color import val_to_color
 
 
 def process_group(group_tuple):
@@ -103,8 +99,10 @@ def process_group(group_tuple):
 
 
 if __name__ == "__main__":
+    print("begin __main__")
+
     source = "https://osf.io/s8p7q/download"
-    df = pd.read_parquet(source)
+    df = pd.read_parquet(source, engine="fastparquet")
     print("downloaded data")
 
     exclude_leading = 32
@@ -133,7 +131,7 @@ if __name__ == "__main__":
     print("preprocessed data")
 
     group_list = list(df.groupby("replicate"))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
+    with mp.Pool(processes=min(mp.cpu_count(), 54)) as pool:
         results = pool.map(process_group, group_list)
 
     for result in results:
