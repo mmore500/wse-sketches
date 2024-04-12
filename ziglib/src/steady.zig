@@ -1,6 +1,7 @@
 const std = @import("std");
 const assert = std.debug.assert;
 const pylib = @import("pylib.zig");
+const oeis = @import("oeis.zig");
 
 pub fn get_num_positions(surfaceSize: u32) u32 {
     return surfaceSize - 1;
@@ -89,4 +90,40 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
     }
 
     return position;
+}
+
+pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
+    const numPositions = get_num_positions(surfaceSize);
+    const positionFromEnd = numPositions - 1 - position;
+    std.debug.assert(positionFromEnd < numPositions);
+
+    if (position < get_nth_bin_width(0, surfaceSize)) {
+        return get_nth_bin_width(0, surfaceSize);
+    } else if (pylib.bit_length(positionFromEnd) < pylib.bit_length(surfaceSize) - 2) {
+        return 1;
+    } else if (pylib.bit_length(positionFromEnd) < pylib.bit_length(surfaceSize) - 1) {
+        return 2;
+    }
+
+    const leadingOnes = pylib.bit_count_leading_ones(positionFromEnd);
+    const A083058Index = oeis.get_a083058_index_of_value(leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index) == leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index - 1) < leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index + 1) >= leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index + 2) > leadingOnes);
+
+    const ansatzSegmentFromEnd = A083058Index - 2;
+    std.debug.assert(ansatzSegmentFromEnd < get_num_segments(surfaceSize));
+
+    const ansatzSegment = get_num_segments(surfaceSize) - 1 - ansatzSegmentFromEnd;
+    std.debug.assert(ansatzSegment < get_num_segments(surfaceSize) - 1);
+
+    var correction: u32 = if (position < get_nth_segment_position(ansatzSegment, surfaceSize)) 1 else 0;
+
+    const eligibleExtraCorrection = leadingOnes == oeis.get_a083058_value_at_index(A083058Index + 1);
+    if (eligibleExtraCorrection) {
+        correction += if (position < get_nth_segment_position(ansatzSegment - 1, surfaceSize)) 1 else 0;
+    }
+
+    return ansatzSegmentFromEnd + 1 + correction;
 }

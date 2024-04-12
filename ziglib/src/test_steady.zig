@@ -2,6 +2,8 @@ const std = @import("std");
 const expectEqual = std.testing.expectEqual;
 const expect = std.testing.expect;
 const steady = @import("steady.zig");
+const pylib = @import("pylib.zig");
+const oeis = @import("oeis.zig");
 
 test "test_get_num_bins" {
     try expectEqual(steady.get_num_bins(1), 0);
@@ -136,4 +138,49 @@ test "test_get_nth_bin_position" {
         const last_position = steady.get_num_positions(surface_size);
         try expect(cumulative_positions.items[num_bins] == last_position);
     }
+}
+
+test "test_get_bin_width_at_position" {
+    try std.testing.expect(steady.get_bin_width_at_position(2184, 16384) == 5);
+    try std.testing.expect(steady.get_bin_width_at_position(9542, 32768) == 4);
+    try std.testing.expect(steady.get_bin_width_at_position(14914, 32768) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(27131, 32768) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(29786, 32768) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(16932, 65536) == 4);
+    try std.testing.expect(steady.get_bin_width_at_position(18352, 65536) == 4);
+    try std.testing.expect(steady.get_bin_width_at_position(33795, 65536) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(33943, 65536) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(45661, 65536) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(52845, 65536) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(11643, 131072) == 6);
+    try std.testing.expect(steady.get_bin_width_at_position(21202, 131072) == 5);
+    try std.testing.expect(steady.get_bin_width_at_position(41000, 131072) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(55778, 131072) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(68512, 131072) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(80523, 131072) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(104749, 131072) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(105507, 131072) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(110597, 131072) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(111500, 131072) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(117544, 131072) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(5426, 262144) == 8);
+    try std.testing.expect(steady.get_bin_width_at_position(14172, 262144) == 7);
+    try std.testing.expect(steady.get_bin_width_at_position(32693, 262144) == 5);
+    try std.testing.expect(steady.get_bin_width_at_position(50151, 262144) == 4);
+    try std.testing.expect(steady.get_bin_width_at_position(60044, 262144) == 4);
+    try std.testing.expect(steady.get_bin_width_at_position(62588, 262144) == 4);
+    try std.testing.expect(steady.get_bin_width_at_position(83492, 262144) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(107417, 262144) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(115650, 262144) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(129639, 262144) == 3);
+    try std.testing.expect(steady.get_bin_width_at_position(132871, 262144) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(145965, 262144) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(173432, 262144) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(180807, 262144) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(184007, 262144) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(189151, 262144) == 2);
+    try std.testing.expect(steady.get_bin_width_at_position(202189, 262144) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(224463, 262144) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(248378, 262144) == 1);
+    try std.testing.expect(steady.get_bin_width_at_position(253912, 262144) == 1);
 }
