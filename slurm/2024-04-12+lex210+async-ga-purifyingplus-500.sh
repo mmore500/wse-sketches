@@ -13,7 +13,7 @@ cd "$(dirname "$0")"
 WSE_SKETCHES_REVISION="0445cf2a976a08fa1ee0d6f97e1516d210f4ad36"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
-WORKDIR="${HOME}/2024-04-12/lex20+async-ga-purifyingplus-500---${SLURM_ARRAY_TASK_ID}"
+WORKDIR="${HOME}/2024-04-12/lex210+async-ga-purifyingplus-500---${SLURM_ARRAY_TASK_ID}"
 echo "WORKDIR ${WORKDIR}"
 
 export CSLC="${CSLC:-cslc}"
@@ -75,7 +75,8 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --gres=cs:cerebras:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=0:12:00
+#SBATCH --mem=32G
+#SBATCH --time=0:15:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 #SBATCH --exclude=sdf-2
 

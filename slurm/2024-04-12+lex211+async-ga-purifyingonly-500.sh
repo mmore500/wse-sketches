@@ -75,7 +75,8 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --gres=cs:cerebras:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=0:12:00
+#SBATCH --mem=32G
+#SBATCH --time=0:15:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 #SBATCH --exclude=sdf-2
 
