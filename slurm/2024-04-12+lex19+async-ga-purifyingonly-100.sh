@@ -13,7 +13,7 @@ cd "$(dirname "$0")"
 WSE_SKETCHES_REVISION="0445cf2a976a08fa1ee0d6f97e1516d210f4ad36"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
-WORKDIR="${HOME}/2024-04-12/lex13+async-ga-purifyingonly-100---${SLURM_ARRAY_TASK_ID}"
+WORKDIR="${HOME}/2024-04-12/lex19+async-ga-purifyingonly-100---${SLURM_ARRAY_TASK_ID}"
 echo "WORKDIR ${WORKDIR}"
 
 export CSLC="${CSLC:-cslc}"
