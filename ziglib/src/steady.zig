@@ -127,3 +127,32 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
 
     return ansatzSegmentFromEnd + 1 + correction;
 }
+
+/// Assumes that surface_size is a power of two and that position is less than surface_size - 1 (excluding special-cased position zero).
+pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
+    const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
+    assert(bit_count == 1);
+    assert(position < surface_size - 1);
+
+    const bin_width = get_bin_width_at_position(position, surface_size);
+    const first_bin_width = get_nth_bin_width(0, surface_size);
+    const bin_segment_number = first_bin_width - bin_width;
+
+    if (bin_segment_number == 0) {
+        return 0;
+    }
+
+    const one: u32 = 1;
+    const shift: u5 = @intCast(first_bin_width - bin_width - 1);
+    const bin_segment_first_bin_number = one << shift;
+    assert(get_nth_bin_width(bin_segment_first_bin_number, surface_size) == bin_width);
+    assert(bin_segment_first_bin_number != 0);
+    assert(get_nth_bin_width(bin_segment_first_bin_number - 1, surface_size) == bin_width + 1);
+
+    const bin_segment_first_bin_position = get_nth_bin_position(bin_segment_first_bin_number, surface_size);
+    assert(bin_segment_first_bin_position <= position);
+
+    const bin_number_within_segment = (position - bin_segment_first_bin_position) / bin_width;
+
+    return bin_segment_first_bin_number + bin_number_within_segment;
+}

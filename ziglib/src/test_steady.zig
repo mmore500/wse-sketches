@@ -184,3 +184,21 @@ test "test_get_bin_width_at_position" {
     try std.testing.expect(steady.get_bin_width_at_position(248378, 262144) == 1);
     try std.testing.expect(steady.get_bin_width_at_position(253912, 262144) == 1);
 }
+
+test "test_get_bin_number_of_position" {
+    var surface_size: u32 = 1;
+    for (0..16) |_| {
+        // Loop from 0 to surface_size - 1 for each power of 2 up to 2^15
+        for (0..surface_size - 1) |position| {
+            const pos: u32 = @intCast(position);
+            const bin_number = steady.get_bin_number_of_position(pos, surface_size);
+            const bin_position = steady.get_nth_bin_position(bin_number, surface_size);
+            const bin_width = steady.get_nth_bin_width(bin_number, surface_size);
+
+            // Ensure the position falls within the correct bin range
+            try expect(bin_position <= pos);
+            try expect(pos < bin_position + bin_width);
+        }
+        surface_size <<= 1; // Double surface_size to get next power of 2
+    }
+}
