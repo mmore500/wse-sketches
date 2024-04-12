@@ -4,6 +4,7 @@
 #SBATCH --time=1:00:00
 #SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --array=1-5
 
 set -e
 
@@ -12,7 +13,7 @@ cd "$(dirname "$0")"
 WSE_SKETCHES_REVISION="9675beab54082a43b888eb532780abdf731e466b"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
-WORKDIR="${HOME}/2024-04-12/lex13+async-ga-purifyingonly-20"
+WORKDIR="${HOME}/2024-04-12/lex13+async-ga-purifyingonly-20---${SLURM_ARRAY_TASK_ID}"
 echo "WORKDIR ${WORKDIR}"
 
 export CSLC="${CSLC:-cslc}"
@@ -74,7 +75,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --gres=cs:cerebras:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=0:20:00
+#SBATCH --time=0:10:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 
 set -e
