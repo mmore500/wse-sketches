@@ -4,7 +4,7 @@
 #SBATCH --time=1:00:00
 #SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
-#SBATCH --array=1-5
+#SBATCH --array=1-4
 
 set -e
 
