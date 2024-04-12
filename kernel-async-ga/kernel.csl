@@ -57,23 +57,23 @@ var x: i16 = 0; var y: i16 = 0;  // PE array coordinates
 var cycleCounter = @zeros([1]u32);  // how many self-activations cycles elapse?
 var ptr_cycleCounter : [*]u32 = &cycleCounter;
 
-var recvCounter_N = @zeros([1]u16);  // number recv's opened + number filled
-var ptr_recvCounter_N : [*]u16 = &recvCounter_N;
-var recvCounter_S = @zeros([1]u16);
-var ptr_recvCounter_S : [*]u16 = &recvCounter_S;
-var recvCounter_E = @zeros([1]u16);
-var ptr_recvCounter_E : [*]u16 = &recvCounter_E;
-var recvCounter_W = @zeros([1]u16);
-var ptr_recvCounter_W : [*]u16 = &recvCounter_W;
+var recvCounter_N = @zeros([1]u32);  // number recv's opened + number filled
+var ptr_recvCounter_N : [*]u32 = &recvCounter_N;
+var recvCounter_S = @zeros([1]u32);
+var ptr_recvCounter_S : [*]u32 = &recvCounter_S;
+var recvCounter_E = @zeros([1]u32);
+var ptr_recvCounter_E : [*]u32 = &recvCounter_E;
+var recvCounter_W = @zeros([1]u32);
+var ptr_recvCounter_W : [*]u32 = &recvCounter_W;
 
-var sendCounter_N = @zeros([1]u16);  // number send's opened + number filled
-var ptr_sendCounter_N : [*]u16 = &sendCounter_N;
-var sendCounter_S = @zeros([1]u16);
-var ptr_sendCounter_S : [*]u16 = &sendCounter_S;
-var sendCounter_E = @zeros([1]u16);
-var ptr_sendCounter_E : [*]u16 = &sendCounter_E;
-var sendCounter_W = @zeros([1]u16);
-var ptr_sendCounter_W : [*]u16 = &sendCounter_W;
+var sendCounter_N = @zeros([1]u32);  // number send's opened + number filled
+var ptr_sendCounter_N : [*]u32 = &sendCounter_N;
+var sendCounter_S = @zeros([1]u32);
+var ptr_sendCounter_S : [*]u32 = &sendCounter_S;
+var sendCounter_E = @zeros([1]u32);
+var ptr_sendCounter_E : [*]u32 = &sendCounter_E;
+var sendCounter_W = @zeros([1]u32);
+var ptr_sendCounter_W : [*]u32 = &sendCounter_W;
 
 var genome = @zeros([population_.gSize]u32);  // samples 0th population element (convenient)
 var ptr_genome : [*]u32 = &genome;

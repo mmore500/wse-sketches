@@ -49,14 +49,14 @@ layout {
   }
 
   @export_name("cycleCounter", [*]u32, true);
-  @export_name("recvCounter_N", [*]u16, true);
-  @export_name("recvCounter_S", [*]u16, true);
-  @export_name("recvCounter_E", [*]u16, true);
-  @export_name("recvCounter_W", [*]u16, true);
-  @export_name("sendCounter_N", [*]u16, true);
-  @export_name("sendCounter_S", [*]u16, true);
-  @export_name("sendCounter_E", [*]u16, true);
-  @export_name("sendCounter_W", [*]u16, true);
+  @export_name("recvCounter_N", [*]u32, true);
+  @export_name("recvCounter_S", [*]u32, true);
+  @export_name("recvCounter_E", [*]u32, true);
+  @export_name("recvCounter_W", [*]u32, true);
+  @export_name("sendCounter_N", [*]u32, true);
+  @export_name("sendCounter_S", [*]u32, true);
+  @export_name("sendCounter_E", [*]u32, true);
+  @export_name("sendCounter_W", [*]u32, true);
   @export_name("fitness", [*]f32, true);
   @export_name("genome", [*]u32, true);
   @export_name("whoami", [*]u32, true);
