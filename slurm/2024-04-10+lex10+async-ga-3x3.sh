@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
-#SBATCH --cpus-per-task=4
 #SBATCH --time=0:20:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 
