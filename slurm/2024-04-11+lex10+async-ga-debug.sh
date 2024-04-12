@@ -2,6 +2,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
 #SBATCH --time=0:20:00
+#SBATCH --cpus-per-task=16
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 
 set -e
