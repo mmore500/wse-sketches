@@ -142,7 +142,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 cycle_counts = data.flat
 print(data)
 
