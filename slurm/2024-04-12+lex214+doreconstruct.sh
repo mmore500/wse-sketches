@@ -3,7 +3,7 @@
 #SBATCH --mem=128G
 #SBATCH --time=4:00:00
 #SBATCH --cpus-per-task=54
-#SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --output="/mnt/home/%u/joblog/id=%j+ext=.txt"
 
 set -e
 
