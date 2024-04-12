@@ -221,7 +221,7 @@ fn dispatchSend_E() void {
 }
 
 // send WEST =================================================================
-var sendFlag_W: u8 = 0;  // need refill? initialize 1 to trigger first fill
+var sendFlag_W: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_W = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_W[i],
