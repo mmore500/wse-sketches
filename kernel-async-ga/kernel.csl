@@ -164,7 +164,6 @@ fn dispatchSend_N() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_N,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_N[0] += 1;  // counter only used for telemetry
@@ -191,7 +190,6 @@ fn dispatchSend_S() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_S,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_S[0] += 1;  // counter only used for telemetry
@@ -217,7 +215,6 @@ fn dispatchSend_E() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_E,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_E[0] += 1;  // counter only used for telemetry
@@ -243,7 +240,6 @@ fn dispatchSend_W() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_W,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_W[0] += 1;  // counter only used for telemetry
@@ -282,7 +278,6 @@ fn dispatchRecv_N() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_N[0] += 1;  // counter only used for telemetry
@@ -310,7 +305,6 @@ fn dispatchRecv_S() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_S[0] += 1;  // counter only used for telemetry
@@ -338,7 +332,6 @@ fn dispatchRecv_E() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_E[0] += 1;  // counter only used for telemetry
@@ -365,7 +358,6 @@ fn dispatchRecv_W() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_W[0] += 1;  // counter only used for telemetry
