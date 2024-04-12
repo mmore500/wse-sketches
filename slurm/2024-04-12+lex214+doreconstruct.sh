@@ -35,6 +35,7 @@ mkdir -p outdata
 python3 -O - << EOF
 import functools
 import multiprocessing as mp
+import os
 import random
 
 from hstrat import hstrat
@@ -85,6 +86,8 @@ def process_group(group_tuple):
                 tqdm, desc="reconstructing", file=logfile
             ),
         )
+
+    os.rename(f"outdata/{outname}.log.txt", f"outdata/{outname}.log.txt.done")
 
     tree_df["popSize"] = len(group)
     tree_df["replicate"] = replicate
