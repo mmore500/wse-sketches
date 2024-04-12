@@ -321,6 +321,7 @@ numpy==1.26.3
     #   pandas
     #   pandera
     #   patsy
+    #   pyarrow
     #   scipy
     #   seaborn
     #   statsmodels
@@ -350,7 +351,7 @@ packaging==23.2
     #   qtconsole
     #   qtpy
     #   statsmodels
-pandas[pyarrow]==1.5.3
+pandas==1.5.3
     # via
     #   -r requirements.in
     #   alifedata-phyloinformatics-convert
@@ -403,6 +404,8 @@ pure-eval==0.2.2
     # via stack-data
 py==1.11.0
     # via retry
+pyarrow==15.0.2
+    # via -r requirements.in
 pycparser==2.21
     # via cffi
 pydantic==2.6.3

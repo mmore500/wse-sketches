@@ -1,7 +1,8 @@
 # pylib
 dendropy
 opytional
-pandas[pyarrow]
+pandas
+pyarrow
 scipy
 
 # qa
