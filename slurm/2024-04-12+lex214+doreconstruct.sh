@@ -10,24 +10,24 @@ set -e
 pwd
 date
 
-# module purge || :
-# module load \
-#   GCCcore/11.3.0 \
-#   binutils/2.39 \
-#   ccache/3.3.3 \
-#   CMake/3.23.1 \
-#   git/2.36.0-nodocs \
-#   Python/3.10.4 \
-#   || :
+module purge || :
+module load \
+  GCCcore/11.3.0 \
+  binutils/2.39 \
+  ccache/3.3.3 \
+  CMake/3.23.1 \
+  git/2.36.0-nodocs \
+  Python/3.10.4 \
+  || :
 echo "loaded modules"
 
-# rm -rf env
-# python3 -m venv env
+rm -rf env
+python3 -m venv env
 source env/bin/activate
 echo "loaded venv"
 
-# python3 -m pip install --upgrade pip
-# python3 -m pip install -r requirements.txt
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
 echo "installed dependencies"
 
 mkdir -p outdata
