@@ -468,6 +468,10 @@ genome_ints = [
 
 # display genome values
 assert len(genome_ints) == nRow * nCol
+for word in range(nWav):
+    print(f"---------------------------------------------- genome word {word}")
+    print([inner[word] for outer in data for inner in outer])
+
 print("------------------------------------------------ genome binary strings")
 for genome_int in genome_ints:
     print(np.binary_repr(genome_int, width=nWav * wavSize))
