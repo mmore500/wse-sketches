@@ -366,15 +366,16 @@ fn dispatchRecv_W() void {
 // halt condition ============================================================
 fn shouldHalt(cycle: u32) bool {
   const nCycleOk = cycle >= nCycleAtLeast;
-  const msecOk = optime.has_elapsed_ms_(
-    msecAtLeast,
-    @ptrcast(*[3]u16, &tscStartBuffer),
-  );
-  const tscOk = optime.has_elapsed_tsc_(
-    tscAtLeast,
-    @ptrcast(*[3]u16, &tscStartBuffer),
-  );
-  return nCycleOk and msecOk and tscOk;
+  return nCycleOk;
+  // const msecOk = optime.has_elapsed_ms_(
+  //   msecAtLeast,
+  //   @ptrcast(*[3]u16, &tscStartBuffer),
+  // );
+  // const tscOk = optime.has_elapsed_tsc_(
+  //   tscAtLeast,
+  //   @ptrcast(*[3]u16, &tscStartBuffer),
+  // );
+  // return nCycleOk and msecOk and tscOk;
 }
 
 // cycle task =================================================================
