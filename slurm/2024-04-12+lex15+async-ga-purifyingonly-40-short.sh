@@ -2,7 +2,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=32G
 #SBATCH --time=2:00:00
-#SBATCH --cpus-per-task=48
+#SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 
 set -e
