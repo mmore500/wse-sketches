@@ -2,7 +2,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
 #SBATCH --time=0:20:00
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 
 set -e
@@ -45,14 +45,12 @@ echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-4}"
 echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
 
-export ASYNC_GA_NCOL="${ASYNC_GA_NCOL:-10}"
+export ASYNC_GA_NCOL="${ASYNC_GA_NCOL:-50}"
 echo "ASYNC_GA_NCOL ${ASYNC_GA_NCOL}"
 
-export ASYNC_GA_NROW="${ASYNC_GA_NROW:-10}"
+export ASYNC_GA_NROW="${ASYNC_GA_NROW:-50}"
 echo "ASYNC_GA_NROW ${ASYNC_GA_NROW}"
 
-export ASYNC_GA_NROW="${ASYNC_GA_NROW:-10}"
-echo "ASYNC_GA_NROW ${ASYNC_GA_NROW}"
 
 echo "do kernel compile ======================================================"
 ./kernel-async-ga/compile.sh
