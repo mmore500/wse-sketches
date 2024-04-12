@@ -93,7 +93,9 @@ deprecated==1.2.14
 distutils-strtobool==0.1.0
     # via teeplot
 ete3==3.1.3
-    # via alifedata-phyloinformatics-convert
+    # via
+    #   -r requirements.in
+    #   alifedata-phyloinformatics-convert
 exceptiongroup==1.2.0
     # via
     #   anyio
@@ -230,6 +232,7 @@ jupyterlab-widgets==3.0.9
     # via ipywidgets
 keyname==0.6.0
     # via
+    #   -r requirements.in
     #   hstrat
     #   nbmetalog
     #   teeplot
@@ -347,7 +350,7 @@ packaging==23.2
     #   qtconsole
     #   qtpy
     #   statsmodels
-pandas==1.5.3
+pandas[pyarrow]==1.5.3
     # via
     #   -r requirements.in
     #   alifedata-phyloinformatics-convert
@@ -414,6 +417,12 @@ pygments==2.17.2
     #   qtconsole
 pyparsing==3.1.1
     # via matplotlib
+pyqt5==5.15.10
+    # via -r requirements.in
+pyqt5-qt5==5.15.2
+    # via pyqt5
+pyqt5-sip==12.13.0
+    # via pyqt5
 pytest==8.0.0
     # via -r requirements.in
 python-dateutil==2.8.2
