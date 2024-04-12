@@ -76,6 +76,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --cpus-per-task=1
 #SBATCH --time=0:20:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --exclude=sdf2
 
 set -e
 # newgrp GRANT_ID
