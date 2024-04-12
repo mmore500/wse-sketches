@@ -81,7 +81,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(data)
 
 print("whereami x ===========================================================")
@@ -101,7 +101,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(data)
 
 print("whereami y ===========================================================")
@@ -121,7 +121,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(data)
 
 

@@ -5,7 +5,6 @@ param tournamentSize: u16;
 param fitFun: fn([*]u32) f32;
 param inheritFun: fn([*]u32) void;
 param initFun: fn([*]u32) void;
-param peId: u16;
 
 // module imports =============================================================
 const math = @import_module("<math>");
