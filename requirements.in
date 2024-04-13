@@ -24,6 +24,7 @@ keyname
 more_itertools
 nb-clean
 nbmetalog
+numpy==1.23.5
 joblib==1.3.2
 jupyter
 teeplot
