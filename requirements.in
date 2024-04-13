@@ -17,7 +17,7 @@ alifedata_phyloinformatics_convert==0.16.2
 backstrip==0.2.4
 biopython
 ete4[treeview]@git+https://github.com/etetoolkit/ete.git@49f8d039687b8b0831bee61e157ff224cdd71a08
-hstrat==1.11.1
+hstrat==1.11.4
 git+https://github.com/mmore500/hstrat-surface-concept.git@v0.3.0#egg=hsurf
 ipykernel
 keyname
