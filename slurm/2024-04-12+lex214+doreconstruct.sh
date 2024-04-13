@@ -104,7 +104,7 @@ def process_group(group_tuple):
 if __name__ == "__main__":
     print("begin __main__")
 
-    source = "https://osf.io/s8p7q/download"
+    source = "https://osf.io/hm5wa/download"
     df = pd.read_parquet(source, engine="fastparquet")
     print("downloaded data")
 
