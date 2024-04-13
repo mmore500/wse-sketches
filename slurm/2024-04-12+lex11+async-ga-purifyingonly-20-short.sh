@@ -58,6 +58,8 @@ echo "ASYNC_GA_MSEC_AT_LEAST ${ASYNC_GA_MSEC_AT_LEAST}"
 export ASYNC_GA_NCYCLE_AT_LEAST=100000
 echo "ASYNC_GA_NCYCLE_AT_LEAST ${ASYNC_GA_NCYCLE_AT_LEAST}"
 
+export ASYNC_GA_GLOBAL_SEED="${SLURM_ARRAY_TASK_ID}"
+echo "ASYNC_GA_GLOBAL_SEED ${ASYNC_GA_GLOBAL_SEED}"
 
 echo "do kernel compile ======================================================"
 ./kernel-async-ga/compile.sh
