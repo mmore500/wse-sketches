@@ -30,6 +30,7 @@ echo "--------------------------------------"
 shopt -s nullglob
 
 for notebook in "${script_dir}/"*.ipynb; do
+  trap "cat ${notebook}" ERR
   echo "notebook ${notebook}"
   export NOTEBOOK_NAME="$(basename "${notebook%.*}")"
   export NOTEBOOK_PATH="$(realpath "${notebook}")"
