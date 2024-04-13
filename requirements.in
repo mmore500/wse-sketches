@@ -2,7 +2,7 @@
 dendropy
 opytional
 pandas
-fastparquet
+fastparquet==2023.10.1
 scipy
 
 # qa
