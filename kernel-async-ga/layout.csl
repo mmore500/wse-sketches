@@ -4,7 +4,6 @@ param msecAtLeast: u32;
 param tscAtLeast: u32;
 param nRow: u16;
 param nCol: u16;
-param cooldownCycles: u32;
 
 const popSize = 32;
 const tournSize = 5;
@@ -26,19 +25,13 @@ layout {
   @set_rectangle(nCol, nRow);
 
   // assign code to each PE
-  var peId: u16 = 0;
+  var peId: u32 = 0;
   for (@range(i32, nCol)) |x| {
     for (@range(i32, nRow)) |y| {
       @set_tile_code(
         x, y,
         "kernel.csl",
         .{
-          .peId = peId,
-          // + 1 ensures nonzero local seed
-          .localSeed = globalSeed * nRow * nCol + peId + 1,
-          .x = x,
-          .y = y,
-          .cooldownCycles = cooldownCycles,
           .nCycleAtLeast = nCycleAtLeast,
           .msecAtLeast = msecAtLeast,
           .tscAtLeast = tscAtLeast,
@@ -46,6 +39,7 @@ layout {
           .nCol = nCol,
           .popSize = popSize,
           .tournSize = tournSize,
+          .globalSeed = globalSeed,
           .genomeImpl = genomeImpl,
           .memcpy_params = memcpy.get_params(x),
         }
@@ -55,19 +49,19 @@ layout {
   }
 
   @export_name("cycleCounter", [*]u32, true);
-  @export_name("recvCounter_N", [*]u16, true);
-  @export_name("recvCounter_S", [*]u16, true);
-  @export_name("recvCounter_E", [*]u16, true);
-  @export_name("recvCounter_W", [*]u16, true);
-  @export_name("sendCounter_N", [*]u16, true);
-  @export_name("sendCounter_S", [*]u16, true);
-  @export_name("sendCounter_E", [*]u16, true);
-  @export_name("sendCounter_W", [*]u16, true);
+  @export_name("recvCounter_N", [*]u32, true);
+  @export_name("recvCounter_S", [*]u32, true);
+  @export_name("recvCounter_E", [*]u32, true);
+  @export_name("recvCounter_W", [*]u32, true);
+  @export_name("sendCounter_N", [*]u32, true);
+  @export_name("sendCounter_S", [*]u32, true);
+  @export_name("sendCounter_E", [*]u32, true);
+  @export_name("sendCounter_W", [*]u32, true);
   @export_name("fitness", [*]f32, true);
   @export_name("genome", [*]u32, true);
-  @export_name("whoami", [*]i16, true);
-  @export_name("whereami_x", [*]i16, true);
-  @export_name("whereami_y", [*]i16, true);
+  @export_name("whoami", [*]u32, true);
+  @export_name("whereami_x", [*]u32, true);
+  @export_name("whereami_y", [*]u32, true);
   @export_name("tscControlBuffer", [*]u32, true);
   @export_name("tscEndBuffer", [*]u32, true);
   @export_name("tscStartBuffer", [*]u32, true);

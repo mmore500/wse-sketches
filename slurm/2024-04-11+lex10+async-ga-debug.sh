@@ -2,6 +2,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
 #SBATCH --time=0:20:00
+#SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
 
 set -e
@@ -11,7 +12,7 @@ cd "$(dirname "$0")"
 WSE_SKETCHES_REVISION="9675beab54082a43b888eb532780abdf731e466b"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
-WORKDIR="${HOME}/2024-04-10/lex10+async-ga-3x3"
+WORKDIR="${HOME}/2024-04-11/lex10+async-ga-debug"
 echo "WORKDIR ${WORKDIR}"
 
 export CSLC="${CSLC:-cslc}"
@@ -39,10 +40,17 @@ echo "ASYNC_GA_FABRIC_DIMS ${ASYNC_GA_FABRIC_DIMS}"
 export ASYNC_GA_ARCH_FLAG="--arch=wse2"
 echo "ASYNC_GA_ARCH_FLAG ${ASYNC_GA_ARCH_FLAG}"
 
-export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
+export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingonly}"
 echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-4}"
 echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
+
+export ASYNC_GA_NCOL="${ASYNC_GA_NCOL:-50}"
+echo "ASYNC_GA_NCOL ${ASYNC_GA_NCOL}"
+
+export ASYNC_GA_NROW="${ASYNC_GA_NROW:-50}"
+echo "ASYNC_GA_NROW ${ASYNC_GA_NROW}"
+
 
 echo "do kernel compile ======================================================"
 ./kernel-async-ga/compile.sh
