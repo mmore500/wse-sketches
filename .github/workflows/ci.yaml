@@ -235,6 +235,10 @@ jobs:
   binder:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 16
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
