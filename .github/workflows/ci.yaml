@@ -235,10 +235,14 @@ jobs:
   binder:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
       - uses: actions/checkout@v2
       - run: |
           sudo apt-get update -y
           sudo apt-get install -y ghostscript ffmpeg libsm6 libxext6 libgl1 libegl1
+          python3 --version
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
       # Adapted from https://askubuntu.com/a/524368
