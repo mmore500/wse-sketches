@@ -238,7 +238,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           sudo apt-get update -y
-          sudo apt-get install -y ghostscript
+          sudo apt-get install -y ghostscript ffmpeg libsm6 libxext6
           python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements.txt
       # Adapted from https://askubuntu.com/a/524368
