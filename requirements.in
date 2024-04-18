@@ -2,6 +2,8 @@
 dendropy
 opytional
 pandas
+fastparquet==2023.10.1
+scipy
 
 # qa
 black==22.10.0
@@ -12,11 +14,22 @@ joinem
 
 # binder
 alifedata_phyloinformatics_convert==0.16.2
-hstrat==1.11.1
+backstrip==0.2.4
+biopython
+ete4[treeview]@git+https://github.com/etetoolkit/ete.git@49f8d039687b8b0831bee61e157ff224cdd71a08
+hstrat==1.11.4
 git+https://github.com/mmore500/hstrat-surface-concept.git@v0.3.0#egg=hsurf
 ipykernel
+keyname
 more_itertools
 nb-clean
+nbmetalog
+numpy==1.23.5
+pyarrow==15.0.0
 joblib==1.3.2
 jupyter
+teeplot
 watermark==2.4.3
+
+# workaround https://github.com/emilydolson/phylotrackpy/issues/81
+git+https://github.com/emilydolson/phylotrackpy@v0.2.0

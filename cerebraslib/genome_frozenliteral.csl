@@ -1,5 +1,3 @@
-param peId: u32;
-
 // memory layout ===============================================================
 // byte 0 BITFIELD (12 bytes)
 // byte 1
@@ -24,7 +22,6 @@ const val1: u32 = 1692398096;
 const val2: u32 = 2816128869;
 const val3: u32 = 2428220313;
 
-
 fn _validate(genome: genomePtr_t) bool {
     return (genome[0] == val1) and (genome[1] == val2) and (genome[2] == val3);
 }
@@ -34,7 +31,7 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
     @assert(_validate(genome));
 }
 
-fn calc_fitness_of(genome: genomePtr_t) f16 {
+fn calc_fitness_of(genome: genomePtr_t) f32 {
     @assert(_validate(genome));
     return 0.0;
 }

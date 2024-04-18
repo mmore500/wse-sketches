@@ -1,0 +1,95 @@
+\section{Preliminary Work} \label{sec:preliminary-work}
+
+In preparation for proposed work, we joined the Cerebras SDK program \citep{selig2022cerebras} and assembled Cerebras Software Language (CSL) software implementations that will be necessary to conduct experiments with WSE hardware.
+For the time being, we have used Cerebras' hardware emulator to test our software implementations.
+This section reports a small-scale experiment performed to validate the core software functionality.
+In addition to this integration test, software quality has also been verified through an associated unit test suite.
+
+\subsection{Validation Experiment}
+
+% fab w,h = 10,5
+% Kernel x,y w,h = 4,1 3,3
+% memcpy x,y w,h = 1,1 8,3
+% whoami ===============================================================
+% [[0 3 6]
+%  [1 4 7]
+%  [2 5 8]]
+% whereami x ===========================================================
+% [[0 1 2]
+%  [0 1 2]
+%  [0 1 2]]
+% whereami y ===========================================================
+% [[0 0 0]
+%  [1 1 1]
+%  [2 2 2]]
+% cycle counter =======================================================
+% [[120 120 120]
+%  [120 120 120]
+%  [120 120 120]]
+% recv counter N ========================================================
+% [[ 1  1  1]
+%  [33 31 29]
+%  [29 28 29]]
+% recv counter S ========================================================
+% [[31 33 31]
+%  [33 31 29]
+%  [ 1  1  1]]
+% recv counter E ========================================================
+% [[31 29  1]
+%  [28 29  1]
+%  [30 33  1]]
+% recv counter W ========================================================
+% [[ 1 28 29]
+%  [ 1 31 32]
+%  [ 1 33 30]]
+% send counter N ========================================================
+% [[  0   0   0]
+%  [124 130 124]
+%  [132 122 114]]
+% send counter S ========================================================
+% [[130 126 112]
+%  [118 112 118]
+%  [  0   0   0]]
+% send counter E ========================================================
+% [[112 116   0]
+%  [124 130   0]
+%  [132 122   0]]
+% send counter W ========================================================
+% [[  0 126 112]
+%  [  0 112 118]
+%  [  0 120 128]]
+
+In addition to unit and integration tests, we performed a simple experiment to validate generated phylogenetic reconstructions.
+In this experiment, we evolved a population of simple genomes with HStrat annotations under drift conditions on the island model GA kernel, exported end-state genomes for postprocessing, and used the HStrat annotations to reconstruct their phylogenetic history.
+
+Simulation ran for 120 PE generation cycles with a tournament size of 5 and a population size of 32 per PE.
+For simplicity, drift conditions were imposed --- all genomes were evaluated to a fitness value of 0.0.
+Due to slow execution of the hardware simulator, we performed this experiment using a small 3x3 grid of processor elements.
+
+Genomes were fixed-length 3-word arrays represented using data type \texttt{u32}.
+Figure \ref{fig:validation-example:genomes} details the content and layout of genomes, and provides example genome values yielded from simulation.
+Notably, the first sixteen bits were used to tag clade geneses.
+At the outset of simulation, founding population members were each assigned a randomized tag value.
+This value was inherited without mutation throughout simulation.
+Thus, it can be used to identify end-state genomes that evolved from the same original ancestor.
+
+The send buffers were sized to hold one genome and the receive buffers to hold 4 genomes.
+Within the simulation window, between 28 and 33 receive cycles were completed for each PE and between 112 and 132 send cycles were completed for each PE.
+
+\input{fig/validation-example.tex}
+
+At the end of simulation, one genome was sampled per PE.
+Figure \ref{fig:validation-example:phylogeny} shows the result of phylogenetic reconstruction on these sampled genomes.
+To simplify visualization of the phylogeny with existing phyloinformatic tools, all clades were stitched together into a single tree by attaching them to a common ancestor.
+Taxa are colored according to their clade genesis tag.
+Taxon arrangement in the reconstructed tree agrees well with founding clade identities.
+All different-colored taxa are predicted to have had ancient common ancestry.
+Note that relatedness between \texttt{0x5fb} and \texttt{0xde40} is slightly overestimated, due to a configured lack of precise resolution necessary to ensure compact genetic annotations.
+Applications requiring high reconstruction precision can opt to use larger HStrat annotations.
+
+\subsection{Software and Data Availability}
+
+Reported work used CSL code hosted on GitHub at \url{https://github.com/mmore500/wse-sketches/tree/v0.1.0} \citep{moreno2024wse} with the Cerebras SDK v1.0.0 compiler and hardware emulator \citep{selig2022cerebras}.
+Reference Python implementations for HStrat surface algorithms are v0.3.0 at \citep{moreno2024hsurf}.
+Reconstruction used the Python \texttt{hstrat} package, v1.11.1 \citep{moreno2022hstrat}.
+Data from this experiment is available via the Open Science Framework at \url{https://osf.io/bfm2z/} \citep{moreno2024toward} and associated notebook code can be found at \url{https://hopth.ru/cm}.
