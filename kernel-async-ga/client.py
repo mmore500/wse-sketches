@@ -81,7 +81,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(data)
 
 print("whereami x ===========================================================")
@@ -101,7 +101,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(data)
 
 print("whereami y ===========================================================")
@@ -121,7 +121,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.int16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(data)
 
 
@@ -142,7 +142,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 cycle_counts = data.flat
 print(data)
 
@@ -164,7 +164,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(recvN)
 
 print("recv counter S ========================================================")
@@ -184,7 +184,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(recvS)
 
 print("recv counter E ========================================================")
@@ -204,7 +204,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(recvE)
 
 print("recv counter W ========================================================")
@@ -224,7 +224,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(recvW)
 
 print("recv counter sum =====================================================")
@@ -249,7 +249,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(sendN)
 
 print("send counter S ========================================================")
@@ -269,7 +269,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(sendS)
 
 print("send counter E ========================================================")
@@ -289,7 +289,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(sendE)
 
 print("send counter W ========================================================")
@@ -309,7 +309,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint16))
+sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
 print(sendW)
 
 print("send counter sum =====================================================")
@@ -468,6 +468,10 @@ genome_ints = [
 
 # display genome values
 assert len(genome_ints) == nRow * nCol
+for word in range(nWav):
+    print(f"---------------------------------------------- genome word {word}")
+    print([inner[word] for outer in data for inner in outer])
+
 print("------------------------------------------------ genome binary strings")
 for genome_int in genome_ints:
     print(np.binary_repr(genome_int, width=nWav * wavSize))

@@ -1,12 +1,9 @@
-param peId: u32;
-
 // memory layout ===============================================================
 // byte 0 FITNESS (f32, 4 bytes)
 // byte 1
 // byte 2
 // byte 3
 // TOTAL: 1 words -> 4 bytes
-
 
 // module imports =============================================================
 const math = @import_module("<math>");

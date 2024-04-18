@@ -30,12 +30,13 @@ echo "--------------------------------------"
 shopt -s nullglob
 
 for notebook in "${script_dir}/"*.ipynb; do
+  trap "tree ." ERR
   echo "notebook ${notebook}"
   export NOTEBOOK_NAME="$(basename "${notebook%.*}")"
   export NOTEBOOK_PATH="$(realpath "${notebook}")"
   jupyter nbconvert \
     --to notebook --execute --inplace \
-    --ExecutePreprocessor.timeout=600 \
+    --ExecutePreprocessor.timeout=1800 \
     "${notebook}"
 done
 

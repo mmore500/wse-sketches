@@ -20,9 +20,6 @@
 
 // layout parameters ==========================================================
 ///////////////////////////////////////////////////////////////////////////////
-param peId: i16;  // uid among PEs
-param x: i16;  // position within PE array
-param y: i16;
 param nCycleAtLeast: u32;  // how many self-activation cycles to run for?
 param msecAtLeast: u32;  // how many real-time milliseconds to run for?
 param tscAtLeast: u32;  // how many timestamp counter ticks to run for?
@@ -32,22 +29,23 @@ param popSize: u16;  // how many genomes in each local population?
 param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
-param localSeed: u16;  // seed value for PE RNG
+param globalSeed: u16;
 
 // module imports =============================================================
 ///////////////////////////////////////////////////////////////////////////////
 const math = @import_module("<math>");
 // memcpy module for copying data and launching functions from the host
+const layout_module = @import_module("<layout>");
 const memcpy = @import_module("<memcpy/memcpy>", memcpy_params);
 const random = @import_module("<random>");
 const time = @import_module("<time>");
 
-const genome_ = @import_module(genomeImpl, .{ .peId = peId });
+const genome_ = @import_module(genomeImpl);
 const population_ = @import_module("cerebraslib/population.csl", .{
   .gSize = genome_.gSize, .popSize = popSize, .tournamentSize = tournSize,
   .fitFun = genome_.calc_fitness_of,
   .inheritFun = genome_.elapse_inheritance_of,
-  .initFun = genome_.initialize_one, .peId = peId,
+  .initFun = genome_.initialize_one,
 });
 const ctrl = @import_module("cerebraslib/ctrl.csl");
 const optime = @import_module("cerebraslib/optime.csl");
@@ -55,26 +53,27 @@ const optime = @import_module("cerebraslib/optime.csl");
 // global output variables ====================================================
 // for end-state telemetry, ptrs are necessary for memcpy infrastructure
 ///////////////////////////////////////////////////////////////////////////////
+var x: i16 = 0; var y: i16 = 0;  // PE array coordinates
 var cycleCounter = @zeros([1]u32);  // how many self-activations cycles elapse?
 var ptr_cycleCounter : [*]u32 = &cycleCounter;
 
-var recvCounter_N = @zeros([1]u16);  // number recv's opened + number filled
-var ptr_recvCounter_N : [*]u16 = &recvCounter_N;
-var recvCounter_S = @zeros([1]u16);
-var ptr_recvCounter_S : [*]u16 = &recvCounter_S;
-var recvCounter_E = @zeros([1]u16);
-var ptr_recvCounter_E : [*]u16 = &recvCounter_E;
-var recvCounter_W = @zeros([1]u16);
-var ptr_recvCounter_W : [*]u16 = &recvCounter_W;
+var recvCounter_N = @zeros([1]u32);  // number recv's opened + number filled
+var ptr_recvCounter_N : [*]u32 = &recvCounter_N;
+var recvCounter_S = @zeros([1]u32);
+var ptr_recvCounter_S : [*]u32 = &recvCounter_S;
+var recvCounter_E = @zeros([1]u32);
+var ptr_recvCounter_E : [*]u32 = &recvCounter_E;
+var recvCounter_W = @zeros([1]u32);
+var ptr_recvCounter_W : [*]u32 = &recvCounter_W;
 
-var sendCounter_N = @zeros([1]u16);  // number send's opened + number filled
-var ptr_sendCounter_N : [*]u16 = &sendCounter_N;
-var sendCounter_S = @zeros([1]u16);
-var ptr_sendCounter_S : [*]u16 = &sendCounter_S;
-var sendCounter_E = @zeros([1]u16);
-var ptr_sendCounter_E : [*]u16 = &sendCounter_E;
-var sendCounter_W = @zeros([1]u16);
-var ptr_sendCounter_W : [*]u16 = &sendCounter_W;
+var sendCounter_N = @zeros([1]u32);  // number send's opened + number filled
+var ptr_sendCounter_N : [*]u32 = &sendCounter_N;
+var sendCounter_S = @zeros([1]u32);
+var ptr_sendCounter_S : [*]u32 = &sendCounter_S;
+var sendCounter_E = @zeros([1]u32);
+var ptr_sendCounter_E : [*]u32 = &sendCounter_E;
+var sendCounter_W = @zeros([1]u32);
+var ptr_sendCounter_W : [*]u32 = &sendCounter_W;
 
 var genome = @zeros([population_.gSize]u32);  // samples 0th population element (convenient)
 var ptr_genome : [*]u32 = &genome;
@@ -83,9 +82,9 @@ var fitness = @zeros([1]f32);  // samples 0th population element (convenient)
 var ptr_fitness : [*]f32 = &fitness;
 
 // report back layout params (sanity check)
-var whoami = @zeros([1]i16); var ptr_whoami : [*]i16 = &whoami;
-var whereami_x = @zeros([1]i16); var ptr_whereami_x : [*]i16 = &whereami_x;
-var whereami_y = @zeros([1]i16); var ptr_whereami_y : [*]i16 = &whereami_y;
+var whoami = @zeros([1]u32); var ptr_whoami : [*]u32 = &whoami;
+var whereami_x = @zeros([1]u32); var ptr_whereami_x : [*]u32 = &whereami_x;
+var whereami_y = @zeros([1]u32); var ptr_whereami_y : [*]u32 = &whereami_y;
 
 // timestamp buffers, ensure an even number for 32-bit word memcpy
 var tscControlBuffer = @zeros([(time.tsc_size_words + 1) / 2]u32);
@@ -164,7 +163,6 @@ fn dispatchSend_N() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_N,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_N[0] += 1;  // counter only used for telemetry
@@ -191,7 +189,6 @@ fn dispatchSend_S() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_S,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_S[0] += 1;  // counter only used for telemetry
@@ -217,7 +214,6 @@ fn dispatchSend_E() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_E,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_E[0] += 1;  // counter only used for telemetry
@@ -243,7 +239,6 @@ fn dispatchSend_W() void {
     .{
       .async = true,
       .activate = sendFinalizeTaskID_W,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   sendCounter_W[0] += 1;  // counter only used for telemetry
@@ -282,7 +277,6 @@ fn dispatchRecv_N() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_N[0] += 1;  // counter only used for telemetry
@@ -310,7 +304,6 @@ fn dispatchRecv_S() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_S[0] += 1;  // counter only used for telemetry
@@ -338,7 +331,6 @@ fn dispatchRecv_E() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_E[0] += 1;  // counter only used for telemetry
@@ -365,7 +357,6 @@ fn dispatchRecv_W() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,  // callback on complete
-      .priority = .{ .high = true },
     },
   );
   recvCounter_W[0] += 1;  // counter only used for telemetry
@@ -374,15 +365,16 @@ fn dispatchRecv_W() void {
 // halt condition ============================================================
 fn shouldHalt(cycle: u32) bool {
   const nCycleOk = cycle >= nCycleAtLeast;
-  const msecOk = optime.has_elapsed_ms_(
-    msecAtLeast,
-    @ptrcast(*[3]u16, &tscStartBuffer),
-  );
-  const tscOk = optime.has_elapsed_tsc_(
-    tscAtLeast,
-    @ptrcast(*[3]u16, &tscStartBuffer),
-  );
-  return nCycleOk and msecOk and tscOk;
+  return nCycleOk;
+  // const msecOk = optime.has_elapsed_ms_(
+  //   msecAtLeast,
+  //   @ptrcast(*[3]u16, &tscStartBuffer),
+  // );
+  // const tscOk = optime.has_elapsed_tsc_(
+  //   tscAtLeast,
+  //   @ptrcast(*[3]u16, &tscStartBuffer),
+  // );
+  // return nCycleOk and msecOk and tscOk;
 }
 
 // cycle task =================================================================
@@ -484,9 +476,16 @@ fn desync() void { for (@range(u16, @random16() % 256)) |i| { @random16(); } }
 
 fn dolaunch() void { // launched by RPC (remote procedure call)
   time.enable_tsc();
-  whoami[0] = peId;  // record layout params for telemetry
-  whereami_x[0] = x;
-  whereami_y[0] = y;
+  // record layout params for telemetry
+  x = @as(i16, layout_module.get_x_coord());
+  y = @as(i16, layout_module.get_y_coord());
+  whereami_x[0] = @as(u32, layout_module.get_x_coord());
+  whereami_y[0] = @as(u32, layout_module.get_y_coord());
+  whoami[0] = whereami_y[0] * @as(u32, nCol) + whereami_x[0];
+  // + 1 ensures nonzero local seed
+  const localSeed = (
+    @as(u32, globalSeed) * @as(u32, nRow) * @as(u32, nCol) + whoami[0] + 1
+  );
   random.set_global_prng_seed(localSeed);  // zero seed seems to break RNG...
   desync();
   population_.init_module();

@@ -5,7 +5,6 @@ param tournamentSize: u16;
 param fitFun: fn([*]u32) f32;
 param inheritFun: fn([*]u32) void;
 param initFun: fn([*]u32) void;
-param peId: u16;
 
 // module imports =============================================================
 const math = @import_module("<math>");
@@ -109,21 +108,21 @@ fn _perform_selection_all() void {
 
     // DSD-based implementation
     // inject indices for selected genomes' words into main buffer
-    for (@range(i16, gSize)) |w| {
-        const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
-        // copy selected genomes from swap buffer to main buffer
-        // this replaces indices for words with the actual words themselves
-        @map(_get_swap_word, indexBufDsd, wordDsd);
-        // advance index buffer
-        @add16(indexBufDsd, indexBufDsd, 1);
-    }
+    // for (@range(i16, gSize)) |w| {
+    //     const wordDsd = @increment_dsd_offset(genomeDsd, w, u32);
+    //     // copy selected genomes from swap buffer to main buffer
+    //     // this replaces indices for words with the actual words themselves
+    //     @map(_get_swap_word, indexBufDsd, wordDsd);
+    //     // advance index buffer
+    //     @add16(indexBufDsd, indexBufDsd, 1);
+    // }
 
     // alternate loop-based implementation
-    // for (@range(u16, gSize)) |w| {
-    //     for (@range(u16, popSize)) |i| {
-    //         buffer[i * gSize + w] = swap[indexBuf[i] + w];
-    //     }
-    // }
+    for (@range(u16, gSize)) |w| {
+        for (@range(u16, popSize)) |i| {
+            buffer[i * gSize + w] = swap[indexBuf[i] + w];
+        }
+    }
 }
 
 /// Place population buffer word indices for n randomly sampled genomes into

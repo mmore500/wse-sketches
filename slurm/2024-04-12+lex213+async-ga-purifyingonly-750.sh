@@ -1,17 +1,19 @@
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --mem=16G
-#SBATCH --time=0:20:00
+#SBATCH --mem=64G
+#SBATCH --time=4:00:00
+#SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --array=1-4
 
 set -e
 
 cd "$(dirname "$0")"
 
-WSE_SKETCHES_REVISION="9675beab54082a43b888eb532780abdf731e466b"
+WSE_SKETCHES_REVISION="2db3610680cc2adfae9951ddeb2ccb7df52f68f9"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
-WORKDIR="${HOME}/2024-04-10/lex10+async-ga-3x3"
+WORKDIR="${HOME}/2024-04-12/lex213+async-ga-purifyingonly-750---${SLURM_ARRAY_TASK_ID}"
 echo "WORKDIR ${WORKDIR}"
 
 export CSLC="${CSLC:-cslc}"
@@ -39,10 +41,26 @@ echo "ASYNC_GA_FABRIC_DIMS ${ASYNC_GA_FABRIC_DIMS}"
 export ASYNC_GA_ARCH_FLAG="--arch=wse2"
 echo "ASYNC_GA_ARCH_FLAG ${ASYNC_GA_ARCH_FLAG}"
 
-export ASYNC_GA_GENOME_FLAVOR="${ASYNC_GA_GENOME_FLAVOR:-genome_purifyingplus}"
+export ASYNC_GA_GENOME_FLAVOR="genome_purifyingonly"
 echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-4}"
 echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
+
+export ASYNC_GA_NCOL=750
+echo "ASYNC_GA_NCOL ${ASYNC_GA_NCOL}"
+
+export ASYNC_GA_NROW=750
+echo "ASYNC_GA_NROW ${ASYNC_GA_NROW}"
+
+export ASYNC_GA_MSEC_AT_LEAST=0
+echo "ASYNC_GA_MSEC_AT_LEAST ${ASYNC_GA_MSEC_AT_LEAST}"
+
+export ASYNC_GA_NCYCLE_AT_LEAST=1000000
+echo "ASYNC_GA_NCYCLE_AT_LEAST ${ASYNC_GA_NCYCLE_AT_LEAST}"
+
+export ASYNC_GA_GLOBAL_SEED="${SLURM_ARRAY_TASK_ID}"
+echo "ASYNC_GA_GLOBAL_SEED ${ASYNC_GA_GLOBAL_SEED}"
+
 
 echo "do kernel compile ======================================================"
 ./kernel-async-ga/compile.sh
@@ -60,8 +78,10 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --gres=cs:cerebras:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=0:05:00
+#SBATCH --mem=32G
+#SBATCH --time=0:15:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --exclude=sdf-2
 
 set -e
 # newgrp GRANT_ID
@@ -90,10 +110,6 @@ export ASYNC_GA_NWAV="${ASYNC_GA_NWAV}"
 echo "ASYNC_GA_NWAV \${ASYNC_GA_NWAV}"
 export ASYNC_GA_EXECUTE_FLAGS="--cmaddr \${CS_IP_ADDR}:9000 --no-suptrace"
 echo "ASYNC_GA_EXECUTE_FLAGS \${ASYNC_GA_EXECUTE_FLAGS}"
-export ASYNC_GA_MSEC_AT_LEAST="${ASYNC_GA_MSEC_AT_LEAST:-0}"
-echo "ASYNC_GA_MSEC_AT_LEAST \${ASYNC_GA_MSEC_AT_LEAST}"
-export ASYNC_GA_NCYCLE_AT_LEAST="${ASYNC_GA_NCYCLE_AT_LEAST:-100000}"
-echo "ASYNC_GA_NCYCLE_AT_LEAST \${ASYNC_GA_NCYCLE_AT_LEAST}"
 
 echo "setup WORKDIR ----------------------------------------------------------"
 cd "${WORKDIR}"
