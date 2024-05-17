@@ -81,15 +81,15 @@ test "test_get_nth_segment_position" {
             const shift: u5 = @intCast(s - 1);
             var segment_first_bin_number: u32 = if (s > 0) temp << shift else 0;
             try expect( // zig fmt: off
-                steady.get_nth_segment_position(s, surface_size)  // zig fmt: off
-                == bin_positions.items[segment_first_bin_number]  // zig fmt: off
+                steady.get_nth_segment_position(s, surface_size) // zig fmt: off
+                == bin_positions.items[segment_first_bin_number] // zig fmt: off
             );
         }
 
         if (surface_size > 2) {
-            try expect(  // zig fmt: off
-                steady.get_nth_segment_position(num_segments - 1, surface_size)  // zig fmt: off
-                == surface_size - surface_size / 4 - 1  // zig fmt: off
+            try expect( // zig fmt: off
+                steady.get_nth_segment_position(num_segments - 1, surface_size) // zig fmt: off
+                == surface_size - surface_size / 4 - 1 // zig fmt: off
             );
         }
     }

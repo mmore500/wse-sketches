@@ -123,8 +123,8 @@ pub fn bit_count_immediate_zeros(x: u32) u32 {
     const bitLen = @bitSizeOf(u32) - @clz(x);
     const droppedMsb = bit_drop_msb(x);
     const droppedMsbLen = ( // zig fmt: off
-        if (droppedMsb == 0) 0  // zig fmt: off
-        else @bitSizeOf(u32) - @clz(droppedMsb)  // zig fmt: off
+        if (droppedMsb == 0) 0 // zig fmt: off
+        else @bitSizeOf(u32) - @clz(droppedMsb) // zig fmt: off
     );
     return bitLen - droppedMsbLen - 1;
 }
