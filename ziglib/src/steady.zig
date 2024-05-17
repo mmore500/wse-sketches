@@ -118,7 +118,7 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     std.debug.assert(ansatzSegmentFromEnd < get_num_segments(surfaceSize));
 
     const ansatzSegment = get_num_segments(surfaceSize) - 1 - ansatzSegmentFromEnd;
-    std.debug.assert(ansatzSegment < get_num_segments(surfaceSize) - 1);
+    std.debug.assert(ansatzSegment < (get_num_segments(surfaceSize) - 1));
 
     var correction: u32 = @intFromBool(
         position < get_nth_segment_position(ansatzSegment, surfaceSize)
