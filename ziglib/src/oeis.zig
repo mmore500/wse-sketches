@@ -41,7 +41,10 @@ pub fn get_a083058_index_of_value(value: u32) u32 {
     std.debug.assert(value >= 1);
 
     const valueBitLength = pylib.bit_length(value);
-    const correction: bool = (pylib.bit_ceil(value) - value) <= valueBitLength and (pylib.bit_ceil(value) - value) > 0;
+    const correction: bool = (
+        (pylib.bit_ceil(value) - value) <= valueBitLength
+        and (pylib.bit_ceil(value) - value) > 0
+    );
     const first: u32 = @intCast(value <= 2);
     const second: u32 = @intCast(correction);
     return value + valueBitLength + first + second;

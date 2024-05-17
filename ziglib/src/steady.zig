@@ -81,7 +81,12 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
     );
 
     std.debug.assert(completed_bins >= m / 2 and completed_bins <= m);
-    const completed_segments = 1 + (32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)); // Include 0th segment.
+    // Include 0th segment.
+    const completed_segments = 1 + (
+        32
+        - @clz(completed_bins)
+        - pylib.bit_count_immediate_zeros(completed_bins)
+    );
 
     var position = get_nth_segment_position(completed_segments, surface_size);
 
@@ -130,7 +135,8 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     return ansatzSegmentFromEnd + 1 + correction;
 }
 
-/// Assumes that surface_size is a power of two and that position is less than surface_size - 1 (excluding special-cased position zero).
+/// Assumes that surface_size is a power of two and that position is less than surface_size - 1
+/// (excluding special-cased position zero).
 pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
     const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
     std.debug.assert(bit_count == 1);
