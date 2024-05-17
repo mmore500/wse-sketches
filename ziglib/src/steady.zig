@@ -121,7 +121,7 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     std.debug.assert(ansatzSegment < get_num_segments(surfaceSize) - 1);
 
     var correction: u32 = @intCast(position < get_nth_segment_position(ansatzSegment, surfaceSize));
-    const eligibleExtraCorrection = leadingOnes == oeis.get_a083058_value_at_index(A083058Index + 1);
+    const eligibleExtraCorrection = leadingOnes == oeis.get_a083058_value_at_index(a083058Index + 1);
     if (eligibleExtraCorrection) {
         correction += @intCast(position < get_nth_segment_position(ansatzSegment - 1, surfaceSize));
     }
