@@ -25,9 +25,7 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
     std.debug.assert(n < get_num_segments(surface_size));
     var m = n;
 
-    if (n == 0) {
-        return 0;
-    }
+    if (n == 0) return 0;
 
     const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
     std.debug.assert(bit_count == 1);
@@ -44,7 +42,6 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
     position += (lhs << mu5) * mbw - mbw;
 
     position -= m * (lhs << mu5) + 2 - (lhs << (mu5 + 1));
-
     return position;
 }
 
@@ -53,7 +50,6 @@ pub fn get_nth_segment_bin_width(n: u32, surface_size: u32) u32 {
     std.debug.assert(n < get_num_segments(surface_size));
 
     const bit_length = pylib.bit_length(surface_size);
-
     std.debug.assert(bit_length - 1 == get_nth_bin_width(0, surface_size));
 
     return bit_length - n - 1;
@@ -65,12 +61,8 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
     const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
     std.debug.assert(bit_count == 1);
 
-    if (n == 0) {
-        return 0;
-    }
-
+    if (n == 0) return 0;
     var m = n;
-
     m -= 1;
 
     const completed_bins = pylib.bit_floor(m + 1) - 1;
@@ -79,7 +71,6 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
         32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)
         == pylib.bit_length(completed_bins)
     );
-
     std.debug.assert(completed_bins >= m / 2 and completed_bins <= m);
     // Include 0th segment.
     const completed_segments = 1 + (
@@ -126,7 +117,6 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     std.debug.assert(ansatzSegment < get_num_segments(surfaceSize) - 1);
 
     var correction: u32 = @intCast(position < get_nth_segment_position(ansatzSegment, surfaceSize));
-
     const eligibleExtraCorrection = leadingOnes == oeis.get_a083058_value_at_index(A083058Index + 1);
     if (eligibleExtraCorrection) {
         correction += @intCast(position < get_nth_segment_position(ansatzSegment - 1, surfaceSize));
@@ -146,9 +136,7 @@ pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
     const first_bin_width = get_nth_bin_width(0, surface_size);
     const bin_segment_number = first_bin_width - bin_width;
 
-    if (bin_segment_number == 0) {
-        return 0;
-    }
+    if (bin_segment_number == 0) return 0;
 
     const one: u32 = 1;
     const shift: u5 = @intCast(first_bin_width - bin_width - 1);
