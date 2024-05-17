@@ -118,11 +118,11 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     const ansatzSegment = get_num_segments(surfaceSize) - 1 - ansatzSegmentFromEnd;
     std.debug.assert(ansatzSegment < get_num_segments(surfaceSize) - 1);
 
-    var correction: u32 = if (position < get_nth_segment_position(ansatzSegment, surfaceSize)) 1 else 0;
+    var correction: u32 = @intCast(position < get_nth_segment_position(ansatzSegment, surfaceSize));
 
     const eligibleExtraCorrection = leadingOnes == oeis.get_a083058_value_at_index(A083058Index + 1);
     if (eligibleExtraCorrection) {
-        correction += if (position < get_nth_segment_position(ansatzSegment - 1, surfaceSize)) 1 else 0;
+        correction += @intCast(position < get_nth_segment_position(ansatzSegment - 1, surfaceSize));
     }
 
     return ansatzSegmentFromEnd + 1 + correction;
