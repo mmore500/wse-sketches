@@ -208,3 +208,17 @@ test "test_get_bin_number_of_position" {
         surface_size <<= 1; // Double surface_size to get next power of 2
     }
 }
+
+test "pick deposition site smoke test" {
+    const surface_sizes = [_]u32{ 8, 16, 32, 64, 128 };
+    for (surface_sizes) |surface_size| {
+        for (0..301) |rank| {
+            const deposit_site = steady.pick_deposition_site(
+                @intCast(rank), surface_size
+            );
+            try std.testing.expect(
+                deposit_site >= 0 and deposit_site < surface_size
+            );
+        }
+    }
+}
