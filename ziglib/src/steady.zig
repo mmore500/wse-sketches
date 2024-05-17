@@ -38,7 +38,6 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
     const m: u5 = @intCast(n - 1);
 
     position += (lhs << mu5) * mbw - mbw;
-
     position -= m * (lhs << m) + 2 - (lhs << (m + 1));
     return position;
 }
@@ -152,6 +151,5 @@ pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
     std.debug.assert(bin_segment_first_bin_position <= position);
 
     const bin_number_within_segment = (position - bin_segment_first_bin_position) / bin_width;
-
     return bin_segment_first_bin_number + bin_number_within_segment;
 }
