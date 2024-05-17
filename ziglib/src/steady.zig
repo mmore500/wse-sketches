@@ -1,5 +1,4 @@
 const std = @import("std");
-const assert = std.debug.assert;
 const pylib = @import("pylib.zig");
 const oeis = @import("oeis.zig");
 
@@ -22,8 +21,8 @@ pub fn get_nth_bin_width(n: u32, surface_size: u32) u32 {
 }
 
 pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
-    assert(n >= 0);
-    assert(n < get_num_segments(surface_size));
+    std.debug.assert(n >= 0);
+    std.debug.assert(n < get_num_segments(surface_size));
     var m = n;
 
     if (n == 0) {
@@ -31,9 +30,9 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
     }
 
     const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
-    assert(bit_count == 1);
+    std.debug.assert(bit_count == 1);
     const mbw_initial = @ctz(surface_size);
-    assert(mbw_initial == get_nth_bin_width(0, surface_size));
+    std.debug.assert(mbw_initial == get_nth_bin_width(0, surface_size));
 
     var position: u32 = mbw_initial;
     var mbw: u32 = mbw_initial - 1;
@@ -50,21 +49,21 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
 }
 
 pub fn get_nth_segment_bin_width(n: u32, surface_size: u32) u32 {
-    assert(n >= 0);
-    assert(n < get_num_segments(surface_size));
+    std.debug.assert(n >= 0);
+    std.debug.assert(n < get_num_segments(surface_size));
 
     const bit_length = pylib.bit_length(surface_size);
 
-    assert(bit_length - 1 == get_nth_bin_width(0, surface_size));
+    std.debug.assert(bit_length - 1 == get_nth_bin_width(0, surface_size));
 
     return bit_length - n - 1;
 }
 
 pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
-    assert(n >= 0);
-    assert(n < get_num_bins(surface_size));
+    std.debug.assert(n >= 0);
+    std.debug.assert(n < get_num_bins(surface_size));
     const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
-    assert(bit_count == 1);
+    std.debug.assert(bit_count == 1);
 
     if (n == 0) {
         return 0;
@@ -76,9 +75,12 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
 
     const completed_bins = pylib.bit_floor(m + 1) - 1;
 
-    assert(32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins) == pylib.bit_length(completed_bins));
+    std.debug.assert(
+        32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)
+        == pylib.bit_length(completed_bins)
+    );
 
-    assert(completed_bins >= m / 2 and completed_bins <= m);
+    std.debug.assert(completed_bins >= m / 2 and completed_bins <= m);
     const completed_segments = 1 + (32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)); // Include 0th segment.
 
     var position = get_nth_segment_position(completed_segments, surface_size);
@@ -131,8 +133,8 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
 /// Assumes that surface_size is a power of two and that position is less than surface_size - 1 (excluding special-cased position zero).
 pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
     const bit_count = 32 - @clz(surface_size) - pylib.bit_count_immediate_zeros(surface_size);
-    assert(bit_count == 1);
-    assert(position < surface_size - 1);
+    std.debug.assert(bit_count == 1);
+    std.debug.assert(position < surface_size - 1);
 
     const bin_width = get_bin_width_at_position(position, surface_size);
     const first_bin_width = get_nth_bin_width(0, surface_size);
@@ -145,12 +147,18 @@ pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
     const one: u32 = 1;
     const shift: u5 = @intCast(first_bin_width - bin_width - 1);
     const bin_segment_first_bin_number = one << shift;
-    assert(get_nth_bin_width(bin_segment_first_bin_number, surface_size) == bin_width);
-    assert(bin_segment_first_bin_number != 0);
-    assert(get_nth_bin_width(bin_segment_first_bin_number - 1, surface_size) == bin_width + 1);
+    std.debug.assert(
+        get_nth_bin_width(bin_segment_first_bin_number, surface_size)
+        == bin_width
+    );
+    std.debug.assert(bin_segment_first_bin_number != 0);
+    std.debug.assert(
+        get_nth_bin_width(bin_segment_first_bin_number - 1, surface_size) 
+        == bin_width + 1
+    );
 
     const bin_segment_first_bin_position = get_nth_bin_position(bin_segment_first_bin_number, surface_size);
-    assert(bin_segment_first_bin_position <= position);
+    std.debug.assert(bin_segment_first_bin_position <= position);
 
     const bin_number_within_segment = (position - bin_segment_first_bin_position) / bin_width;
 
