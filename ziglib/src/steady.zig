@@ -41,7 +41,7 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
     const lhs: u32 = 1;
     const m: u5 = @intCast(n - 1);
 
-    position += (lhs << mu5) * mbw - mbw;
+    position += (lhs << m) * mbw - mbw;
     position -= m * (lhs << m) + 2 - (lhs << (m + 1));
     return position;
 }
