@@ -31,3 +31,21 @@ pub fn get_a000295_index_of_value(v: u32) u32 {
 pub fn get_a048881_value_at_index(n: u32) u32 {
     return @popCount(n + 1) - 1;
 }
+
+pub fn get_a083058_value_at_index(n: u32) u32 {
+    const add: u32 = @intFromBool(n == 1);
+    return n - pylib.bit_length(n) + add;
+}
+
+pub fn get_a083058_index_of_value(value: u32) u32 {
+    std.debug.assert(value >= 1);
+
+    const valueBitLength = pylib.bit_length(value);
+    const correction: bool = ( // zig fmt: off
+        (pylib.bit_ceil(value) - value) <= valueBitLength // zig fmt: off
+        and (pylib.bit_ceil(value) - value) > 0 // zig fmt: off
+    );
+    const first: u32 = @intFromBool(value <= 2);
+    const second: u32 = @intFromBool(correction);
+    return value + valueBitLength + first + second;
+}

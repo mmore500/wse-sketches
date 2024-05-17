@@ -158,3 +158,107 @@ test "fast_pow2_divide comprehensive tests" {
         try std.testing.expectEqual(pylib.fast_pow2_divide(test_case.dividend, test_case.divisor), test_case.expected);
     }
 }
+
+const A290255 = [_]u32{ 0, 1, 0, 2, 1, 0, 0, 3, 2, 1, 1, 0, 0, 0, 0, 4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+fn bit_count_immediate_zeros_reference(num: u32) u32 {
+    var count: u32 = 0;
+    var foundOne: bool = false;
+    var mask: u32 = 1 << 31;
+
+    while (mask != 0) {
+        if ((num & mask) != 0) {
+            if (foundOne) {
+                break;
+            }
+            foundOne = true;
+        } else if (foundOne) {
+            count += 1;
+        }
+        mask = mask >> 1;
+    }
+    if (foundOne) {
+        return count;
+    } else {
+        return 0;
+    }
+}
+
+test "bit_count_immediate_zeros_reference sequence tests" {
+    inline for (A290255, 0..) |expected, index| {
+        const n = index + 1;
+        const calculated = bit_count_immediate_zeros_reference(n);
+        try std.testing.expectEqual(expected, calculated);
+    }
+}
+
+test "bit_count_immediate_zeros_reference_implementation" {
+    const testIndices = [_]u32{ 0, 1, 2, 3, 4, 1023, 1024, 2047, 2048, 0xFFFF_FFFE, 0xFFFF_FFFF };
+
+    for (testIndices) |n| {
+        const result1 = pylib.bit_count_immediate_zeros(n);
+        const result2 = bit_count_immediate_zeros_reference(n);
+        try std.testing.expectEqual(result1, result2);
+    }
+}
+
+test "test_bit_invert_known_values" {
+    const TestCase = struct {
+        n: u32,
+        expected: u32,
+    };
+
+    const cases = [_]TestCase{
+        TestCase{ .n = 0b0, .expected = 0b0 },
+        TestCase{ .n = 0b1, .expected = 0b0 },
+        TestCase{ .n = 0b10, .expected = 0b1 },
+        TestCase{ .n = 0b11, .expected = 0b0 },
+        TestCase{ .n = 0b100, .expected = 0b11 },
+        TestCase{ .n = 0b101, .expected = 0b10 },
+        TestCase{ .n = 0b110, .expected = 0b1 },
+        TestCase{ .n = 0b111, .expected = 0b0 },
+        TestCase{ .n = 0b1000, .expected = 0b111 },
+        TestCase{ .n = 0b1001, .expected = 0b110 },
+        TestCase{ .n = 0b1010, .expected = 0b101 },
+        TestCase{ .n = 0b1011, .expected = 0b100 },
+        TestCase{ .n = 0b1100, .expected = 0b11 },
+        TestCase{ .n = 0b1101, .expected = 0b10 },
+        TestCase{ .n = 0b1110, .expected = 0b1 },
+        TestCase{ .n = 0b1111, .expected = 0b0 },
+        TestCase{ .n = 0b10000, .expected = 0b1111 },
+        TestCase{ .n = 0b100000, .expected = 0b11111 },
+        TestCase{ .n = 0b1000000, .expected = 0b111111 },
+        TestCase{ .n = 0b10000000, .expected = 0b1111111 },
+        TestCase{ .n = 0b100000000, .expected = 0b11111111 },
+    };
+
+    for (cases) |test_case| {
+        const result = pylib.bit_invert(test_case.n);
+        try std.testing.expect(result == test_case.expected);
+    }
+}
+
+test "test_bit_count_leading_ones" {
+    const TestCase = struct {
+        n: u32,
+        expected: u32,
+    };
+
+    const testCases = [_]TestCase{
+        TestCase{ .n = 0b0, .expected = 0 },
+        TestCase{ .n = 0b1, .expected = 1 },
+        TestCase{ .n = 0b11, .expected = 2 },
+        TestCase{ .n = 0b111, .expected = 3 },
+        TestCase{ .n = 0b101, .expected = 1 },
+        TestCase{ .n = 0b1001, .expected = 1 },
+        TestCase{ .n = 0b1011, .expected = 1 },
+        TestCase{ .n = 0b1101, .expected = 2 },
+        TestCase{ .n = 0b11110000, .expected = 4 },
+        TestCase{ .n = 0b10000000, .expected = 1 },
+    };
+
+    for (testCases) |testCase| {
+        const result = pylib.bit_count_leading_ones(testCase.n);
+        try std.testing.expectEqual(testCase.expected, result);
+    }
+}
