@@ -100,13 +100,13 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     }
 
     const leadingOnes = pylib.bit_count_leading_ones(positionFromEnd);
-    const A083058Index = oeis.get_a083058_index_of_value(leadingOnes);
-    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index) == leadingOnes);
-    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index - 1) < leadingOnes);
-    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index + 1) >= leadingOnes);
-    std.debug.assert(oeis.get_a083058_value_at_index(A083058Index + 2) > leadingOnes);
+    const a083058Index = oeis.get_a083058_index_of_value(leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(a083058Index) == leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(a083058Index - 1) < leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(a083058Index + 1) >= leadingOnes);
+    std.debug.assert(oeis.get_a083058_value_at_index(a083058Index + 2) > leadingOnes);
 
-    const ansatzSegmentFromEnd = A083058Index - 2;
+    const ansatzSegmentFromEnd = a083058Index - 2;
     std.debug.assert(ansatzSegmentFromEnd < get_num_segments(surfaceSize));
 
     const ansatzSegment = get_num_segments(surfaceSize) - 1 - ansatzSegmentFromEnd;
