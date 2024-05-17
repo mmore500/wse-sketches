@@ -33,7 +33,7 @@ pub fn get_a048881_value_at_index(n: u32) u32 {
 }
 
 pub fn get_a083058_value_at_index(n: u32) u32 {
-    const add: u32 = @intCast(n == 1);
+    const add: u32 = @intFromBool(n == 1);
     return n - pylib.bit_length(n) + add;
 }
 
@@ -45,7 +45,7 @@ pub fn get_a083058_index_of_value(value: u32) u32 {
         (pylib.bit_ceil(value) - value) <= valueBitLength
         and (pylib.bit_ceil(value) - value) > 0
     );
-    const first: u32 = @intCast(value <= 2);
-    const second: u32 = @intCast(correction);
+    const first: u32 = @intFromBool(value <= 2);
+    const second: u32 = @intFromBool(correction);
     return value + valueBitLength + first + second;
 }
