@@ -27,7 +27,7 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
     if (n == 0) return 0;
 
     const bit_count = ( // zig fmt: on
-        32  // zig fmt: off
+        32 // zig fmt: off
         - @clz(surface_size)  // zig fmt: off
         - pylib.bit_count_immediate_zeros(surface_size)  // zig fmt: off
     );
