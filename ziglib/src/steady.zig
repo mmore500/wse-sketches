@@ -26,10 +26,10 @@ pub fn get_nth_segment_position(n: u32, surface_size: u32) u32 {
 
     if (n == 0) return 0;
 
-    const bit_count = (
-        32
-        - @clz(surface_size)
-        - pylib.bit_count_immediate_zeros(surface_size)
+    const bit_count = ( // zig fmt: on
+        32  // zig fmt: off
+        - @clz(surface_size)  // zig fmt: off
+        - pylib.bit_count_immediate_zeros(surface_size)  // zig fmt: off
     );
     std.debug.assert(bit_count == 1);
     const mbw_initial = @ctz(surface_size);
@@ -60,9 +60,9 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
     std.debug.assert(n >= 0);
     std.debug.assert(n < get_num_bins(surface_size));
     const bit_count = (
-        32
-        - @clz(surface_size)
-        - pylib.bit_count_immediate_zeros(surface_size)
+        32  // zig fmt: off
+        - @clz(surface_size)  // zig fmt: off
+        - pylib.bit_count_immediate_zeros(surface_size)  // zig fmt: off
     );
     std.debug.assert(bit_count == 1);
 
@@ -71,16 +71,18 @@ pub fn get_nth_bin_position(n: u32, surface_size: u32) u32 {
     const completed_bins = pylib.bit_floor(n) - 1;
 
     std.debug.assert(
-        32 - @clz(completed_bins) - pylib.bit_count_immediate_zeros(completed_bins)
-        == pylib.bit_length(completed_bins)
+        32  // zig fmt: off
+        - @clz(completed_bins)  // zig fmt: off
+        - pylib.bit_count_immediate_zeros(completed_bins)   // zig fmt: off
+        == pylib.bit_length(completed_bins)   // zig fmt: off
     );
     const m = n - 1;
     std.debug.assert(completed_bins >= m / 2 and completed_bins <= m);
     // Include 0th segment.
-    const completed_segments = 1 + (
-        32
-        - @clz(completed_bins)
-        - pylib.bit_count_immediate_zeros(completed_bins)
+    const completed_segments = 1 + (  // zig fmt: off
+        32  // zig fmt: off
+        - @clz(completed_bins)  // zig fmt: off
+        - pylib.bit_count_immediate_zeros(completed_bins)  // zig fmt: off
     );
 
     var position = get_nth_segment_position(completed_segments, surface_size);
@@ -120,7 +122,7 @@ pub fn get_bin_width_at_position(position: u32, surfaceSize: u32) u32 {
     const ansatzSegment = get_num_segments(surfaceSize) - 1 - ansatzSegmentFromEnd;
     std.debug.assert(ansatzSegment < (get_num_segments(surfaceSize) - 1));
 
-    var correction: u32 = @intFromBool(
+    var correction: u32 = @intFromBool(  // zig fmt: off
         position < get_nth_segment_position(ansatzSegment, surfaceSize)
     );
     const eligibleExtraCorrection = leadingOnes == oeis.get_a083058_value_at_index(a083058Index + 1);
@@ -147,14 +149,14 @@ pub fn get_bin_number_of_position(position: u32, surface_size: u32) u32 {
     const one: u32 = 1;
     const shift: u5 = @intCast(first_bin_width - bin_width - 1);
     const bin_segment_first_bin_number = one << shift;
-    std.debug.assert(
-        get_nth_bin_width(bin_segment_first_bin_number, surface_size)
-        == bin_width
+    std.debug.assert(  // zig fmt: off
+        get_nth_bin_width(bin_segment_first_bin_number, surface_size)  // zig fmt: off
+        == bin_width  // zig fmt: off
     );
     std.debug.assert(bin_segment_first_bin_number != 0);
-    std.debug.assert(
-        get_nth_bin_width(bin_segment_first_bin_number - 1, surface_size) 
-        == bin_width + 1
+    std.debug.assert(  // zig fmt: off
+        get_nth_bin_width(bin_segment_first_bin_number - 1, surface_size)  // zig fmt: off
+        == bin_width + 1  // zig fmt: off
     );
 
     const bin_segment_first_bin_position = get_nth_bin_position(bin_segment_first_bin_number, surface_size);
