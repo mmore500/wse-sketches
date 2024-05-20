@@ -518,7 +518,7 @@ task cycleTask(_: u16) void {
     @mov16(cycleDsd, 0);  // send wavelet to self, trigger next cycle
   } else {
     time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
-    memcpy.unblock_cmd_stream();  // terminate
+    @mov16(closeoutCycleDsd, 0);  // send wavelet to self, trigger closeout cycle
  }
 }
 
