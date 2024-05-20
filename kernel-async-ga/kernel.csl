@@ -531,7 +531,7 @@ task cycleTask(_: u16) void {
 // numbers of cycles on different PEs at launch to desynchronize them at startup
 fn desync() void { for (@range(u16, @random16() % 256)) |i| { @random16(); } }
 
-fn dolaunch() void { // launched by RPC (remote procedure call)
+fn dolaunch() void {  // launched by RPC (remote procedure call)
   time.enable_tsc();
   // record layout params for telemetry
   x = @as(i16, layout_module.get_x_coord());
