@@ -120,18 +120,26 @@ const recvFinalizeTaskID_S: local_task_id = @get_local_task_id(15);
 const recvFinalizeTaskID_E: local_task_id = @get_local_task_id(16);
 const recvFinalizeTaskID_W: local_task_id = @get_local_task_id(17);
 
+const recvCloseoutTaskID: local_task_id = @get_local_task_id(18);
+const closeoutCycleColor: color = @get_color(19);
+const closeoutCycleTaskID: data_task_id = @get_data_task_id(closeoutCycleColor);
+
+// available: 20, 24, 25, 26, 32, 33, 34, 35
+// reserved (memcpy): 21, 22, 23, 27, 28, 30
+// reserved: 29, 31
+
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
 // NOTE: N/S share a queue, so alternate sends; queue 0 is reserved for memcpy
-const q_out_N: i16 = 3;  // input/output queue allocations are kind of fiddly
-const q_out_S: i16 = 3;  // some hardware queues listed in docs seem to be
+const q_out_N: i16 = 0;  // input/output queue allocations are kind of fiddly
+const q_out_S: i16 = 1;  // some hardware queues listed in docs seem to be
 const q_out_E: i16 = 2;  // already in use (maybe by memcpy?)
-const q_out_W: i16 = 1;  // but these seem to work
+const q_out_W: i16 = 3;  // but these seem to work
 
-const q_in_N: i16 = 7;
-const q_in_S: i16 = 6;
-const q_in_E: i16 = 5;
-const q_in_W: i16 = 4;
+const q_in_N: i16 = 4;
+const q_in_S: i16 = 5;
+const q_in_E: i16 = 6;
+const q_in_W: i16 = 7;
 
 ///////////////////////////////////////////////////////////////////////////////
 // ============================================================================
@@ -277,6 +285,7 @@ fn dispatchRecv_N() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_N,  // callback on complete
+      .on_control = .{ .activate = recvCloseoutTaskID },
     },
   );
   recvCounter_N[0] += 1;  // counter only used for telemetry
@@ -304,6 +313,7 @@ fn dispatchRecv_S() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_S,  // callback on complete
+      .on_control = .{ .activate = recvCloseoutTaskID },
     },
   );
   recvCounter_S[0] += 1;  // counter only used for telemetry
@@ -331,6 +341,7 @@ fn dispatchRecv_E() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_E,  // callback on complete
+      .on_control = .{ .activate = recvCloseoutTaskID },
     },
   );
   recvCounter_E[0] += 1;  // counter only used for telemetry
@@ -357,10 +368,57 @@ fn dispatchRecv_W() void {
     .{
       .async = true,
       .activate = recvFinalizeTaskID_W,  // callback on complete
+      .on_control = .{ .activate = recvCloseoutTaskID },
     },
   );
   recvCounter_W[0] += 1;  // counter only used for telemetry
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// ============================================================================
+// closeout task
+// ============================================================================
+// when PEs' sends are complete, send closeout control signals to interrupt
+// neighbors' receives; once all PEs' receives are interrupted, terminate
+///////////////////////////////////////////////////////////////////////////////
+var closeoutRemaining: u8 = 0;  // configured in setup
+task recvCloseoutTask() void { closeoutRemaining -= 1; }
+
+// closeout NORTH =============================================================
+const sendCtrlDsd_N = @get_dsd(mem1d_dsd, .{
+  .extent = sendBufSize, .fabric_color = sendColor_N, .control = true,
+});
+fn closeoutSend_N() void { @mov32(sendCtrlDsd_N, 0); }
+
+// closeout SOUTH =============================================================
+const sendCtrlDsd_S = @get_dsd(mem1d_dsd, .{
+  .extent = sendBufSize, .fabric_color = sendColor_S, .control = true,
+});
+fn closeoutSend_S() void { @mov32(sendCtrlDsd_S, 0); }
+
+// closeout EAST =============================================================
+const sendCtrlDsd_E = @get_dsd(mem1d_dsd, .{
+  .extent = sendBufSize, .fabric_color = sendColor_E, .control = true,
+});
+fn closeoutSend_E() void { @mov32(sendCtrlDsd_E, 0); }
+
+// closeout WEST =============================================================
+const sendCtrlDsd_W = @get_dsd(mem1d_dsd, .{
+  .extent = sendBufSize, .fabric_color = sendColor_W, .control = true,
+});
+fn closeoutSend_W() void { @mov32(sendCtrlDsd_W, 0); }
+
+const closeoutCycleDsd = @get_dsd(fabout_dsd, .{
+  .extent = 1, .fabric_color = closeoutCycleColor,
+});
+task closeoutCycleTask(_: u16) void {
+  if (@as(bool, closeoutRemaining)) {
+    @mov16(closeoutCycleDsd, 0);  // send wavelet to self, trigger next cycle
+  } else {
+    memcpy.unblock_cmd_stream();  // terminate
+  }
+}
+///////////////////////////////////////////////////////////////////////////////
 
 // halt condition ============================================================
 fn shouldHalt(cycle: u32) bool {
@@ -431,37 +489,28 @@ task cycleTask(_: u16) void {
   // edit: found that randomizing works better to preserve long term stability
   const isEvenCycle: bool = @random16() & 1 == 0;
   const isOddCycle: bool = !isEvenCycle;
-  if (isEvenCycle and @as(bool, sendFlag_N)) {
-    // N/S share a queue, so alternate
-    if (y == nRow - 1) {
-      population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
-      dispatchSend_N();
-    } else {
-      population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
-      dispatchSend_S();
-    }  // except top row of PE array
+  if (isEvenCycle and @as(bool, sendFlag_N) and y != 0) {  // except top PE row
+    population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
+    dispatchSend_N();
     sendFlag_N = 0;  // open send request has been handled, unset flag
   }
-  if (isOddCycle and @as(bool, sendFlag_S)) {
-    // N/S share a queue, so alternate
-    if (y == 0) {
-      population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
-      dispatchSend_S();
-    } else {
-      population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
-      dispatchSend_N();
-    }  // except bottom row of PE array
+  if (isOddCycle and @as(bool, sendFlag_S) and y != nRow - 1) {
+    // except bottom PE row
+    population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
+    dispatchSend_S();
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
-  if (isEvenCycle and @as(bool, sendFlag_E)) {
+  if (isEvenCycle and @as(bool, sendFlag_E) and x != nCol - 1) {
+    // except right col of PE array
     population_.emigrate_genomes(sendBufDsd_E, sendNumGenomes);
+    dispatchSend_E();
     sendFlag_E = 0;  // open send request has been handled, unset flag
-    if (x != nCol - 1) dispatchSend_E();  // except right col of PE array
   }
-  if (isOddCycle and @as(bool, sendFlag_W)) {
+  if (isOddCycle and @as(bool, sendFlag_W) and x != 0) {
+    // except left col of PE array
     population_.emigrate_genomes(sendBufDsd_W, sendNumGenomes);
+    dispatchSend_W();
     sendFlag_W = 0;  // open send request has been handled, unset flag
-    if (x != 0) dispatchSend_W();  // except left col of PE array
   }
 
   // trigger next cycle
@@ -487,6 +536,12 @@ fn dolaunch() void { // launched by RPC (remote procedure call)
   // record layout params for telemetry
   x = @as(i16, layout_module.get_x_coord());
   y = @as(i16, layout_module.get_y_coord());
+  closeoutRemaining = (  // how many neighbors should confirm closeout?
+    @as(u8, y != 0)
+    + @as(u8, y != nRow - 1)
+    + @as(u8, x != 0)
+    + @as(u8, x != nCol - 1)
+  );
   whereami_x[0] = @as(u32, layout_module.get_x_coord());
   whereami_y[0] = @as(u32, layout_module.get_y_coord());
   whoami[0] = whereami_y[0] * @as(u32, nCol) + whereami_x[0];
@@ -520,6 +575,7 @@ comptime {
   @bind_local_task(recvFinalizeTask_E, recvFinalizeTaskID_E);
   @bind_local_task(recvFinalizeTask_W, recvFinalizeTaskID_W);
   @bind_data_task(cycleTask, cycleTaskID);
+  @bind_data_task(closeoutCycleTask, closeoutCycleTaskID);
 }
 
 // wavlet routing =============================================================
@@ -528,6 +584,10 @@ comptime {
   // RAMP means send from router into the computing elmeent or vice versa
   @set_local_color_config(  // make cycle task wavelet bounce back from router
     cycleColor,
+    .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
+  );
+  @set_local_color_config(  // make cycle task wavelet bounce back from router
+    closeoutCycleColor,
     .{ .routes = .{ .rx = .{ RAMP }, .tx = .{ RAMP } } },
   );
 
