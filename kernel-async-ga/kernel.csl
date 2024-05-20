@@ -433,10 +433,10 @@ task cycleTask(_: u16) void {
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N)) {
     // N/S share a queue, so alternate
-    if (y == nRow - 1) { 
+    if (y == nRow - 1) {
       population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
-      dispatchSend_N(); 
-    } else { 
+      dispatchSend_N();
+    } else {
       population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
       dispatchSend_S();
     }  // except top row of PE array
@@ -444,12 +444,12 @@ task cycleTask(_: u16) void {
   }
   if (isOddCycle and @as(bool, sendFlag_S)) {
     // N/S share a queue, so alternate
-    if (y == 0) { 
+    if (y == 0) {
       population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
-      dispatchSend_S(); 
-    } else { 
+      dispatchSend_S();
+    } else {
       population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
-      dispatchSend_N(); 
+      dispatchSend_N();
     }  // except bottom row of PE array
     sendFlag_S = 0;  // open send request has been handled, unset flag
   }
