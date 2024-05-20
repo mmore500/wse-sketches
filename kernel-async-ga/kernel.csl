@@ -150,13 +150,13 @@ const sendNumGenomes: u16 = 1;  // how many genomes to batch sending together?
 const sendBufSize: u16 = sendNumGenomes * genome_.gSize;
 
 // send NORTH =================================================================
-var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendFlag_N: u8 = 1;  // need refill? initialize 1 to request first fill
 var sendBuf_N = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_N[i],
 });
 
-// callback for when send is complete, set flag to trigger refill & next send
+// callback for when send is complete, set flag to request refill & next send
 task sendFinalizeTask_N() void { sendFlag_N = 1; sendCounter_N[0] += 1; }
 
 const sendDsd_N = @get_dsd(fabout_dsd, .{
@@ -175,13 +175,13 @@ fn dispatchSend_N() void {
 }
 
 // send SOUTH =================================================================
-var sendFlag_S: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendFlag_S: u8 = 1;  // need refill? initialize 1 to request first fill
 var sendBuf_S = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_S[i],
 });
 
-// callback for when send is complete, set flag to trigger refill & next send
+// callback for when send is complete, set flag to request refill & next send
 task sendFinalizeTask_S() void { sendFlag_S = 1; sendCounter_S[0] += 1; }
 
 const sendDsd_S = @get_dsd(fabout_dsd, .{
@@ -200,13 +200,13 @@ fn dispatchSend_S() void {
 }
 
 // send EAST =================================================================
-var sendFlag_E: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendFlag_E: u8 = 1;  // need refill? initialize 1 to request first fill
 var sendBuf_E = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_E[i],
 });
 
-// callback for when send is complete, set flag to trigger refill & next send
+// callback for when send is complete, set flag to request refill & next send
 task sendFinalizeTask_E() void { sendFlag_E = 1; sendCounter_E[0] += 1; }
 
 const sendDsd_E = @get_dsd(fabout_dsd, .{
@@ -225,13 +225,13 @@ fn dispatchSend_E() void {
 }
 
 // send WEST =================================================================
-var sendFlag_W: u8 = 1;  // need refill? initialize 1 to trigger first fill
+var sendFlag_W: u8 = 1;  // need refill? initialize 1 to request first fill
 var sendBuf_W = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_W[i],
 });
 
-// callback for when send is complete, set flag to trigger refill & next send
+// callback for when send is complete, set flag to request refill & next send
 task sendFinalizeTask_W() void { sendFlag_W = 1; sendCounter_W[0] += 1; }
 
 const sendDsd_W = @get_dsd(fabout_dsd, .{
@@ -261,14 +261,14 @@ const recvNumGenomes: u16 = 4;  // how many genomes to batch together?
 const recvBufSize: u16 = genome_.gSize * recvNumGenomes;
 
 // recv NORTH =================================================================
-var recvFlag_N: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvFlag_N: u8 = 0;  // need harvest? init 0 (startup does naked dispatchRecv)
 var recvBuf_N = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_N[i],
 });
 
 // callback when recv is complete, set flag to
-// 1) trigger immigration from recv buffer into pop and 2) open next recv
+// 1) trigger immigration from recv buffer into pop and 2) request next recv
 task recvFinalizeTask_N() void { recvFlag_N = 1; recvCounter_N[0] += 1; }
 
 const recvDsd_N = @get_dsd(fabin_dsd, .{
@@ -289,14 +289,14 @@ fn dispatchRecv_N() void {
 }
 
 // recv SOUTH =================================================================
-var recvFlag_S: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvFlag_S: u8 = 0;  // need harvest? init 0 (startup does naked dispatchRecv)
 var recvBuf_S = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_S[i],
 });
 
 // callback when recv is complete, set flag to
-// 1) trigger immigration from recv buffer into pop and 2) open next recv
+// 1) trigger immigration from recv buffer into pop and 2) request next recv
 task recvFinalizeTask_S() void { recvFlag_S = 1; recvCounter_S[0] += 1; }
 
 const recvDsd_S = @get_dsd(fabin_dsd, .{
@@ -317,14 +317,14 @@ fn dispatchRecv_S() void {
 }
 
 // recv EAST ==================================================================
-var recvFlag_E: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvFlag_E: u8 = 0;  // need harvest? init 0 (startup does naked dispatchRecv)
 var recvBuf_E = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_E[i],
 });
 
 // callback when recv is complete, set flag to
-// 1) trigger immigration from recv buffer into pop and 2) open next recv
+// 1) trigger immigration from recv buffer into pop and 2) request next recv
 task recvFinalizeTask_E() void { recvFlag_E = 1; recvCounter_E[0] += 1; }
 
 const recvDsd_E = @get_dsd(fabin_dsd, .{
@@ -345,14 +345,14 @@ fn dispatchRecv_E() void {
 }
 
 // recv WEST ==================================================================
-var recvFlag_W: u8 = 0;  // need harvest? init 0 (first, do naked dispatchRecv)
+var recvFlag_W: u8 = 0;  // need harvest? init 0 (startup does naked dispatchRecv)
 var recvBuf_W = @zeros([recvBufSize]u32);  // hold genomes being received
 const recvBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{recvBufSize} -> recvBuf_W[i],
 });
 
 // callback when recv is complete, set flag to
-// 1) trigger immigration from recv buffer into pop and 2) open next recv
+// 1) trigger immigration from recv buffer into pop and 2) request next recv
 task recvFinalizeTask_W() void { recvFlag_W = 1; recvCounter_W[0] += 1; }
 
 const recvDsd_W = @get_dsd(fabin_dsd, .{
