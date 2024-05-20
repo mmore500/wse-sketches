@@ -130,7 +130,6 @@ const closeoutCycleTaskID: data_task_id = @get_data_task_id(closeoutCycleColor);
 
 // queue IDs ==================================================================
 ///////////////////////////////////////////////////////////////////////////////
-// NOTE: N/S share a queue, so alternate sends; queue 0 is reserved for memcpy
 const q_out_N: i16 = 0;  // input/output queue allocations are kind of fiddly
 const q_out_S: i16 = 1;  // some hardware queues listed in docs seem to be
 const q_out_E: i16 = 2;  // already in use (maybe by memcpy?)
@@ -151,7 +150,6 @@ const sendNumGenomes: u16 = 1;  // how many genomes to batch sending together?
 const sendBufSize: u16 = sendNumGenomes * genome_.gSize;
 
 // send NORTH =================================================================
-// N/S share a queue, so they alternate; set flag 1 to start with N
 var sendFlag_N: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_N = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
@@ -177,8 +175,7 @@ fn dispatchSend_N() void {
 }
 
 // send SOUTH =================================================================
-// N/S share a queue, so they alternate; set flag 0 to start with N
-var sendFlag_S: u8 = 0;  // need refill? initialize 1 to trigger first fill
+var sendFlag_S: u8 = 1;  // need refill? initialize 1 to trigger first fill
 var sendBuf_S = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_S[i],
