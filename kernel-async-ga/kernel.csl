@@ -518,6 +518,10 @@ task cycleTask(_: u16) void {
     @mov16(cycleDsd, 0);  // send wavelet to self, trigger next cycle
   } else {
     time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
+    if (y != 0) { closeoutSend_N(); }
+    if (y != nRow - 1) { closeoutSend_S(); }
+    if (x != 0) { closeoutSend_E(); }
+    if (x != nCol - 1) { closeoutSend_W(); }
     @mov16(closeoutCycleDsd, 0);  // send wavelet to self, trigger closeout cycle
  }
 }
