@@ -440,11 +440,6 @@ const cycleDsd = @get_dsd(fabout_dsd, .{
     .fabric_color = cycleColor,
   },
 );
-const cooldownDsd = @get_dsd(fabout_dsd, .{
-    .extent = 1,
-    .fabric_color = cooldownColor,
-  },
-);
 task cycleTask(_: u16) void {
   // handle recv flags, pull recv buffer into pop and start next async recv
   // --------------------------------------------------------------------------
