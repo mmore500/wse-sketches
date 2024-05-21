@@ -445,23 +445,23 @@ task cycleTask(_: u16) void {
   // --------------------------------------------------------------------------
   if (@as(bool, recvFlag_N)) {  // has open recv request been filled?
     population_.immigrate_genomes(recvBufDsd_N, recvNumGenomes);
-    dispatchRecv_N();  // note: never-filled recv requests on PE array edges ok
     recvFlag_N = 0;  // open recv request has been handled, unset flag
+    dispatchRecv_N();  // note: never-filled recv requests on PE array edges ok
   }
   if (@as(bool, recvFlag_S)) {
     population_.immigrate_genomes(recvBufDsd_S, recvNumGenomes);
-    dispatchRecv_S();
     recvFlag_S = 0;  // open recv request has been handled, unset flag
+    dispatchRecv_S();
   }
   if (@as(bool, recvFlag_E)) {
     population_.immigrate_genomes(recvBufDsd_E, recvNumGenomes);
-    dispatchRecv_E();
     recvFlag_E = 0;  // open recv request has been handled, unset flag
+    dispatchRecv_E();
   }
   if (@as(bool, recvFlag_W)) {
     population_.immigrate_genomes(recvBufDsd_W, recvNumGenomes);
-    dispatchRecv_W();
     recvFlag_W = 0;  // open recv request has been handled, unset flag
+    dispatchRecv_W();
   }
 
   // apply replication/selection to population
@@ -483,26 +483,26 @@ task cycleTask(_: u16) void {
   const isOddCycle: bool = !isEvenCycle;
   if (isEvenCycle and @as(bool, sendFlag_N) and y != 0) {  // except top PE row
     population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
-    dispatchSend_N();
     sendFlag_N = 0;  // open send request has been handled, unset flag
+    dispatchSend_N();
   }
   if (isOddCycle and @as(bool, sendFlag_S) and y != nRow - 1) {
     // except bottom PE row
     population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
-    dispatchSend_S();
     sendFlag_S = 0;  // open send request has been handled, unset flag
+    dispatchSend_S();
   }
   if (isEvenCycle and @as(bool, sendFlag_E) and x != nCol - 1) {
     // except right col of PE array
     population_.emigrate_genomes(sendBufDsd_E, sendNumGenomes);
-    dispatchSend_E();
     sendFlag_E = 0;  // open send request has been handled, unset flag
+    dispatchSend_E();
   }
   if (isOddCycle and @as(bool, sendFlag_W) and x != 0) {
     // except left col of PE array
     population_.emigrate_genomes(sendBufDsd_W, sendNumGenomes);
-    dispatchSend_W();
     sendFlag_W = 0;  // open send request has been handled, unset flag
+    dispatchSend_W();
   }
 
   // trigger next cycle
