@@ -382,26 +382,26 @@ var closeoutRemaining: u8 = 0;  // configured in setup
 task recvCloseoutTask() void { closeoutRemaining -= 1; }
 
 // closeout NORTH =============================================================
-const sendCtrlDsd_N = @get_dsd(mem1d_dsd, .{
-  .extent = sendBufSize, .fabric_color = sendColor_N, .control = true,
+const sendCtrlDsd_N = @get_dsd(fabout_dsd, .{
+  .extent = 1, .fabric_color = sendColor_N, .control = true,
 });
 fn closeoutSend_N() void { @mov32(sendCtrlDsd_N, 0); }
 
 // closeout SOUTH =============================================================
-const sendCtrlDsd_S = @get_dsd(mem1d_dsd, .{
-  .extent = sendBufSize, .fabric_color = sendColor_S, .control = true,
+const sendCtrlDsd_S = @get_dsd(fabout_dsd, .{
+  .extent = 1, .fabric_color = sendColor_S, .control = true,
 });
 fn closeoutSend_S() void { @mov32(sendCtrlDsd_S, 0); }
 
 // closeout EAST =============================================================
-const sendCtrlDsd_E = @get_dsd(mem1d_dsd, .{
-  .extent = sendBufSize, .fabric_color = sendColor_E, .control = true,
+const sendCtrlDsd_E = @get_dsd(fabout_dsd, .{
+  .extent = 1, .fabric_color = sendColor_E, .control = true,
 });
 fn closeoutSend_E() void { @mov32(sendCtrlDsd_E, 0); }
 
 // closeout WEST =============================================================
-const sendCtrlDsd_W = @get_dsd(mem1d_dsd, .{
-  .extent = sendBufSize, .fabric_color = sendColor_W, .control = true,
+const sendCtrlDsd_W = @get_dsd(fabout_dsd, .{
+  .extent = 1, .fabric_color = sendColor_W, .control = true,
 });
 fn closeoutSend_W() void { @mov32(sendCtrlDsd_W, 0); }
 
