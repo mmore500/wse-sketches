@@ -84,7 +84,6 @@ fn test_fast_pow2_mod() void {
     @assert(pylib.fast_pow2_mod(0, 4) == 0);
 }
 
-
 fn do_test() void {
     test_bit_floor();
     test_bit_length();
