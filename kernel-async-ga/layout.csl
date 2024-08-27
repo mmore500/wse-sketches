@@ -4,6 +4,8 @@ param msecAtLeast: u32;
 param tscAtLeast: u32;
 param nRow: u16;
 param nCol: u16;
+param nRowSubgrid: u16;
+param nColSubgrid: u16;
 
 const popSize = 32;
 const tournSize = 5;
@@ -37,6 +39,8 @@ layout {
           .tscAtLeast = tscAtLeast,
           .nRow = nRow,
           .nCol = nCol,
+          .nRowSubgrid = nRowSubgrid,
+          .nColSubgrid = nColSubgrid,
           .popSize = popSize,
           .tournSize = tournSize,
           .globalSeed = globalSeed,

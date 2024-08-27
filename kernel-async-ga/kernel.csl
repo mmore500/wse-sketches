@@ -25,6 +25,8 @@ param msecAtLeast: u32;  // how many real-time milliseconds to run for?
 param tscAtLeast: u32;  // how many timestamp counter ticks to run for?
 param nRow: i16;  // how big is PE array?
 param nCol: i16;
+param nRowSubgrid: i16;  // if n, disable migration between PEs every n rows
+param nColSubgrid: i16;  // if n, disable migration between PEs every n cols
 param popSize: u16;  // how many genomes in each local population?
 param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
@@ -445,6 +447,16 @@ fn dolaunch() void {  // launched by RPC (remote procedure call)
   sendFlag_S = @as(u8, y != nRow - 1);  // except bottom row
   sendFlag_E = @as(u8, x != nCol - 1);  // except right col
   sendFlag_W = @as(u8, x != 0);  // except left col
+
+  // apply barrierEveryNth to disable migration between PEs
+  if (nRowSubgrid != 0) {
+    send_flag_N *= @as(u8, x % nRowSubgrid != 0);
+    send_flag_S *= @as(u8, x % nRowSubgrid != nRowSubgrid - 1);
+  }
+  if (nColSubgrid != 0) {
+    send_flag_E *= @as(u8, y % nColSubgrid != nColSubgrid - 1);
+    send_flag_W *= @as(u8, y % nColSubgrid != 0);
+  }
 
   // + 1 ensures nonzero local seed
   const localSeed = (
