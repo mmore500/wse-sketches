@@ -25,6 +25,8 @@ param msecAtLeast: u32;  // how many real-time milliseconds to run for?
 param tscAtLeast: u32;  // how many timestamp counter ticks to run for?
 param nRow: i16;  // how big is PE array?
 param nCol: i16;
+param nRowSubgrid: i16;  // if n, disable migration between PEs every n rows
+param nColSubgrid: i16;  // if n, disable migration between PEs every n cols
 param popSize: u16;  // how many genomes in each local population?
 param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
@@ -155,7 +157,7 @@ const sendNumGenomes: u16 = 1;  // how many genomes to batch sending together?
 const sendBufSize: u16 = sendNumGenomes * genome_.gSize;
 
 // send NORTH =================================================================
-var sendFlag_N: u8 = 1;  // need refill? initialize 1 to request first fill
+var sendFlag_N: u8; // need refill? initialized at startup
 var sendBuf_N = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_N = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_N[i], });
@@ -172,7 +174,7 @@ fn dispatchSend_N() void {  // open async microthread to send from sendBuf
 }
 
 // send SOUTH =================================================================
-var sendFlag_S: u8 = 1;  // need refill? initialize 1 to request first fill
+var sendFlag_S: u8; // need refill? initialized at startup
 var sendBuf_S = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_S = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_S[i], });
@@ -189,7 +191,7 @@ fn dispatchSend_S() void {  // open async microthread to send from sendBuf
 }
 
 // send EAST =================================================================
-var sendFlag_E: u8 = 1;  // need refill? initialize 1 to request first fill
+var sendFlag_E: u8; // need refill? initialized at startup
 var sendBuf_E = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_E = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_E[i], });
@@ -206,7 +208,7 @@ fn dispatchSend_E() void {  // open async microthread to send from sendBuf
 }
 
 // send WEST =================================================================
-var sendFlag_W: u8 = 1;  // need refill? initialize 1 to request first fill
+var sendFlag_W: u8; // need refill? initialized at startup
 var sendBuf_W = @zeros([sendBufSize]u32);  // hold genomes being sent
 const sendBufDsd_W = @get_dsd(mem1d_dsd, .{
   .tensor_access = |i|{sendBufSize} -> sendBuf_W[i], });
@@ -321,7 +323,7 @@ fn dispatchRecv_W() void { // open an async microthread to recv into recvBuf
 // when PEs' sends are complete, ensure all recvs are open
 // (or switched to ignore) and then terminate
 ///////////////////////////////////////////////////////////////////////////////
-var closeoutRemaining: u8 = 4;
+var closeoutRemaining: u8;  // set at startup
 fn closeoutSend() bool {
   if (@as(bool, sendFlag_N)) { sendFlag_N = 0; closeoutRemaining -= 1; }
   if (@as(bool, sendFlag_S)) { sendFlag_S = 0; closeoutRemaining -= 1; }
@@ -399,25 +401,19 @@ task cycleTask(_: u16) void {
 
   // handle send flags, load send buffer from pop and start next async send
   // --------------------------------------------------------------------------
-  // must stagger send requests, or else hardware simulation hangs
-  // (but only when both vertical AND horizontal exchange enabled)
-  // don't know why, but this is a workaround...
-  // edit: found that randomizing works better to preserve long term stability
-  const flip: bool = @random16() & 1 == 0; const flop: bool = !flip;
-  if (flip and @as(bool, sendFlag_N) and y != 0) {  // except top PE row
+  if (@as(bool, sendFlag_N)) {
     population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
     sendFlag_N = 0; dispatchSend_N();
   }
-  if (flop and @as(bool, sendFlag_S) and y != nRow - 1) { // except bottom row
+  if (@as(bool, sendFlag_S)) {
     population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
     sendFlag_S = 0; dispatchSend_S();
   }
-  if (flip and @as(bool, sendFlag_E) and x != nCol - 1) {  // except right col
-    // except right col of PE array
+  if (@as(bool, sendFlag_E)) {
     population_.emigrate_genomes(sendBufDsd_E, sendNumGenomes);
     sendFlag_E = 0; dispatchSend_E();
   }
-  if (flop and @as(bool, sendFlag_W) and x != 0) {  // except left col
+  if (@as(bool, sendFlag_W)) {
     population_.emigrate_genomes(sendBufDsd_W, sendNumGenomes);
     sendFlag_W = 0; dispatchSend_W();
   }
@@ -445,6 +441,26 @@ fn dolaunch() void {  // launched by RPC (remote procedure call)
   whereami_x[0] = @as(u32, layout_module.get_x_coord());
   whereami_y[0] = @as(u32, layout_module.get_y_coord());
   whoami[0] = whereami_y[0] * @as(u32, nCol) + whereami_x[0];
+
+  // initialize send flags to request first fill, except for edges
+  sendFlag_N = @as(u8, y != 0);  // except top PE row
+  sendFlag_S = @as(u8, y != nRow - 1);  // except bottom row
+  sendFlag_E = @as(u8, x != nCol - 1);  // except right col
+  sendFlag_W = @as(u8, x != 0);  // except left col
+
+  // apply barrierEveryNth to disable migration between PEs
+  if (nRowSubgrid != 0) {
+    sendFlag_N *= @as(u8, x % nRowSubgrid != 0);
+    sendFlag_S *= @as(u8, x % nRowSubgrid != nRowSubgrid - 1);
+  }
+  if (nColSubgrid != 0) {
+    sendFlag_E *= @as(u8, y % nColSubgrid != nColSubgrid - 1);
+    sendFlag_W *= @as(u8, y % nColSubgrid != 0);
+  }
+
+  //  how many active neighbors?
+  closeoutRemaining = sendFlag_N + sendFlag_S + sendFlag_E + sendFlag_W;
+
   // + 1 ensures nonzero local seed
   const localSeed = (
     @as(u32, globalSeed) * @as(u32, nRow) * @as(u32, nCol) + whoami[0] + 1
