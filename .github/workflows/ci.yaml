@@ -204,7 +204,7 @@ jobs:
           mkdir -p ~/apptainer
           # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
           echo "$HOME/apptainer/bin" >> $GITHUB_PATH
-          curl -s https://raw.githubusercontent.com/apptainer/apptainer/d77d6f1eb099855f284a482992140d5eeb18be8a/tools/install-unprivileged.sh | bash -s - ~/apptainer
+          curl -s https://raw.githubusercontent.com/apptainer/apptainer/03bb84afc90c9699816db2e2730b56f2d3501eff/tools/install-unprivileged.sh | bash -s - ~/apptainer
 
       - name: Test Apptainer
         run: |
