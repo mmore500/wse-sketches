@@ -3,7 +3,7 @@ const math = @import_module("<math>");
 const opsc = @import_module("cerebraslib/opscalar.csl");
 const pylib = @import_module("cerebraslib/pylib.csl");
 
-fn pick_deposition_site_(s: u32, T: u32) u32 {
+fn pick_deposition_site_(comptime s: u32, T: u32) u32 {
     const one = @as(u32, 1);
     const S = one << s; // Buffer size
     const t = math.max(pylib.bit_length(T), s) - s; // Current epoch
@@ -44,7 +44,7 @@ fn pick_deposition_site_(s: u32, T: u32) u32 {
     return k_b + h; // Calculate placement site...
 }
 
-fn pick_deposition_site(S: u32, T: u32) u32 {
-    const s = pylib.bit_length(S) - 1;
+fn pick_deposition_site(comptime S: u32, T: u32) u32 {
+    const s = comptime pylib.comptime_bit_length(S) - 1;
     return pick_deposition_site_(s, T);
 }
