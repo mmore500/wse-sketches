@@ -32,6 +32,25 @@ fn test_bit_length() void {
     @assert(pylib.bit_length(0x800A0000) == 32);
 }
 
+fn test_comptime_bit_length() void {
+    @assert(pylib.comptime_bit_length(0b0) == 0);
+    @assert(pylib.comptime_bit_length(0b1) == 1);
+    @assert(pylib.comptime_bit_length(0b10) == 2);
+    @assert(pylib.comptime_bit_length(0b11) == 2);
+
+    @assert(pylib.comptime_bit_length(0b101) == 3);
+    @assert(pylib.comptime_bit_length(0b111) == 3);
+    @assert(pylib.comptime_bit_length(0b1100) == 4);
+    @assert(pylib.comptime_bit_length(0b10000) == 5);
+
+    @assert(pylib.comptime_bit_length(0x7FFFFFFF) == 31);
+    @assert(pylib.comptime_bit_length(0x7FA0873F) == 31);
+
+    @assert(pylib.comptime_bit_length(0xFFFFFFFF) == 32);
+    @assert(pylib.comptime_bit_length(0x80000000) == 32);
+    @assert(pylib.comptime_bit_length(0x800A0000) == 32);
+}
+
 fn test_fast_pow2_divide() void {
     @assert(pylib.fast_pow2_divide(16, 4) == 4);
     @assert(pylib.fast_pow2_divide(17, 4) == 4);
@@ -64,7 +83,6 @@ fn test_fast_pow2_mod() void {
     // zero dividend
     @assert(pylib.fast_pow2_mod(0, 4) == 0);
 }
-
 
 fn do_test() void {
     test_bit_floor();
