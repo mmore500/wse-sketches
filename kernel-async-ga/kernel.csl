@@ -450,16 +450,16 @@ fn dolaunch() void {  // launched by RPC (remote procedure call)
 
   // apply barrierEveryNth to disable migration between PEs
   if (nRowSubgrid != 0) {
-    send_flag_N *= @as(u8, x % nRowSubgrid != 0);
-    send_flag_S *= @as(u8, x % nRowSubgrid != nRowSubgrid - 1);
+    sendFlag_N *= @as(u8, x % nRowSubgrid != 0);
+    sendFlag_S *= @as(u8, x % nRowSubgrid != nRowSubgrid - 1);
   }
   if (nColSubgrid != 0) {
-    send_flag_E *= @as(u8, y % nColSubgrid != nColSubgrid - 1);
-    send_flag_W *= @as(u8, y % nColSubgrid != 0);
+    sendFlag_E *= @as(u8, y % nColSubgrid != nColSubgrid - 1);
+    sendFlag_W *= @as(u8, y % nColSubgrid != 0);
   }
 
   //  how many active neighbors?
-  closeoutRemaining = send_flag_N + send_flag_S + send_flag_E + send_flag_W;
+  closeoutRemaining = sendFlag_N + sendFlag_S + sendFlag_E + sendFlag_W;
 
   // + 1 ensures nonzero local seed
   const localSeed = (
