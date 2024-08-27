@@ -40,7 +40,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade uv
+          uv pip install -r requirements.txt --system
 
       - name: Concatenate output
         run: ls -1 /tmp/a=benchmark-zig-hsurf+policy=*+ext=.csv | python3 -m joinem /tmp/a=benchmark-zig-hsurf+ext=.csv
@@ -68,7 +69,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade uv
+          uv pip install -r requirements.txt --system
 
       - name: Run test script
         run: ./pylib/test.sh
@@ -87,8 +89,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade uv
+          uv pip install -r requirements.txt --system
 
       - name: Set up Apptainer
         run: |
@@ -193,8 +196,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade uv
+          uv pip install -r requirements.txt --system
 
       - name: Set up Apptainer
         run: |
@@ -250,7 +254,8 @@ jobs:
           sudo apt-get install -y ghostscript ffmpeg libsm6 libxext6 libgl1 libegl1 libxcb-cursor0 qt6-base-dev
           python3 --version
           python3 -m pip install pip --upgrade
-          python3 -m pip install -r requirements.txt
+          python3 -m pip install uv --upgrade
+          python3 -m uv pip install -r requirements.txt --system
       # Adapted from https://askubuntu.com/a/524368
       - run: ./binder/execute_notebooks.sh
         env:
