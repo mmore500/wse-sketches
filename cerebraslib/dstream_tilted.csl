@@ -1,0 +1,51 @@
+const math = @import_module("<math>");
+
+const opsc = @import_module("cerebraslib/opscalar.csl");
+const pylib = @import_module("cerebraslib/pylib.csl");
+
+fn pick_deposition_site_(comptime s: u32, T: u32) u32 {
+    const one = @as(u32, 1);
+    const S = one << s; // Buffer size
+    const t = math.max(pylib.bit_length(T), s) - s; // Current epoch
+    const h = opsc.ctz32(T + 1); // Current hanoi value
+    const i = T >> (h + 1); // Hanoi value incidence (i.e., num seen)
+
+    const blt = pylib.bit_length(t); // Bit length of t
+    const bitfloor_t = t & (@as(u32, 1) << (math.max(blt, 1) - 1));
+    const epsilon_tau = bitfloor_t << 1 > t + blt; // Correction factor
+    const tau = blt - @as(u32, epsilon_tau); // Current meta-epoch
+    const t_0 = (one << tau) - tau; // Opening epoch of meta-epoch
+    const t_1 = (one << (tau + 1)) - (tau + 1); // First epoch of nxt meta-epoch
+    // Uninvaded correction factor
+    const epsilon_b = @as(u32, (t < h + t_0) and (h + t_0 < t_1));
+    // Num bunches available to h.v.
+    const B = math.max(S >> (tau + 1 - epsilon_b), 1);
+
+    const b_l = i & (B - 1); // Logical bunch index... (fast pow2 mod)
+    // ... i.e., in order filled (increasing nestedness/decreasing init size r)
+
+    // Need to calculate physical bunch index...
+    // ... i.e., position among bunches left-to-right in buffer space
+    const v = pylib.bit_length(b_l); // Nestedness depth level of physical bunch
+    // Num bunches spaced between bunches in nest level
+    const w = (S >> v) * @as(u32, v != 0);
+    const o = w >> 1; // Offset of nestedness level in physical bunch order
+    const bitfloor_b_l = b_l & (@as(u32, 1) << (math.max(v, 1) - 1));
+    const p = b_l - bitfloor_b_l; // Bunch position within nestedness level
+    const b_p = o + w * p; // Physical bunch index...
+    // ... i.e., in left-to-right sequential bunch order
+
+    // Need to calculate buffer position of b_p'th bunch
+    // Correction factor for zeroth bunch...
+    const epsilon_k_b = @as(u32, b_l != 0);
+    // ... i.e., bunch r=s at site k=0
+    const k_b = ( // Site index of bunch
+        (b_p << 1) + opsc.popcnt32((S << 1) - b_p) - 1 - epsilon_k_b);
+
+    return k_b + h; // Calculate placement site...
+}
+
+fn pick_deposition_site(comptime S: u32, T: u32) u32 {
+    const s = comptime pylib.comptime_bit_length(S) - 1;
+    return pick_deposition_site_(s, T);
+}
