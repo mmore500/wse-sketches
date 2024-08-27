@@ -399,25 +399,20 @@ task cycleTask(_: u16) void {
 
   // handle send flags, load send buffer from pop and start next async send
   // --------------------------------------------------------------------------
-  // must stagger send requests, or else hardware simulation hangs
-  // (but only when both vertical AND horizontal exchange enabled)
-  // don't know why, but this is a workaround...
-  // edit: found that randomizing works better to preserve long term stability
-  const flip: bool = @random16() & 1 == 0; const flop: bool = !flip;
-  if (flip and @as(bool, sendFlag_N) and y != 0) {  // except top PE row
+  if (@as(bool, sendFlag_N) and y != 0) {  // except top PE row
     population_.emigrate_genomes(sendBufDsd_N, sendNumGenomes);
     sendFlag_N = 0; dispatchSend_N();
   }
-  if (flop and @as(bool, sendFlag_S) and y != nRow - 1) { // except bottom row
+  if (@as(bool, sendFlag_S) and y != nRow - 1) { // except bottom row
     population_.emigrate_genomes(sendBufDsd_S, sendNumGenomes);
     sendFlag_S = 0; dispatchSend_S();
   }
-  if (flip and @as(bool, sendFlag_E) and x != nCol - 1) {  // except right col
+  if (@as(bool, sendFlag_E) and x != nCol - 1) {  // except right col
     // except right col of PE array
     population_.emigrate_genomes(sendBufDsd_E, sendNumGenomes);
     sendFlag_E = 0; dispatchSend_E();
   }
-  if (flop and @as(bool, sendFlag_W) and x != 0) {  // except left col
+  if (@as(bool, sendFlag_W) and x != 0) {  // except left col
     population_.emigrate_genomes(sendBufDsd_W, sendNumGenomes);
     sendFlag_W = 0; dispatchSend_W();
   }
