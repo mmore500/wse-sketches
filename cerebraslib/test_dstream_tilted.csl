@@ -1,0 +1,12 @@
+const dstream_tilted = @import_module("cerebraslib/dstream_tilted.csl");
+
+fn do_test() void {
+    dstream_tilted.pick_deposition_site(4, 0);
+    dstream_tilted.pick_deposition_site_(2, 0);
+    for (@range(u32, 200)) |i| {
+        dstream_tilted.pick_deposition_site(64, i);
+        dstream_tilted.pick_deposition_site_(6, i);
+        dstream_tilted.pick_deposition_site(256, i);
+        dstream_tilted.pick_deposition_site_(8, i);
+    }
+}
