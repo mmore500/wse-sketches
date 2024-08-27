@@ -15,10 +15,11 @@ fn pick_deposition_site_(comptime s: u32, T: u32) u32 {
     const epsilon_tau = bitfloor_t << 1 > t + blt; // Correction factor
     const tau = blt - @as(u32, epsilon_tau); // Current meta-epoch
     const t_0 = (one << tau) - tau; // Opening epoch of meta-epoch
-    const t_1 = (one << (tau + 1)) - (tau + 1); // Opening epoch of next meta-epoch
+    const t_1 = (one << (tau + 1)) - (tau + 1); // First epoch of nxt meta-epoch
     // Uninvaded correction factor
     const epsilon_b = @as(u32, (t < h + t_0) and (h + t_0 < t_1));
-    const B = math.max(S >> (tau + 1 - epsilon_b), 1); // Num bunches available to h.v.
+    // Num bunches available to h.v.
+    const B = math.max(S >> (tau + 1 - epsilon_b), 1);
 
     const b_l = i & (B - 1); // Logical bunch index... (fast pow2 mod)
     // ... i.e., in order filled (increasing nestedness/decreasing init size r)
