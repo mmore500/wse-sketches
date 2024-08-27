@@ -29,6 +29,7 @@ const tilted = @import_module("cerebraslib/tilted_sticky.csl");
 const gSize: u16 = 4;
 const genome_t = [gSize]u32;
 const genomePtr_t = [*]u32;
+const nTraitVals: u16 = 1;
 
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
@@ -67,6 +68,10 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
 }
 
 fn calc_fitness_of(genome: genomePtr_t) f32 { return @ptrcast(*f32, genome).*; }
+
+fn get_trait_value(genome: genomePtr_t) u32 {
+    return 0;
+}
 
 fn initialize_one(genome: genomePtr_t) void {
     const gHalfWords: u16 = gSize * 2;
