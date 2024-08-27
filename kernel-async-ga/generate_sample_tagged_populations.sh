@@ -5,7 +5,7 @@ set -e
 cd "$(dirname "$0")"
 
 export ASYNC_GA_GENOME_FLAVOR="genome_hsurftiltedsticky_tagged"
-export ASYNC_GA_NCOL=4
+export ASYNC_GA_NCOL=3
 export ASYNC_GA_NCOL_SUBGRID=2
 export ASYNC_GA_NROW=3
 export ASYNC_GA_NROW_SUBGRID=4  # should have no effect
