@@ -46,23 +46,6 @@ fn p(probability: f32) bool {
     return random.random_f32(0.0, 1.0) < probability;
 }
 
-/// Draw a random 32-bit integer from a poisson distribution with shape lambda
-/// Adapted from https://en.wikipedia.org/wiki/Poisson_distribution
-fn poisson32(lambda: f32) u32 {
-    var x: u32 = 0;
-    var p: f32 = math.exp(-lambda);
-    var s: f32 = p;
-    const u = random.random_f32(0.0, 1.0);
-
-    while (u > s) {
-        x += 1;
-        p *= lambda / @as(f32, x);
-        s += p;
-    }
-
-    return x;
-}
-
 /// Population count of an integer, i.e., number of set bits.
 fn popcnt32(n: u32) u32 {
     _as16[0] = @as(u16, n);
