@@ -323,7 +323,7 @@ fn dispatchRecv_W() void { // open an async microthread to recv into recvBuf
 // when PEs' sends are complete, ensure all recvs are open
 // (or switched to ignore) and then terminate
 ///////////////////////////////////////////////////////////////////////////////
-var closeoutRemaining: u8 = 4;
+var closeoutRemaining: u8;  // set at startup
 fn closeoutSend() bool {
   if (@as(bool, sendFlag_N)) { sendFlag_N = 0; closeoutRemaining -= 1; }
   if (@as(bool, sendFlag_S)) { sendFlag_S = 0; closeoutRemaining -= 1; }
@@ -457,6 +457,9 @@ fn dolaunch() void {  // launched by RPC (remote procedure call)
     send_flag_E *= @as(u8, y % nColSubgrid != nColSubgrid - 1);
     send_flag_W *= @as(u8, y % nColSubgrid != 0);
   }
+
+  //  how many active neighbors?
+  closeoutRemaining = send_flag_N + send_flag_S + send_flag_E + send_flag_W;
 
   // + 1 ensures nonzero local seed
   const localSeed = (
