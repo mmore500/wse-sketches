@@ -17,6 +17,18 @@ fn bit_length(value: u32) u32 {
     return (num_bits - opscalar.clz32(value)) * zero_correction;
 }
 
+/// Return the number of bits necessary to represent an integer in binary,
+/// excluding the sign and leading zeros.
+fn comptime_bit_length(comptime value: u32) u32 {
+    var i: u32 = 0;
+    var v: u32 = value;
+    while (v > 0) {
+        v >>= 1;
+        i += 1;
+    }
+    return i;
+}
+
 /// Perform fast division using bitwise operations.
 ///
 /// Parameters
