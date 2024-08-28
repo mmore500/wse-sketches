@@ -5,6 +5,7 @@ param tournamentSize: u16;
 param fitFun: fn([*]u32) f32;
 param inheritFun: fn([*]u32) void;
 param initFun: fn([*]u32) void;
+param traitFun: fn([*]u32) u32;
 
 // module imports =============================================================
 const math = @import_module("<math>");
@@ -51,6 +52,8 @@ fn _elapse_ith_inheritance(i: u16) void { inheritFun(_get_ith_genome(i)); }
 fn _get_ith_genome(i: u16) [*]u32 {
     return @ptrcast([*]u32, &buffer[i * gSize]);
 }
+
+fn _get_ith_trait_value(i: u16) u32 { return traitFun(_get_ith_genome(i)); }
 
 fn _get_population_word(i: u32) u32 { return buffer[i]; }
 

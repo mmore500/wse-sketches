@@ -48,6 +48,7 @@ const population_ = @import_module("cerebraslib/population.csl", .{
   .fitFun = genome_.calc_fitness_of,
   .inheritFun = genome_.elapse_inheritance_of,
   .initFun = genome_.initialize_one,
+  .traitFun = genome_.get_trait_value,
 });
 const ctrl = @import_module("cerebraslib/ctrl.csl");
 const optime = @import_module("cerebraslib/optime.csl");
