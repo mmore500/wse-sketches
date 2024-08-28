@@ -152,6 +152,9 @@ echo "PWD \${PWD}"
 
 echo "execute kernel program -------------------------------------------------"
 ./${SLUG}/kernel-async-ga/execute.sh
+# clean up and save space
+find "${SLUG}" -name "*.elf" -type f -exec rm {} +
+find "${SLUG}" -name "*.conf" -type f -exec rm {} +
 
 echo "finalization telemetry -------------------------------------------------"
 echo "SECONDS \${SECONDS}"

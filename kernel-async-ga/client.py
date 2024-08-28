@@ -109,7 +109,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 whoami_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(whoami_data)
+print(whoami_data[:20,:20])
 
 print("whereami x ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -129,7 +129,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 whereami_x_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(whereami_x_data)
+print(whereami_x_data[:20,:20])
 
 print("whereami y ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -149,7 +149,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 whereami_y_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(whereami_y_data)
+print(whereami_y_data[:20,:20])
 
 
 print("cycle counter =======================================================")
@@ -170,7 +170,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 cycle_counts = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).flat.copy()
-print(cycle_counts)
+print(cycle_counts[:100])
 
 
 print("recv counter N ========================================================")
@@ -191,7 +191,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(recvN)
+print(recvN[:20,:20])
 
 print("recv counter S ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -211,7 +211,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(recvS)
+print(recvS[:20,:20])
 
 print("recv counter E ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -231,7 +231,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(recvE)
+print(recvE[:20,:20])
 
 print("recv counter W ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -251,11 +251,11 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(recvW)
+print(recvW[:20,:20])
 
 print("recv counter sum =====================================================")
 recvSum = [*map(sum, zip(recvN.flat, recvS.flat, recvE.flat, recvW.flat))]
-print(recvSum)
+print(recvSum[:100])
 print(f"{np.mean(recvSum)=} {np.std(recvSum)=} {sps.sem(recvSum)=}")
 
 print("send counter N ========================================================")
@@ -276,7 +276,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(sendN)
+print(sendN[:20,:20])
 
 print("send counter S ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -296,7 +296,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(sendS)
+print(sendS[:20,:20])
 
 print("send counter E ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -316,7 +316,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(sendE)
+print(sendE[:20,:20])
 
 print("send counter W ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -336,11 +336,11 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print(sendW)
+print(sendW[:20,:20])
 
 print("send counter sum =====================================================")
 sendSum = [*map(sum, zip(sendN.flat, sendS.flat, sendE.flat, sendW.flat))]
-print(sendSum)
+print(sendSum[:100])
 print(f"{np.mean(sendSum)=} {np.std(sendSum)=} {sps.sem(sendSum)=}")
 
 print("tscControl values ====================================================")
@@ -367,7 +367,7 @@ tscControl_bytes = [
 tscControl_ints = [
     int.from_bytes(genome, byteorder="little") for genome in tscControl_bytes
 ]
-print(tscControl_ints)
+print(tscControl_ints[:100])
 
 print("tscStart values ======================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -393,7 +393,7 @@ tscStart_bytes = [
 tscStart_ints = [
     int.from_bytes(genome, byteorder="little") for genome in tscStart_bytes
 ]
-print(tscStart_ints)
+print(tscStart_ints[:100])
 
 print("tscEnd values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -419,32 +419,32 @@ tscEnd_bytes = [
 tscEnd_ints = [
     int.from_bytes(genome, byteorder="little") for genome in tscEnd_bytes
 ]
-print(tscEnd_ints)
+print(tscEnd_ints[:100])
 
 print("tsc diffs ============================================================")
 print("--------------------------------------------------------------- ticks")
 tsc_ticks = [end - start for start, end in zip(tscStart_ints, tscEnd_ints)]
-print(tsc_ticks)
+print(tsc_ticks[:100])
 print(f"{np.mean(tsc_ticks)=} {np.std(tsc_ticks)=} {sps.sem(tsc_ticks)=}")
 
 print("-------------------------------------------------------------- seconds")
 tsc_sec = [diff / tscTicksPerSecond for diff in tsc_ticks]
-print(tsc_sec)
+print(tsc_sec[:100])
 print(f"{np.mean(tsc_sec)=} {np.std(tsc_sec)=} {sps.sem(tsc_sec)=}")
 
 print("---------------------------------------------------- seconds per cycle")
 tsc_cysec = [sec / ncy for (sec, ncy) in zip(tsc_sec, cycle_counts)]
-print(tsc_cysec)
+print(tsc_cysec[:100])
 print(f"{np.mean(tsc_cysec)=} {np.std(tsc_cysec)=} {sps.sem(tsc_cysec)=}")
 
 print("---------------------------------------------------------- cycle hertz")
 tsc_cyhz = [1 / cysec for cysec in tsc_cysec]
-print(tsc_cyhz)
+print(tsc_cyhz[:100])
 print(f"{np.mean(tsc_cyhz)=} {np.std(tsc_cyhz)=} {sps.sem(tsc_cyhz)=}")
 
 print("--------------------------------------------------------- ns per cycle")
 tsc_cyns = [cysec * 1e9 for cysec in tsc_cysec]
-print(tsc_cyns)
+print(tsc_cyns[:100])
 print(f"{np.mean(tsc_cyns)=} {np.std(tsc_cyns)=} {sps.sem(tsc_cyns)=}")
 
 print("perf ================================================================")
@@ -481,6 +481,7 @@ df.to_csv(
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
     "+ext=.csv",
+    compression="gzip",
     index=False,
 )
 
@@ -502,7 +503,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 data = memcpy_view(out_tensors_f32, np.dtype(np.float32))
-print(data)
+print(data[:20,:20])
 
 print("genome values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -533,14 +534,14 @@ genome_ints = [
 assert len(genome_ints) == nRow * nCol
 for word in range(nWav):
     print(f"---------------------------------------------- genome word {word}")
-    print([inner[word] for outer in data for inner in outer])
+    print([inner[word] for outer in data for inner in outer][:100])
 
 print("------------------------------------------------ genome binary strings")
-for genome_int in genome_ints:
+for genome_int in genome_ints[:100]:
     print(np.binary_repr(genome_int, width=nWav * wavSize))
 
 print("--------------------------------------------------- genome hex strings")
-for genome_int in genome_ints:
+for genome_int in genome_ints[:100]:
     print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
 
 # prevent polars from reading as int64 and overflowing
@@ -565,6 +566,7 @@ df.to_csv(
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
     "+ext=.csv",
+    compression="gzip",
     index=False,
 )
 
@@ -641,6 +643,7 @@ df.to_csv(
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
     "+ext=.csv",
+    compression="gzip",
     index=False,
 )
 
