@@ -512,8 +512,6 @@ genome_hex = (
     np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
     for genome_int in genome_ints
 )
-with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
-    compile_data = json.load(json_file)
 
 # save genome values to a file
 df = pd.DataFrame(
