@@ -58,6 +58,9 @@ globalSeed = int(compile_data["params"]["globalSeed"])
 nCycleAtLeast = int(compile_data["params"]["nCycleAtLeast"])
 msecAtLeast = int(compile_data["params"]["msecAtLeast"])
 tscAtLeast = int(compile_data["params"]["tscAtLeast"])
+nColSubgrid = int(compile_data["params"]["nColSubgrid"])
+nRowSubgrid = int(compile_data["params"]["nRowSubgrid"])
+tilePopSize = 32
 genomeFlavor = args.genomeFlavor or "unknown"
 
 # save genome values to a file
@@ -69,6 +72,9 @@ metadata = {
     "nWav": nWav,
     "nTrait": nTrait,
     "nCycle": nCycleAtLeast,
+    "nColSubgrid": nColSubgrid,
+    "nRowSubgrid": nRowSubgrid,
+    "tilePopSize": tilePopSize,
     "msec": msecAtLeast,
     "tsc": tscAtLeast,
     "replicate": str(uuid.uuid4()),
