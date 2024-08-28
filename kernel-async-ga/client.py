@@ -535,7 +535,6 @@ df.to_csv(
 print("trait data ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
-
 runner.memcpy_d2h(
     out_tensors_u32,
     runner.get_id("traitCounts"),
