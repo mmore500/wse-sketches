@@ -4,7 +4,6 @@
 #SBATCH --time=4:00:00
 #SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
-#SBATCH --array=1-28
 
 set -e
 
@@ -60,7 +59,6 @@ for rep in $(seq 1 ${NREP}); do
 echo "rep ${rep}"
 seed=$((seed+1))
 echo "seed ${seed}"
-if [ "${seed}" -ne "${SLURM_ARRAY_TASK_ID}" ]; then echo "SKIP"; continue; fi
 
 SLUG="wse-sketches+subgrid=${ASYNC_GA_NCOL_SUBGRID}+seed=${seed}"
 echo "SLUG ${SLUG}"
