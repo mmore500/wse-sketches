@@ -27,7 +27,6 @@ echo "SDK_INSTALL_LOCATION ${SDK_INSTALL_LOCATION:-}"
 echo "SDK_INSTALL_PATH ${SDK_INSTALL_PATH:-}"
 
 echo "setup WORKDIR =========================================================="
-rm -rf "${WORKDIR}"
 mkdir -p "${WORKDIR}"
 
 echo "setup SOURCEDIR ========================================================"
@@ -67,6 +66,7 @@ SLUG="wse-sketches+subgrid=${ASYNC_GA_NCOL_SUBGRID}+seed=${seed}"
 echo "SLUG ${SLUG}"
 
 echo "configure kernel compile ==============================================="
+rm -rf "${WORKDIR}/${SLUG}"
 cp -r "${SOURCEDIR}" "${WORKDIR}/${SLUG}"
 cd "${WORKDIR}/${SLUG}"
 git status
