@@ -4,10 +4,13 @@
 #SBATCH --time=4:00:00
 #SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --array=1-28
 
 set -e
 
 cd "$(dirname "$0")"
+
+echo "SLURM_ARRAY_TASK_ID ${SLURM_ARRAY_TASK_ID}"
 
 WSE_SKETCHES_REVISION="456ec177213e36780231c2f5dac19b4ec42b8f81"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
@@ -28,7 +31,7 @@ rm -rf "${WORKDIR}"
 mkdir -p "${WORKDIR}"
 
 echo "setup SOURCEDIR ========================================================"
-SOURCEDIR="/tmp/${WSE_SKETCHES_REVISION}"
+SOURCEDIR="/tmp/${WSE_SKETCHES_REVISION}-${SLURM_JOB_ID}"
 echo "SOURCEDIR ${SOURCEDIR}"
 rm -rf "${SOURCEDIR}"
 git clone https://github.com/mmore500/wse-sketches.git "${SOURCEDIR}"
@@ -56,6 +59,7 @@ for rep in $(seq 1 ${NREP}); do
 echo "rep ${rep}"
 seed=$((seed+1))
 echo "seed ${seed}"
+if [ "${seed}" -ne "${SLURM_ARRAY_TASK_ID}" ]; then echo "SKIP"; continue; fi
 
 SLUG="wse-sketches+subgrid=${ASYNC_GA_NCOL_SUBGRID}+seed=${seed}"
 echo "SLUG ${SLUG}"
@@ -160,7 +164,8 @@ EOF
 
 
 echo "do kernel compile and submit sbatch file ==============================="
-(./kernel-async-ga/compile.sh && sbatch "${SBATCH_FILE}") &
+./kernel-async-ga/compile.sh
+sbatch "${SBATCH_FILE}"
 
 echo "end work loop =========================================================="
 done
