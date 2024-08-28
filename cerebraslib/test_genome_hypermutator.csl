@@ -28,11 +28,11 @@ fn test_get_trait_value() void {
     genome.elapse_inheritance_of(&g);
     @assert(genome.get_trait_value(&g) == 1);
 
-    while(genome.get_trait_value(&g) == 1) {
+    while (genome.get_trait_value(&g) == 1) {
         genome.initialize_one(&g);
         @assert(genome.get_trait_value(&g) < genome.nTraitVals);
     }
-    while(genome.get_trait_value(&g) == 0) {
+    while (genome.get_trait_value(&g) == 0) {
         genome.initialize_one(&g);
         @assert(genome.get_trait_value(&g) < genome.nTraitVals);
     }
