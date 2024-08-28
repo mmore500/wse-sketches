@@ -169,9 +169,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-cycle_counts = data.flat
-print(data)
+cycle_counts = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).flat.copy()
+print(cycle_counts)
 
 
 print("recv counter N ========================================================")
@@ -191,7 +190,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(recvN)
 
 print("recv counter S ========================================================")
@@ -211,7 +210,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(recvS)
 
 print("recv counter E ========================================================")
@@ -231,7 +230,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(recvE)
 
 print("recv counter W ========================================================")
@@ -251,7 +250,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(recvW)
 
 print("recv counter sum =====================================================")
@@ -276,7 +275,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(sendN)
 
 print("send counter S ========================================================")
@@ -296,7 +295,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(sendS)
 
 print("send counter E ========================================================")
@@ -316,7 +315,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(sendE)
 
 print("send counter W ========================================================")
@@ -336,7 +335,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(sendW)
 
 print("send counter sum =====================================================")
@@ -447,6 +446,43 @@ print("--------------------------------------------------------- ns per cycle")
 tsc_cyns = [cysec * 1e9 for cysec in tsc_cysec]
 print(tsc_cyns)
 print(f"{np.mean(tsc_cyns)=} {np.std(tsc_cyns)=} {sps.sem(tsc_cyns)=}")
+
+print("perf ================================================================")
+# save performance metrics to a file
+df = pd.DataFrame(
+    {
+        "tsc ticks": tsc_ticks,
+        "tsc seconds": tsc_sec,
+        "tsc seconds per cycle": tsc_cysec,
+        "tsc cycle hertz": tsc_cyhz,
+        "tsc ns per cycle": tsc_cyns,
+        "recv sum": recvSum,
+        "send sum": sendSum,
+        "cycle count": cycle_counts,
+        "tsc start": tscStart_ints,
+        "tsc end": tscEnd_ints,
+        "send N": sendN.flat,
+        "send S": sendS.flat,
+        "send E": sendE.flat,
+        "send W": sendW.flat,
+        "recv N": recvN.flat,
+        "recv S": recvS.flat,
+        "recv E": recvE.flat,
+        "recv W": recvW.flat,
+        "tile": whoami_data.flat,
+        "row": whereami_y_data.flat,
+        "col": whereami_x_data.flat,
+        **metadata,
+    },
+)
+df.to_csv(
+    "a=perf"
+    f"+flavor={genomeFlavor}"
+    f"+seed={globalSeed}"
+    f"+ncycle={nCycleAtLeast}"
+    "+ext=.csv",
+    index=False,
+)
 
 print("fitness =============================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
