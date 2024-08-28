@@ -106,7 +106,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-whoami_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+whoami_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(whoami_data)
 
 print("whereami x ===========================================================")
@@ -126,7 +126,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-whereami_x_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+whereami_x_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(whereami_x_data)
 
 print("whereami y ===========================================================")
@@ -146,7 +146,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-whereami_y_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+whereami_y_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
 print(whereami_y_data)
 
 
@@ -543,14 +543,17 @@ runner.memcpy_d2h(
     0,  # y0
     nCol,  # width
     nRow,  # height
-    nTrait,  # num wavelets
+    nTrait,  # num possible trait values
     streaming=False,
     data_type=memcpy_dtype,
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-traitCounts_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+traitCounts_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+print("traitCounts_data", np.unique(traitCounts_data, return_counts=True))
 
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
 runner.memcpy_d2h(
     out_tensors_u32,
     runner.get_id("traitCycles"),
@@ -558,14 +561,17 @@ runner.memcpy_d2h(
     0,  # y0
     nCol,  # width
     nRow,  # height
-    nTrait,  # num wavelets
+    nTrait,  # num possible trait values
     streaming=False,
     data_type=memcpy_dtype,
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-traitCycles_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+traitCycles_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+print("traitCycles_data", np.unique(traitCycles_data, return_counts=True))
 
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
 runner.memcpy_d2h(
     out_tensors_u32,
     runner.get_id("traitValues"),
@@ -573,13 +579,14 @@ runner.memcpy_d2h(
     0,  # y0
     nCol,  # width
     nRow,  # height
-    nTrait,  # num wavelets
+    nTrait,  # num possible trait values
     streaming=False,
     data_type=memcpy_dtype,
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-traitValues_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+traitValues_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+print("traitValues_data", np.unique(traitValues_data, return_counts=True))
 
 # save trait data values to a file
 df = pd.DataFrame(
