@@ -30,6 +30,7 @@ param nColSubgrid: i16;  // if n, disable migration between PEs every n cols
 param popSize: u16;  // how many genomes in each local population?
 param tournSize: u16;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
+param nTraitVals: u16;  // how many trait values are there?
 param memcpy_params: comptime_struct; // parameters for memcpy layout
 param globalSeed: u16;
 
@@ -48,6 +49,7 @@ const population_ = @import_module("cerebraslib/population.csl", .{
   .fitFun = genome_.calc_fitness_of,
   .inheritFun = genome_.elapse_inheritance_of,
   .initFun = genome_.initialize_one,
+  .traitFun = genome_.get_trait_value,
 });
 const ctrl = @import_module("cerebraslib/ctrl.csl");
 const optime = @import_module("cerebraslib/optime.csl");
@@ -76,6 +78,13 @@ var sendCounter_E = @zeros([1]u32);
 var ptr_sendCounter_E : [*]u32 = &sendCounter_E;
 var sendCounter_W = @zeros([1]u32);
 var ptr_sendCounter_W : [*]u32 = &sendCounter_W;
+
+var traitCounts = @zeros([nTraitVals]u32);
+var ptr_traitCounts : [*]u32 = &traitCounts;
+var traitCycles = @zeros([nTraitVals]u32);
+var ptr_traitCycles: [*]u32 = &traitCycles;
+var traitValues = @zeros([nTraitVals]u32);
+var ptr_traitValues: [*]u32 = &traitValues;
 
 var genome = @zeros([population_.gSize]u32);  // samples 0th population element
 var ptr_genome : [*]u32 = &genome;  // (which is convenient)
@@ -393,11 +402,6 @@ task cycleTask(_: u16) void {
   // apply replication/selection to population
   // --------------------------------------------------------------------------
   population_.do_generation();
-  // sample 0th element of population for telemetry
-  for(@range(u16, population_.gSize)) |i| {
-    genome[i] = population_._get_ith_genome(0)[i];
-  }
-  fitness[0] = population_._calc_ith_fitness(0);
 
   // handle send flags, load send buffer from pop and start next async send
   // --------------------------------------------------------------------------
@@ -418,11 +422,34 @@ task cycleTask(_: u16) void {
     sendFlag_W = 0; dispatchSend_W();
   }
 
+  // update telemetry
+  // --------------------------------------------------------------------------
+  for (@range(u16, popSize)) |i| {  // will record last cycle traits were seen
+    traitCycles[population_._get_ith_trait_value(i)] = cycleCounter[0];
+  }
+
   // trigger next cycle
   // --------------------------------------------------------------------------
   if (!shouldHalt(cycleCounter[0])) { cycleCounter[0] += 1;  // for telemetry
     @mov16(cycleDsd, 0);  // send wavelet to self, trigger next cycle
-  } else { time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
+  } else {
+    // closeout telemetry
+    // ------------------------------------------------------------------------
+    time.get_timestamp(@ptrcast(*[3]u16, &tscEndBuffer));
+    // sample 0th element of population for telemetry
+    for(@range(u16, population_.gSize)) |i| {
+      genome[i] = population_._get_ith_genome(0)[i];
+    }
+    fitness[0] = population_._calc_ith_fitness(0);
+    // record final trait distributions
+    for (@range(u16, popSize)) |i| {
+      traitCounts[population_._get_ith_trait_value(i)] += 1;
+    }
+    // record trait values
+    for (@range(u32, nTraitVals)) |i| { traitValues[i] = i; }
+
+    // trigger closeout cycle
+    // ------------------------------------------------------------------------
     @mov16(closeoutDsd, 0);  // send wavelet to self, trigger closeout cycle
   }
 }
@@ -543,6 +570,9 @@ comptime {  // symbols let memcpy gather end-state data from device to host
   @export_symbol(ptr_sendCounter_S, "sendCounter_S");
   @export_symbol(ptr_sendCounter_E, "sendCounter_E");
   @export_symbol(ptr_sendCounter_W, "sendCounter_W");
+  @export_symbol(ptr_traitCounts, "traitCounts");
+  @export_symbol(ptr_traitCycles, "traitCycles");
+  @export_symbol(ptr_traitValues, "traitValues");
   @export_symbol(ptr_fitness, "fitness");
   @export_symbol(ptr_genome, "genome");
   @export_symbol(ptr_whoami, "whoami");

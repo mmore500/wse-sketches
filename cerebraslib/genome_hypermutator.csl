@@ -33,6 +33,7 @@ const tilted = @import_module("cerebraslib/dstream_tilted.csl");
 const gSize: u16 = 5;
 const genome_t = [gSize]u32;
 const genomePtr_t = [*]u32;
+const nTraitVals: u16 = 2;
 
 const sb = 0.1;
 const sd = 0.1;
@@ -89,6 +90,10 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
 
 fn calc_fitness_of(genome: genomePtr_t) f32 {
     return @as(f32, _ptr_netbencount(genome).*);
+}
+
+fn get_trait_value(genome: genomePtr_t) u32 {
+    return @as(u32, _ptr_mutator(genome).* == 100.0);
 }
 
 fn initialize_one(genome: genomePtr_t) void {
