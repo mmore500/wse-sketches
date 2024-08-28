@@ -17,6 +17,27 @@ fn test_initialize_one() void {
     genome.initialize_one(&g);
 }
 
+fn test_get_trait_value() void {
+    var g = @zeros(genome.genome_t);
+    genome._ptr_mutator(&g).* = 1.0;
+    @assert(genome.get_trait_value(&g) == 0);
+    genome.elapse_inheritance_of(&g);
+    @assert(genome.get_trait_value(&g) == 0);
+    genome._ptr_mutator(&g).* = 100.0;
+    @assert(genome.get_trait_value(&g) == 1);
+    genome.elapse_inheritance_of(&g);
+    @assert(genome.get_trait_value(&g) == 1);
+
+    while (genome.get_trait_value(&g) == 1) {
+        genome.initialize_one(&g);
+        @assert(genome.get_trait_value(&g) < genome.nTraitVals);
+    }
+    while (genome.get_trait_value(&g) == 0) {
+        genome.initialize_one(&g);
+        @assert(genome.get_trait_value(&g) < genome.nTraitVals);
+    }
+}
+
 fn test_integration() void {
     random.set_global_prng_seed(1);
     var g = @zeros(genome.genome_t);

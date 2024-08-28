@@ -14,6 +14,12 @@ fn test_calc_fitness_of() void {
     @assert(genome.calc_fitness_of(&g) == 0.0);
 }
 
+fn test_get_trait_value() void {
+    var g = @zeros(genome.genome_t);
+    @assert(genome.get_trait_value(&g) == 0);
+    @assert(genome.get_trait_value(&g) < genome.nTraitVals);
+}
+
 fn test_initialize_one() void {
     var g = @zeros(genome.genome_t);
     genome.initialize_one(&g);

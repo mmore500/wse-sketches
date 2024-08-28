@@ -6,6 +6,7 @@ const population = @import_module("cerebraslib/population.csl", .{
     .fitFun = genome.calc_fitness_of,
     .inheritFun = genome.elapse_inheritance_of,
     .initFun = genome.initialize_one, .peId = 0,
+    .traitFun = genome.get_trait_value,
 });
 
 // internal accessors ======================================================
@@ -14,6 +15,8 @@ fn test_calc_ith_fitness() void { population._calc_ith_fitness(0); }
 fn test_elapse_ith_inheritance() void { population._elapse_ith_inheritance(0); }
 
 fn test_get_ith_genome() void { population._get_ith_genome(0); }
+
+fn test_get_ith_trait_value() void { population._get_ith_trait_value(0); }
 
 fn test_get_population_word() void { population._get_population_word(0); }
 
@@ -55,6 +58,7 @@ fn do_test() void {
     test_calc_ith_fitness();
     test_elapse_ith_inheritance();
     test_get_ith_genome();
+    test_get_ith_trait_value();
     test_get_population_word();
     test_get_swap_word();
     test_sample_one_tournament();
