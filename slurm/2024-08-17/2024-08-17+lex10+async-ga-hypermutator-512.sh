@@ -35,7 +35,9 @@ SOURCEDIR="/tmp/${WSE_SKETCHES_REVISION}-${SLURM_JOB_ID}"
 echo "SOURCEDIR ${SOURCEDIR}"
 rm -rf "${SOURCEDIR}"
 git clone https://github.com/mmore500/wse-sketches.git "${SOURCEDIR}"
-git -C "${SOURCEDIR}" checkout "${WSE_SKETCHES_REVISION}"
+cd "${SOURCEDIR}"
+git checkout "${WSE_SKETCHES_REVISION}"
+cd -
 
 echo "begin work loop ========================================================"
 seed=0
