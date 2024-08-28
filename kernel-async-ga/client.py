@@ -1,6 +1,7 @@
 print("kernel-async-ga/client.py ############################################")
 print("######################################################################")
 import argparse
+from collections import Counter
 import json
 import os
 import uuid
@@ -550,7 +551,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitCounts_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print("traitCounts_data", np.unique(traitCounts_data, return_counts=True))
+print("traitCounts_data", Counter(traitCounts_data.flat))
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
@@ -568,7 +569,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitCycles_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print("traitCycles_data", np.unique(traitCycles_data, return_counts=True))
+print("traitCycles_data", Counter(traitCycles_data.flat))
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
@@ -586,7 +587,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitValues_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
-print("traitValues_data", np.unique(traitValues_data, return_counts=True))
+print("traitValues_data", Counter(traitValues_data.flat))
 
 # save trait data values to a file
 df = pd.DataFrame(
