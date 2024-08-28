@@ -29,7 +29,8 @@ def add_bool_arg(parser, name, default=False):
 nCol = int(os.getenv("ASYNC_GA_NCOL", 3))
 nRow = int(os.getenv("ASYNC_GA_NROW", 3))
 nWav = int(os.getenv("ASYNC_GA_NWAV", 4))
-print(f"{nCol=}, {nRow=}, {nWav=}")
+nTrait = int(os.getenv("ASYNC_GA_NTRAIT", 1))
+print(f"{nCol=}, {nRow=}, {nWav=}, {nTrait=}")
 
 wavSize = 32  # number of bits in a wavelet
 tscSizeWords = 3  # number of 16-bit values in 48-bit timestamp values
@@ -47,6 +48,30 @@ args = parser.parse_args()
 
 print("args =================================================================")
 print(args)
+
+print("metadata =============================================================")
+with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
+    compile_data = json.load(json_file)
+
+globalSeed = int(compile_data["params"]["globalSeed"])
+nCycleAtLeast = int(compile_data["params"]["nCycleAtLeast"])
+msecAtLeast = int(compile_data["params"]["msecAtLeast"])
+tscAtLeast = int(compile_data["params"]["tscAtLeast"])
+genomeFlavor = args.genomeFlavor or "unknown"
+
+# save genome values to a file
+metadata = {
+    "genomeFlavor": genomeFlavor,
+    "globalSeed": globalSeed,
+    "nCol": nCol,
+    "nRow": nRow,
+    "nWav": nWav,
+    "nTrait": nTrait,
+    "nCycle": nCycleAtLeast,
+    "msec": msecAtLeast,
+    "tsc": tscAtLeast,
+    "replicate": str(uuid.uuid4()),
+}
 
 print("do run ===============================================================")
 # Path to ELF and simulation output files
@@ -81,8 +106,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-print(data)
+whoami_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+print(whoami_data)
 
 print("whereami x ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -101,8 +126,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-print(data)
+whereami_x_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+print(whereami_x_data)
 
 print("whereami y ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -121,8 +146,8 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
-print(data)
+whereami_y_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+print(whereami_y_data)
 
 
 print("cycle counter =======================================================")
@@ -485,27 +510,91 @@ genome_hex = (
     np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
     for genome_int in genome_ints
 )
-
 with open(f"{args.name}/out.json", encoding="utf-8") as json_file:
     compile_data = json.load(json_file)
 
-globalSeed = int(compile_data["params"]["globalSeed"])
-nCycleAtLeast = int(compile_data["params"]["nCycleAtLeast"])
-msecAtLeast = int(compile_data["params"]["msecAtLeast"])
-tscAtLeast = int(compile_data["params"]["tscAtLeast"])
-genomeFlavor = args.genomeFlavor or "unknown"
-
 # save genome values to a file
-df = pd.DataFrame(genome_hex, columns=["bitfield"])
-df["genomeFlavor"] = genomeFlavor
-df["globalSeed"] = globalSeed
-df["nCycle"] = nCycleAtLeast
-df["msec"] = msecAtLeast
-df["tsc"] = tscAtLeast
-df["replicate"] = str(uuid.uuid4())
-
+df = pd.DataFrame(
+    {
+        "bitfield": genome_hex,
+        "tile": whoami_data.flat,
+        "row": whereami_y_data.flat,
+        "col": whereami_x_data.flat,
+        **metadata,
+    },
+)
 df.to_csv(
     "a=genomes"
+    f"+flavor={genomeFlavor}"
+    f"+seed={globalSeed}"
+    f"+ncycle={nCycleAtLeast}"
+    "+ext=.csv",
+    index=False,
+)
+
+print("trait data ===========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("traitCounts"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nTrait,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+traitCounts_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("traitCycles"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nTrait,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+traitCycles_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+
+runner.memcpy_d2h(
+    out_tensors_u32,
+    runner.get_id("traitValues"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nTrait,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+traitValues_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+
+# save trait data values to a file
+df = pd.DataFrame(
+    {
+        "trait count": traitCounts_data.flat,
+        "trait cycle last seen": traitCycles_data.flat,
+        "trait value": traitValues_data.flat,
+        "tile": np.repeat(whoami_data.flat, nTrait),
+        "row": np.repeat(whereami_y_data.flat, nTrait),
+        "col": np.repeat(whereami_x_data.flat, nTrait),
+        **metadata,
+    },
+)
+df.to_csv(
+    "a=traits"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"

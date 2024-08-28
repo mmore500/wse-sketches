@@ -22,6 +22,8 @@ const memcpy = @import_module("<memcpy/get_params>", .{
   .LAUNCH = LAUNCH
 });
 
+const genome = @import_module(genomeImpl);
+
 layout {
   // how many PE?
   @set_rectangle(nCol, nRow);
@@ -45,6 +47,7 @@ layout {
           .tournSize = tournSize,
           .globalSeed = globalSeed,
           .genomeImpl = genomeImpl,
+          .nTraitVals = genome.nTraitVals,
           .memcpy_params = memcpy.get_params(x),
         }
       );
@@ -61,6 +64,9 @@ layout {
   @export_name("sendCounter_S", [*]u32, true);
   @export_name("sendCounter_E", [*]u32, true);
   @export_name("sendCounter_W", [*]u32, true);
+  @export_name("traitCounts", [*]u32, true);
+  @export_name("traitCycles", [*]u32, true);
+  @export_name("traitValues", [*]u32, true);
   @export_name("fitness", [*]f32, true);
   @export_name("genome", [*]u32, true);
   @export_name("whoami", [*]u32, true);
