@@ -116,6 +116,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --mem=32G
 #SBATCH --time=0:20:00
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --exclude=sdf-2
 
 set -e
 # newgrp GRANT_ID
