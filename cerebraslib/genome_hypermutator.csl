@@ -93,7 +93,7 @@ fn calc_fitness_of(genome: genomePtr_t) f32 {
 }
 
 fn get_trait_value(genome: genomePtr_t) u32 {
-    return if (_ptr_mutator(genome).* > 0.0) 1 else 0;
+    return @as(u32, _ptr_mutator(genome).* == 100.0);
 }
 
 fn initialize_one(genome: genomePtr_t) void {
