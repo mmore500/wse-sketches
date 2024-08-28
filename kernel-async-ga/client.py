@@ -480,7 +480,7 @@ df.to_csv(
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv",
+    "+ext=.csv.gz",
     compression="gzip",
     index=False,
 )
@@ -565,7 +565,7 @@ df.to_csv(
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv",
+    "+ext=.csv.gz",
     compression="gzip",
     index=False,
 )
@@ -642,7 +642,7 @@ df.to_csv(
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv",
+    "+ext=.csv.gz",
     compression="gzip",
     index=False,
 )
