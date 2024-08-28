@@ -72,6 +72,7 @@ metadata = {
     "tsc": tscAtLeast,
     "replicate": str(uuid.uuid4()),
 }
+print(metadata)
 
 print("do run ===============================================================")
 # Path to ELF and simulation output files
