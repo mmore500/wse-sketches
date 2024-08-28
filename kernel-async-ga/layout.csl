@@ -29,7 +29,6 @@ layout {
   @set_rectangle(nCol, nRow);
 
   // assign code to each PE
-  var peId: u32 = 0;
   for (@range(i32, nCol)) |x| {
     for (@range(i32, nRow)) |y| {
       @set_tile_code(
@@ -51,7 +50,6 @@ layout {
           .memcpy_params = memcpy.get_params(x),
         }
       );
-      peId += 1;
     }
   }
 
