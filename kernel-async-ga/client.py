@@ -647,6 +647,13 @@ df = pd.DataFrame(
         **metadata,
     },
 )
+
+for trait, group in df.groupby("trait value"):
+    print(
+        f"trait {trait} total count is",
+        group["trait count"].sum()
+    )
+
 df.to_csv(
     "a=traits"
     f"+flavor={genomeFlavor}"
