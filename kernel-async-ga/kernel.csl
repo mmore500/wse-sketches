@@ -477,12 +477,12 @@ fn dolaunch() void {  // launched by RPC (remote procedure call)
 
   // apply barrierEveryNth to disable migration between PEs
   if (nRowSubgrid != 0) {
-    sendFlag_N *= @as(u8, x % nRowSubgrid != 0);
-    sendFlag_S *= @as(u8, x % nRowSubgrid != nRowSubgrid - 1);
+    sendFlag_N *= @as(u8, y % nRowSubgrid != 0);
+    sendFlag_S *= @as(u8, y % nRowSubgrid != nRowSubgrid - 1);
   }
   if (nColSubgrid != 0) {
-    sendFlag_E *= @as(u8, y % nColSubgrid != nColSubgrid - 1);
-    sendFlag_W *= @as(u8, y % nColSubgrid != 0);
+    sendFlag_E *= @as(u8, x % nColSubgrid != nColSubgrid - 1);
+    sendFlag_W *= @as(u8, x % nColSubgrid != 0);
   }
 
   //  how many active neighbors?
