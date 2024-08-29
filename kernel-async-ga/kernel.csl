@@ -28,7 +28,7 @@ param nCol: i16;
 param nRowSubgrid: i16;  // if n, disable migration between PEs every n rows
 param nColSubgrid: i16;  // if n, disable migration between PEs every n cols
 param popSize: u16;  // how many genomes in each local population?
-param tournSize: u16;  // how many genomes compete for selection?
+param tournSize: f32;  // how many genomes compete for selection?
 param genomeImpl: comptime_string;  // what genome impl should be used?
 param nTraitVals: u16;  // how many trait values are there?
 param memcpy_params: comptime_struct; // parameters for memcpy layout

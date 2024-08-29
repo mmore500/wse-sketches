@@ -6,9 +6,11 @@ param nRow: u16;
 param nCol: u16;
 param nRowSubgrid: u16;
 param nColSubgrid: u16;
+param popSize: u32;
+param tournSizeNumerator: u32;
+param tournSizeDenominator: u32;
 
-const popSize = 32;
-const tournSize = 5;
+const tournSize = @as(f32, tournSizeNumerator) / @as(f32, tournSizeDenominator);
 const genomeImpl = "cerebraslib/genome.csl";
 
 // Color used by memcpy for RPC mechanism
