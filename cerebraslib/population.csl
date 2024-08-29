@@ -1,7 +1,7 @@
 // module params ==============================================================
 param gSize: u16;
 param popSize: u16;
-param tournamentSize: u16;
+param tournamentSize: f32;
 param fitFun: fn([*]u32) f32;
 param inheritFun: fn([*]u32) void;
 param initFun: fn([*]u32) void;
@@ -9,6 +9,7 @@ param traitFun: fn([*]u32) u32;
 
 // module imports =============================================================
 const math = @import_module("<math>");
+const random = @import_module("<random>");
 
 const dsd = @import_module("cerebraslib/dsd.csl");
 const opdsd = @import_module("cerebraslib/opdsd.csl");
@@ -64,7 +65,9 @@ fn _initialize_ith_genome(i: u16) void { initFun(_get_ith_genome(i)); }
 fn _sample_one_tournament() u16 {
     var bestFit: f32 = math.NEGATIVE_INF(f32);
     var bestIdx: u16 = 0;
-    for (@range(i16, tournamentSize)) |i| {
+    const epsilon = random.random_f32(0.0, 1.0);
+    const effectiveTournamentSize = @as(i32, tournamentSize + epsilon);
+    for (@range(i32, effectiveTournamentSize)) |i| {
         const idx = opscalar.unif16(popSize);
         const fit = fitBuf[idx];
         if (fit > bestFit) {

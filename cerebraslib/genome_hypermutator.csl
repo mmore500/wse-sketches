@@ -5,8 +5,8 @@
 // byte 3
 // byte 4 DELCOUNT (u16, 2 bytes)
 // byte 5
-// byte 6 MUTATOR (f16, 2 bytes)
-// byte 7
+// byte 6 MUTATOR (u8, 1 byte)
+// byte 7 TAG (u8, 1 byte)
 // byte 8 COUNTER (u32, 4 bytes)
 // byte 9
 // byte 10
@@ -43,8 +43,8 @@ const Ud = 0.0001;
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
     const mutator_strength = @as(f32, _ptr_mutator(genome).*);
-    const num_ben = opscalar.poisson32(Ub * @as(f32, mutator_strength));
-    const num_del = opscalar.poisson32(Ud * @as(f32, mutator_strength));
+    const num_ben = opscalar.poisson32(Ub * mutator_strength);
+    const num_del = opscalar.poisson32(Ud * mutator_strength);
 
     _ptr_netbencount(genome).* += @as(i32, num_ben) - @as(i32, num_del);
     _ptr_delcount(genome).* += @as(u16, num_del);
@@ -58,8 +58,8 @@ fn _ptr_delcount(genome: genomePtr_t) *u16 {
     return &@ptrcast([*]u16, genome)[2];
 }
 
-fn _ptr_mutator(genome: genomePtr_t) *f16 {
-    return &@ptrcast([*]f16, genome)[3];
+fn _ptr_mutator(genome: genomePtr_t) *u8 {
+    return &@ptrcast([*]u8, genome)[6];
 }
 
 fn _ptr_counter(genome: genomePtr_t) *u32 {
@@ -93,7 +93,7 @@ fn calc_fitness_of(genome: genomePtr_t) f32 {
 }
 
 fn get_trait_value(genome: genomePtr_t) u32 {
-    return @as(u32, _ptr_mutator(genome).* == 100.0);
+    return @as(u32, _ptr_mutator(genome).* == 100);
 }
 
 fn initialize_one(genome: genomePtr_t) void {
@@ -103,5 +103,5 @@ fn initialize_one(genome: genomePtr_t) void {
     @ptrcast([*]u32, genome)[2] = 0;
     _ptr_netbencount(genome).* = 0;
     _ptr_delcount(genome).* = 0;
-    _ptr_mutator(genome).* = if (opscalar.unifbool()) 100.0 else 1.0;
+    _ptr_mutator(genome).* = if (opscalar.unifbool()) 100 else 1;
 }

@@ -60,7 +60,11 @@ msecAtLeast = int(compile_data["params"]["msecAtLeast"])
 tscAtLeast = int(compile_data["params"]["tscAtLeast"])
 nColSubgrid = int(compile_data["params"]["nColSubgrid"])
 nRowSubgrid = int(compile_data["params"]["nRowSubgrid"])
-tilePopSize = 32
+tilePopSize = int(compile_data["params"]["popSize"])
+tournSize = (
+    float(compile_data["params"]["tournSizeNumerator"])
+    / float(compile_data["params"]["tournSizeDenominator"])
+)
 genomeFlavor = args.genomeFlavor or "unknown"
 
 # save genome values to a file
@@ -75,6 +79,7 @@ metadata = {
     "nColSubgrid": nColSubgrid,
     "nRowSubgrid": nRowSubgrid,
     "tilePopSize": tilePopSize,
+    "tournSize": tournSize,
     "msec": msecAtLeast,
     "tsc": tscAtLeast,
     "replicate": str(uuid.uuid4()),
