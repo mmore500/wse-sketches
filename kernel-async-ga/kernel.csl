@@ -465,8 +465,8 @@ fn dolaunch() void {  // launched by RPC (remote procedure call)
   // record layout params for telemetry
   x = @as(i16, layout_module.get_x_coord());
   y = @as(i16, layout_module.get_y_coord());
-  whereami_x[0] = @as(u32, layout_module.get_x_coord());
-  whereami_y[0] = @as(u32, layout_module.get_y_coord());
+  whereami_x[0] = @as(u32, x);
+  whereami_y[0] = @as(u32, y);
   whoami[0] = whereami_y[0] * @as(u32, nCol) + whereami_x[0];
 
   // initialize send flags to request first fill, except for edges

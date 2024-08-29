@@ -43,8 +43,8 @@ const Ud = 0.0001;
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
     const mutator_strength = @as(f32, _ptr_mutator(genome).*);
-    const num_ben = opscalar.poisson32(Ub * @as(f32, mutator_strength));
-    const num_del = opscalar.poisson32(Ud * @as(f32, mutator_strength));
+    const num_ben = opscalar.poisson32(Ub * mutator_strength);
+    const num_del = opscalar.poisson32(Ud * mutator_strength);
 
     _ptr_netbencount(genome).* += @as(i32, num_ben) - @as(i32, num_del);
     _ptr_delcount(genome).* += @as(u16, num_del);
