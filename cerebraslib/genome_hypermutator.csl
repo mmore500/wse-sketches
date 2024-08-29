@@ -99,9 +99,8 @@ fn get_trait_value(genome: genomePtr_t) u32 {
 fn initialize_one(genome: genomePtr_t) void {
     const gHalfWords: u16 = gSize * 2;
     bitmanip.randomize(@ptrcast([*]u16, genome), gHalfWords);
-    @ptrcast(*f32, genome).* = 0.0;
-    @ptrcast([*]u32, genome)[2] = 0;
     _ptr_netbencount(genome).* = 0;
     _ptr_delcount(genome).* = 0;
+    _ptr_counter(genome).* = 0;
     _ptr_mutator(genome).* = if (opscalar.unifbool()) 100 else 1;
 }
