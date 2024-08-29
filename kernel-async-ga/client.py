@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-from cerebras.sdk.sdk_utils import memcpy_view
 from cerebras.sdk.runtime.sdkruntimepybind import (
     SdkRuntime,
     MemcpyDataType,
@@ -107,7 +106,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("whoami"),
     0,  # x0
     0,  # y0
@@ -119,7 +118,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-whoami_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+whoami_data = out_tensors_u32.copy()
 print(whoami_data[:20,:20])
 
 print("whereami x ===========================================================")
@@ -127,7 +126,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("whereami_x"),
     0,  # x0
     0,  # y0
@@ -139,7 +138,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-whereami_x_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+whereami_x_data = out_tensors_u32.copy()
 print(whereami_x_data[:20,:20])
 
 print("whereami y ===========================================================")
@@ -147,7 +146,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("whereami_y"),
     0,  # x0
     0,  # y0
@@ -159,7 +158,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-whereami_y_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+whereami_y_data = out_tensors_u32.copy()
 print(whereami_y_data[:20,:20])
 
 
@@ -168,7 +167,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("cycleCounter"),
     0,  # x0
     0,  # y0
@@ -180,7 +179,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-cycle_counts = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).flat.copy()
+cycle_counts = out_tensors_u32.flat.copy()
 print(cycle_counts[:100])
 
 
@@ -189,7 +188,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("recvCounter_N"),
     0,  # x0
     0,  # y0
@@ -201,7 +200,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvN = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+recvN = out_tensors_u32.copy()
 print(recvN[:20,:20])
 
 print("recv counter S ========================================================")
@@ -209,7 +208,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("recvCounter_S"),
     0,  # x0
     0,  # y0
@@ -221,7 +220,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvS = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+recvS = out_tensors_u32.copy()
 print(recvS[:20,:20])
 
 print("recv counter E ========================================================")
@@ -229,7 +228,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("recvCounter_E"),
     0,  # x0
     0,  # y0
@@ -241,7 +240,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvE = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+recvE = out_tensors_u32.copy()
 print(recvE[:20,:20])
 
 print("recv counter W ========================================================")
@@ -249,7 +248,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("recvCounter_W"),
     0,  # x0
     0,  # y0
@@ -261,7 +260,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-recvW = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+recvW = out_tensors_u32.copy()
 print(recvW[:20,:20])
 
 print("recv counter sum =====================================================")
@@ -274,7 +273,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("sendCounter_N"),
     0,  # x0
     0,  # y0
@@ -286,7 +285,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendN = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+sendN = out_tensors_u32.copy()
 print(sendN[:20,:20])
 
 print("send counter S ========================================================")
@@ -294,7 +293,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("sendCounter_S"),
     0,  # x0
     0,  # y0
@@ -306,7 +305,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendS = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+sendS = out_tensors_u32.copy()
 print(sendS[:20,:20])
 
 print("send counter E ========================================================")
@@ -314,7 +313,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("sendCounter_E"),
     0,  # x0
     0,  # y0
@@ -326,7 +325,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendE = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+sendE = out_tensors_u32.copy()
 print(sendE[:20,:20])
 
 print("send counter W ========================================================")
@@ -334,7 +333,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("sendCounter_W"),
     0,  # x0
     0,  # y0
@@ -346,7 +345,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-sendW = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+sendW = out_tensors_u32.copy()
 print(sendW[:20,:20])
 
 print("send counter sum =====================================================")
@@ -359,7 +358,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("tscControlBuffer"),
     0,  # x0
     0,  # y0
@@ -371,7 +370,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+data = out_tensors_u32
 tscControl_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
@@ -385,7 +384,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("tscStartBuffer"),
     0,  # x0
     0,  # y0
@@ -397,7 +396,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+data = out_tensors_u32
 tscStart_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
@@ -411,7 +410,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, tscSizeWords // 2), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("tscEndBuffer"),
     0,  # x0
     0,  # y0
@@ -423,7 +422,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+data = out_tensors_u32
 tscEnd_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
@@ -501,7 +500,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_f32 = np.zeros((nCol, nRow), np.float32)
 
 runner.memcpy_d2h(
-    out_tensors_f32,
+    out_tensors_f32.ravel(),
     runner.get_id("fitness"),
     0,  # x0
     0,  # y0
@@ -513,7 +512,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_f32, np.dtype(np.float32))
+data = out_tensors_f32.copy()
 print(data[:20,:20])
 
 print("genome values ========================================================")
@@ -521,7 +520,7 @@ memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
 
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("genome"),
     0,  # x0
     0,  # y0
@@ -533,7 +532,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-data = memcpy_view(out_tensors_u32, np.dtype(np.uint32))
+data = out_tensors_u32
 genome_bytes = [
     inner.view(np.uint8).tobytes() for outer in data for inner in outer
 ]
@@ -585,7 +584,7 @@ print("trait data ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("traitCounts"),
     0,  # x0
     0,  # y0
@@ -597,13 +596,13 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-traitCounts_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+traitCounts_data = out_tensors_u32.copy()
 print("traitCounts_data", Counter(traitCounts_data.flat))
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("traitCycles"),
     0,  # x0
     0,  # y0
@@ -615,13 +614,13 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-traitCycles_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+traitCycles_data = out_tensors_u32.copy()
 print("traitCycles_data", Counter(traitCycles_data.flat))
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
 runner.memcpy_d2h(
-    out_tensors_u32,
+    out_tensors_u32.ravel(),
     runner.get_id("traitValues"),
     0,  # x0
     0,  # y0
@@ -633,7 +632,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-traitValues_data = memcpy_view(out_tensors_u32, np.dtype(np.uint32)).copy()
+traitValues_data = out_tensors_u32.copy()
 print("traitValues_data", Counter(traitValues_data.flat))
 
 # save trait data values to a file
