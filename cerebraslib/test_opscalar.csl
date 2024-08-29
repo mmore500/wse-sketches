@@ -130,6 +130,19 @@ fn test_poisson32() void {
     while (opscalar.poisson32(1.0) < 1) {}
     while (opscalar.poisson32(1.0) > 1) {}
     while (opscalar.poisson32(1.0) != 1) {}
+
+    var sum_large: u32 = 0;
+    var sum_small: u32 = 0;
+    for (@range(u16, 10000)) |i| {
+        sum_large += opscalar.poisson32(0.0001);
+        sum_small += opscalar.poisson32(0.000001);
+    }
+    @assert(sum_large >= sum_small);
+    @assert(sum_large < 5);
+    @assert(sum_small < 2);
+    while (opscalar.poisson32(0.0001) == 0) {
+        @assert(opscalar.poisson32(0.000001) == 0);
+    }
 }
 
 fn test_popcnt32() void {
