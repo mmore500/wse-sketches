@@ -1,0 +1,55 @@
+const random = @import_module("<random>");
+
+const genome = @import_module("cerebraslib/genome_hypermutator_denovo_Ud.csl");
+
+fn test_elapse_inheritance_of() void {
+    var g = @zeros(genome.genome_t);
+    genome.elapse_inheritance_of(&g);
+}
+
+fn test_calc_fitness_of() void {
+    var g = @zeros(genome.genome_t);
+    @assert(genome.calc_fitness_of(&g) == 0.0);
+}
+
+fn test_initialize_one() void {
+    var g = @zeros(genome.genome_t);
+    genome.initialize_one(&g);
+}
+
+fn test_get_trait_value() void {
+    var g = @zeros(genome.genome_t);
+    genome._ptr_mutator(&g).* = 1.0;
+    @assert(genome.get_trait_value(&g) == 0);
+    genome.elapse_inheritance_of(&g);
+    @assert(genome.get_trait_value(&g) == 0);
+    genome._ptr_mutator(&g).* = 100.0;
+    @assert(genome.get_trait_value(&g) == 1);
+    genome.elapse_inheritance_of(&g);
+    @assert(genome.get_trait_value(&g) == 1);
+
+    while (genome.get_trait_value(&g) == 1) {
+        genome.initialize_one(&g);
+        @assert(genome.get_trait_value(&g) < genome.nTraitVals);
+    }
+    while (genome.get_trait_value(&g) == 0) {
+        genome.initialize_one(&g);
+        @assert(genome.get_trait_value(&g) < genome.nTraitVals);
+    }
+}
+
+fn test_integration() void {
+    random.set_global_prng_seed(1);
+    var g = @zeros(genome.genome_t);
+    genome.initialize_one(&g);
+    while (genome.calc_fitness_of(&g) == 0.0) {
+        genome.elapse_inheritance_of(&g);
+    }
+}
+
+fn do_test() void {
+    test_calc_fitness_of();
+    test_elapse_inheritance_of();
+    test_initialize_one();
+    test_integration();
+}
