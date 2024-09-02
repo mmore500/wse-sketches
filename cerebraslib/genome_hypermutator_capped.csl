@@ -89,7 +89,7 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
 }
 
 fn calc_fitness_of(genome: genomePtr_t) f32 {
-    return math.min(@as(f32, _ptr_netbencount(genome).*), 1);
+    return math.min(@as(f32, _ptr_netbencount(genome).*), 1.0);
 }
 
 fn get_trait_value(genome: genomePtr_t) u32 {
