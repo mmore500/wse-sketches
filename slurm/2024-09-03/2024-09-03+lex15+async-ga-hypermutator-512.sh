@@ -14,7 +14,7 @@ echo "SLURM_ARRAY_TASK_ID ${SLURM_ARRAY_TASK_ID}"
 WSE_SKETCHES_REVISION="f60c78a8fc6b6f31d039b63759f1d2a3797dc3e7"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
-WORKDIR="${HOME}/2024-09-03-denovo-Ud-strongsel/lex15+async-ga-hypermutator-512"
+WORKDIR="${HOME}/scratch/2024-09-03-denovo-Ud-strongsel/lex15+async-ga-hypermutator-512"
 echo "WORKDIR ${WORKDIR}"
 
 export CSLC="${CSLC:-cslc}"
