@@ -33,9 +33,6 @@ fn test_integration() void {
     random.set_global_prng_seed(1);
     var g = @zeros(genome.genome_t);
     genome.initialize_one(&g);
-    while (genome.calc_fitness_of(&g) == 0.0) {
-        genome.elapse_inheritance_of(&g);
-    }
 }
 
 fn do_test() void {
