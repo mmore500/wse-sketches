@@ -5,9 +5,25 @@ from collections import Counter
 import json
 import os
 import uuid
+import subprocess
+import sys
+import tempfile
+
+
+# need to add polars to Cerebras python
+temp_dir = tempfile.mkdtemp()
+subprocess.check_call(
+    [
+        "pip",
+        "install",
+        f"--target={temp_dir}",
+        "polars==1.6.0",
+    ],
+)
+sys.path.append(temp_dir)
 
 import numpy as np
-import pandas as pd
+import polars as pl
 from scipy import stats as sps
 
 from cerebras.sdk.runtime.sdkruntimepybind import (
@@ -68,20 +84,20 @@ genomeFlavor = args.genomeFlavor or "unknown"
 
 # save genome values to a file
 metadata = {
-    "genomeFlavor": genomeFlavor,
-    "globalSeed": globalSeed,
-    "nCol": nCol,
-    "nRow": nRow,
-    "nWav": nWav,
-    "nTrait": nTrait,
-    "nCycle": nCycleAtLeast,
-    "nColSubgrid": nColSubgrid,
-    "nRowSubgrid": nRowSubgrid,
-    "tilePopSize": tilePopSize,
-    "tournSize": tournSize,
-    "msec": msecAtLeast,
-    "tsc": tscAtLeast,
-    "replicate": str(uuid.uuid4()),
+    "genomeFlavor": (genomeFlavor, pl.Utf8),
+    "globalSeed": (globalSeed, pl.UInt32),
+    "nCol": (nCol, pl.UInt16),
+    "nRow": (nRow, pl.UInt16),
+    "nWav": (nWav, pl.UInt8),
+    "nTrait": (nTrait, pl.UInt8),
+    "nCycle": (nCycleAtLeast, pl.UInt32),
+    "nColSubgrid": (nColSubgrid, pl.UInt16),
+    "nRowSubgrid": (nRowSubgrid, pl.UInt16),
+    "tilePopSize": (tilePopSize, pl.UInt16),
+    "tournSize": (tournSize, pl.Float32),
+    "msec": (msecAtLeast, pl.Float32),
+    "tsc": (tscAtLeast, pl.UInt64),
+    "replicate": (str(uuid.uuid4()), pl.Utf8),
 }
 print(metadata)
 
@@ -179,7 +195,7 @@ runner.memcpy_d2h(
     order=MemcpyOrder.ROW_MAJOR,
     nonblock=False,
 )
-cycle_counts = out_tensors_u32.flat.copy()
+cycle_counts = out_tensors_u32.ravel().copy()
 print(cycle_counts[:100])
 
 
@@ -264,7 +280,7 @@ recvW = out_tensors_u32.copy()
 print(recvW[:20,:20])
 
 print("recv counter sum =====================================================")
-recvSum = [*map(sum, zip(recvN.flat, recvS.flat, recvE.flat, recvW.flat))]
+recvSum = [*map(sum, zip(recvN.ravel(), recvS.ravel(), recvE.ravel(), recvW.ravel()))]
 print(recvSum[:100])
 print(f"{np.mean(recvSum)=} {np.std(recvSum)=} {sps.sem(recvSum)=}")
 
@@ -349,7 +365,7 @@ sendW = out_tensors_u32.copy()
 print(sendW[:20,:20])
 
 print("send counter sum =====================================================")
-sendSum = [*map(sum, zip(sendN.flat, sendS.flat, sendE.flat, sendW.flat))]
+sendSum = [*map(sum, zip(sendN.ravel(), sendS.ravel(), sendE.ravel(), sendW.ravel()))]
 print(sendSum[:100])
 print(f"{np.mean(sendSum)=} {np.std(sendSum)=} {sps.sem(sendSum)=}")
 
@@ -459,41 +475,42 @@ print(f"{np.mean(tsc_cyns)=} {np.std(tsc_cyns)=} {sps.sem(tsc_cyns)=}")
 
 print("perf ================================================================")
 # save performance metrics to a file
-df = pd.DataFrame(
-    {
-        "tsc ticks": tsc_ticks,
-        "tsc seconds": tsc_sec,
-        "tsc seconds per cycle": tsc_cysec,
-        "tsc cycle hertz": tsc_cyhz,
-        "tsc ns per cycle": tsc_cyns,
-        "recv sum": recvSum,
-        "send sum": sendSum,
-        "cycle count": cycle_counts,
-        "tsc start": tscStart_ints,
-        "tsc end": tscEnd_ints,
-        "send N": sendN.flat,
-        "send S": sendS.flat,
-        "send E": sendE.flat,
-        "send W": sendW.flat,
-        "recv N": recvN.flat,
-        "recv S": recvS.flat,
-        "recv E": recvE.flat,
-        "recv W": recvW.flat,
-        "tile": whoami_data.flat,
-        "row": whereami_y_data.flat,
-        "col": whereami_x_data.flat,
-        **metadata,
-    },
-)
-df.to_csv(
+df = pl.DataFrame({
+    "tsc ticks": pl.Series(tsc_ticks, dtype=pl.UInt32),
+    "tsc seconds": pl.Series(tsc_sec, dtype=pl.Float32),
+    "tsc seconds per cycle": pl.Series(tsc_cysec, dtype=pl.Float32),
+    "tsc cycle hertz": pl.Series(tsc_cyhz, dtype=pl.Float32),
+    "tsc ns per cycle": pl.Series(tsc_cyns, dtype=pl.Float32),
+    "recv sum": pl.Series(recvSum, dtype=pl.UInt32),
+    "send sum": pl.Series(sendSum, dtype=pl.UInt32),
+    "cycle count": pl.Series(cycle_counts, dtype=pl.UInt32),
+    "tsc start": pl.Series(tscStart_ints, dtype=pl.UInt32),
+    "tsc end": pl.Series(tscEnd_ints, dtype=pl.UInt32),
+    "send N": pl.Series(sendN.ravel(), dtype=pl.UInt32),
+    "send S": pl.Series(sendS.ravel(), dtype=pl.UInt32),
+    "send E": pl.Series(sendE.ravel(), dtype=pl.UInt32),
+    "send W": pl.Series(sendW.ravel(), dtype=pl.UInt32),
+    "recv N": pl.Series(recvN.ravel(), dtype=pl.UInt32),
+    "recv S": pl.Series(recvS.ravel(), dtype=pl.UInt32),
+    "recv E": pl.Series(recvE.ravel(), dtype=pl.UInt32),
+    "recv W": pl.Series(recvW.ravel(), dtype=pl.UInt32),
+    "tile": pl.Series(whoami_data.ravel(), dtype=pl.UInt32),
+    "row": pl.Series(whereami_y_data.ravel(), dtype=pl.UInt16),
+    "col": pl.Series(whereami_x_data.ravel(), dtype=pl.UInt16),
+})
+df.with_columns([
+    pl.lit(value, dtype=dtype).alias(key)
+    for key, (value, dtype) in metadata.items()
+])
+df.write_parquet(
     "a=perf"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv.gz",
-    compression="gzip",
-    index=False,
+    "+ext=.pqt",
+    compression="lz4",
 )
+del df, tsc_ticks, tsc_sec, tsc_cysec, tsc_cyhz, tsc_cyns, tscStart_ints, tscEnd_ints
 
 print("fitness =============================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -532,7 +549,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitCounts_data = out_tensors_u32.copy()
-print("traitCounts_data", Counter(traitCounts_data.flat))
+print("traitCounts_data", Counter(traitCounts_data.ravel()))
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
@@ -550,7 +567,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitCycles_data = out_tensors_u32.copy()
-print("traitCycles_data", Counter(traitCycles_data.flat))
+print("traitCycles_data", Counter(traitCycles_data.ravel()))
 
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
@@ -568,36 +585,37 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitValues_data = out_tensors_u32.copy()
-print("traitValues_data", Counter(traitValues_data.flat))
+print("traitValues_data", Counter(traitValues_data.ravel()))
 
 # save trait data values to a file
-df = pd.DataFrame(
-    {
-        "trait count": traitCounts_data.flat,
-        "trait cycle last seen": traitCycles_data.flat,
-        "trait value": traitValues_data.flat,
-        "tile": np.repeat(whoami_data.flat, nTrait),
-        "row": np.repeat(whereami_y_data.flat, nTrait),
-        "col": np.repeat(whereami_x_data.flat, nTrait),
-        **metadata,
-    },
-)
+df = pl.DataFrame({
+    "trait count": pl.Series(traitCounts_data.ravel(), dtype=pl.UInt16),
+    "trait cycle last seen": pl.Series(traitCycles_data.ravel(), dtype=pl.UInt32),
+    "trait value": pl.Series(traitValues_data.ravel(), dtype=pl.UInt8),
+    "tile": pl.Series(np.repeat(whoami_data.ravel(), nTrait), dtype=pl.UInt32),
+    "row": pl.Series(np.repeat(whereami_y_data.ravel(), nTrait), dtype=pl.UInt16),
+    "col": pl.Series(np.repeat(whereami_x_data.ravel(), nTrait), dtype=pl.UInt16),
+}).with_columns([
+    pl.lit(value, dtype=dtype).alias(key)
+    for key, (value, dtype) in metadata.items()
+])
 
-for trait, group in df.groupby("trait value"):
+
+for trait, group in df.group_by("trait value"):
     print(
         f"trait {trait} total count is",
         group["trait count"].sum()
     )
 
-df.to_csv(
+df.write_parquet(
     "a=traits"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv.gz",
-    compression="gzip",
-    index=False,
+    "+ext=.pqt",
+    compression="lz4",
 )
+del df, traitCounts_data, traitCycles_data, traitValues_data
 
 print("genome values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -645,24 +663,25 @@ genome_hex = (
 )
 
 # save genome values to a file
-df = pd.DataFrame(
-    {
-        "bitfield": genome_hex,
-        "tile": whoami_data.flat,
-        "row": whereami_y_data.flat,
-        "col": whereami_x_data.flat,
-        **metadata,
-    },
-)
-df.to_csv(
+df = pl.DataFrame({
+    "bitfield": pl.Series(genome_hex, dtype=pl.Utf8),
+    "tile": pl.Series(whoami_data.ravel(), dtype=pl.UInt32),
+    "row": pl.Series(whereami_y_data.ravel(), dtype=pl.UInt16),
+    "col": pl.Series(whereami_x_data.ravel(), dtype=pl.UInt16),
+}).with_columns([
+    pl.lit(value, dtype=dtype).alias(key)
+    for key, (value, dtype) in metadata.items()
+])
+
+df.write_parquet(
     "a=genomes"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv.gz",
-    compression="gzip",
-    index=False,
+    "+ext=.pqt",
+    compression="lz4",
 )
+del df, genome_ints, genome_bytes, genome_hex
 
 # runner.dump("corefile.cs1")
 runner.stop()
