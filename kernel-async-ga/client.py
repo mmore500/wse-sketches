@@ -183,6 +183,176 @@ runner.memcpy_d2h(
 whereami_y_data = out_tensors_u32.copy()
 print(whereami_y_data[:20,:20])
 
+print("fitness =============================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_f32 = np.zeros((nCol, nRow), np.float32)
+
+runner.memcpy_d2h(
+    out_tensors_f32.ravel(),
+    runner.get_id("fitness"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = out_tensors_f32.copy()
+print(data[:20,:20])
+
+print("trait data ===========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
+runner.memcpy_d2h(
+    out_tensors_u32.ravel(),
+    runner.get_id("traitCounts"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nTrait,  # num possible trait values
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+traitCounts_data = out_tensors_u32.copy()
+print("traitCounts_data", Counter(traitCounts_data.ravel()))
+
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
+runner.memcpy_d2h(
+    out_tensors_u32.ravel(),
+    runner.get_id("traitCycles"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nTrait,  # num possible trait values
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+traitCycles_data = out_tensors_u32.copy()
+print("traitCycles_data", Counter(traitCycles_data.ravel()))
+
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
+runner.memcpy_d2h(
+    out_tensors_u32.ravel(),
+    runner.get_id("traitValues"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nTrait,  # num possible trait values
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+traitValues_data = out_tensors_u32.copy()
+print("traitValues_data", Counter(traitValues_data.ravel()))
+
+# save trait data values to a file
+df = pl.DataFrame({
+    "trait count": pl.Series(traitCounts_data.ravel(), dtype=pl.UInt16),
+    "trait cycle last seen": pl.Series(traitCycles_data.ravel(), dtype=pl.UInt32),
+    "trait value": pl.Series(traitValues_data.ravel(), dtype=pl.UInt8),
+    "tile": pl.Series(np.repeat(whoami_data.ravel(), nTrait), dtype=pl.UInt32),
+    "row": pl.Series(np.repeat(whereami_y_data.ravel(), nTrait), dtype=pl.UInt16),
+    "col": pl.Series(np.repeat(whereami_x_data.ravel(), nTrait), dtype=pl.UInt16),
+}).with_columns([
+    pl.lit(value, dtype=dtype).alias(key)
+    for key, (value, dtype) in metadata.items()
+])
+
+
+for trait, group in df.group_by("trait value"):
+    print(
+        f"trait {trait} total count is",
+        group["trait count"].sum()
+    )
+
+df.write_parquet(
+    "a=traits"
+    f"+flavor={genomeFlavor}"
+    f"+seed={globalSeed}"
+    f"+ncycle={nCycleAtLeast}"
+    "+ext=.pqt",
+    compression="lz4",
+)
+del df, traitCounts_data, traitCycles_data, traitValues_data
+
+print("genome values ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32.ravel(),
+    runner.get_id("genome"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nWav,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = out_tensors_u32
+genome_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+genome_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
+]
+
+# display genome values
+assert len(genome_ints) == nRow * nCol
+for word in range(nWav):
+    print(f"---------------------------------------------- genome word {word}")
+    print([inner[word] for outer in data for inner in outer][:100])
+
+print("------------------------------------------------ genome binary strings")
+for genome_int in genome_ints[:100]:
+    print(np.binary_repr(genome_int, width=nWav * wavSize))
+
+print("--------------------------------------------------- genome hex strings")
+for genome_int in genome_ints[:100]:
+    print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
+
+# prevent polars from reading as int64 and overflowing
+genome_hex = (
+    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
+    for genome_int in genome_ints
+)
+
+# save genome values to a file
+df = pl.DataFrame({
+    "bitfield": pl.Series(genome_hex, dtype=pl.Utf8),
+    "tile": pl.Series(whoami_data.ravel(), dtype=pl.UInt32),
+    "row": pl.Series(whereami_y_data.ravel(), dtype=pl.UInt16),
+    "col": pl.Series(whereami_x_data.ravel(), dtype=pl.UInt16),
+}).with_columns([
+    pl.lit(value, dtype=dtype).alias(key)
+    for key, (value, dtype) in metadata.items()
+])
+
+df.write_parquet(
+    "a=genomes"
+    f"+flavor={genomeFlavor}"
+    f"+seed={globalSeed}"
+    f"+ncycle={nCycleAtLeast}"
+    "+ext=.pqt",
+    compression="lz4",
+)
+del df, genome_ints, genome_bytes, genome_hex
 
 print("cycle counter =======================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
@@ -517,177 +687,6 @@ df.write_parquet(
     compression="lz4",
 )
 del df, tsc_ticks, tsc_sec, tsc_cysec, tsc_cyhz, tsc_cyns, tscStart_ints, tscEnd_ints
-
-print("fitness =============================================================")
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_f32 = np.zeros((nCol, nRow), np.float32)
-
-runner.memcpy_d2h(
-    out_tensors_f32.ravel(),
-    runner.get_id("fitness"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    1,  # num wavelets
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-data = out_tensors_f32.copy()
-print(data[:20,:20])
-
-print("trait data ===========================================================")
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
-runner.memcpy_d2h(
-    out_tensors_u32.ravel(),
-    runner.get_id("traitCounts"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    nTrait,  # num possible trait values
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-traitCounts_data = out_tensors_u32.copy()
-print("traitCounts_data", Counter(traitCounts_data.ravel()))
-
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
-runner.memcpy_d2h(
-    out_tensors_u32.ravel(),
-    runner.get_id("traitCycles"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    nTrait,  # num possible trait values
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-traitCycles_data = out_tensors_u32.copy()
-print("traitCycles_data", Counter(traitCycles_data.ravel()))
-
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
-runner.memcpy_d2h(
-    out_tensors_u32.ravel(),
-    runner.get_id("traitValues"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    nTrait,  # num possible trait values
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-traitValues_data = out_tensors_u32.copy()
-print("traitValues_data", Counter(traitValues_data.ravel()))
-
-# save trait data values to a file
-df = pl.DataFrame({
-    "trait count": pl.Series(traitCounts_data.ravel(), dtype=pl.UInt16),
-    "trait cycle last seen": pl.Series(traitCycles_data.ravel(), dtype=pl.UInt32),
-    "trait value": pl.Series(traitValues_data.ravel(), dtype=pl.UInt8),
-    "tile": pl.Series(np.repeat(whoami_data.ravel(), nTrait), dtype=pl.UInt32),
-    "row": pl.Series(np.repeat(whereami_y_data.ravel(), nTrait), dtype=pl.UInt16),
-    "col": pl.Series(np.repeat(whereami_x_data.ravel(), nTrait), dtype=pl.UInt16),
-}).with_columns([
-    pl.lit(value, dtype=dtype).alias(key)
-    for key, (value, dtype) in metadata.items()
-])
-
-
-for trait, group in df.group_by("trait value"):
-    print(
-        f"trait {trait} total count is",
-        group["trait count"].sum()
-    )
-
-df.write_parquet(
-    "a=traits"
-    f"+flavor={genomeFlavor}"
-    f"+seed={globalSeed}"
-    f"+ncycle={nCycleAtLeast}"
-    "+ext=.pqt",
-    compression="lz4",
-)
-del df, traitCounts_data, traitCycles_data, traitValues_data
-
-print("genome values ========================================================")
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
-
-runner.memcpy_d2h(
-    out_tensors_u32.ravel(),
-    runner.get_id("genome"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    nWav,  # num wavelets
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-data = out_tensors_u32
-genome_bytes = [
-    inner.view(np.uint8).tobytes() for outer in data for inner in outer
-]
-genome_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
-]
-
-# display genome values
-assert len(genome_ints) == nRow * nCol
-for word in range(nWav):
-    print(f"---------------------------------------------- genome word {word}")
-    print([inner[word] for outer in data for inner in outer][:100])
-
-print("------------------------------------------------ genome binary strings")
-for genome_int in genome_ints[:100]:
-    print(np.binary_repr(genome_int, width=nWav * wavSize))
-
-print("--------------------------------------------------- genome hex strings")
-for genome_int in genome_ints[:100]:
-    print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
-
-# prevent polars from reading as int64 and overflowing
-genome_hex = (
-    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
-    for genome_int in genome_ints
-)
-
-# save genome values to a file
-df = pl.DataFrame({
-    "bitfield": pl.Series(genome_hex, dtype=pl.Utf8),
-    "tile": pl.Series(whoami_data.ravel(), dtype=pl.UInt32),
-    "row": pl.Series(whereami_y_data.ravel(), dtype=pl.UInt16),
-    "col": pl.Series(whereami_x_data.ravel(), dtype=pl.UInt16),
-}).with_columns([
-    pl.lit(value, dtype=dtype).alias(key)
-    for key, (value, dtype) in metadata.items()
-])
-
-df.write_parquet(
-    "a=genomes"
-    f"+flavor={genomeFlavor}"
-    f"+seed={globalSeed}"
-    f"+ncycle={nCycleAtLeast}"
-    "+ext=.pqt",
-    compression="lz4",
-)
-del df, genome_ints, genome_bytes, genome_hex
 
 # runner.dump("corefile.cs1")
 runner.stop()
