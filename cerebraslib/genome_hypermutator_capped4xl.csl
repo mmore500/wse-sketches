@@ -31,7 +31,7 @@ fn _apply_mutation(genome: genomePtr_t) void {
     const num_del = opscalar.poisson32(Ud * mutator_strength);
 
     _ptr_netbencount(genome).* += @as(i32, num_ben) - @as(i32, num_del);
-    _ptr_delcount(genome).* += @as(u16, num_del);
+    _ptr_delcount(genome).* += @as(u8, num_del);
 }
 
 fn _ptr_netbencount(genome: genomePtr_t) *i32 {
