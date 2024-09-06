@@ -12,14 +12,20 @@ import tempfile
 
 # need to add polars to Cerebras python
 temp_dir = tempfile.mkdtemp()
-subprocess.check_call(
-    [
-        "pip",
-        "install",
-        f"--target={temp_dir}",
-        "polars==1.6.0",
-    ],
-)
+for attempt in range(4):
+    try:
+        subprocess.check_call([
+            "pip",
+            "install",
+            f"--target={temp_dir}",
+            "polars==1.6.0",
+        ])
+        break
+    except subprocess.CalledProcessError as e:
+        print(e)
+        print(f"retrying {attempt=}...")
+else:
+    raise e
 sys.path.append(temp_dir)
 
 import numpy as np
