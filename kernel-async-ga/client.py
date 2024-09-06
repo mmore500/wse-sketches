@@ -515,71 +515,6 @@ runner.memcpy_d2h(
 data = out_tensors_f32.copy()
 print(data[:20,:20])
 
-print("genome values ========================================================")
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
-
-runner.memcpy_d2h(
-    out_tensors_u32.ravel(),
-    runner.get_id("genome"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    nWav,  # num wavelets
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-data = out_tensors_u32
-genome_bytes = [
-    inner.view(np.uint8).tobytes() for outer in data for inner in outer
-]
-genome_ints = [
-    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
-]
-
-# display genome values
-assert len(genome_ints) == nRow * nCol
-for word in range(nWav):
-    print(f"---------------------------------------------- genome word {word}")
-    print([inner[word] for outer in data for inner in outer][:100])
-
-print("------------------------------------------------ genome binary strings")
-for genome_int in genome_ints[:100]:
-    print(np.binary_repr(genome_int, width=nWav * wavSize))
-
-print("--------------------------------------------------- genome hex strings")
-for genome_int in genome_ints[:100]:
-    print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
-
-# prevent polars from reading as int64 and overflowing
-genome_hex = (
-    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
-    for genome_int in genome_ints
-)
-
-# save genome values to a file
-df = pd.DataFrame(
-    {
-        "bitfield": genome_hex,
-        "tile": whoami_data.flat,
-        "row": whereami_y_data.flat,
-        "col": whereami_x_data.flat,
-        **metadata,
-    },
-)
-df.to_csv(
-    "a=genomes"
-    f"+flavor={genomeFlavor}"
-    f"+seed={globalSeed}"
-    f"+ncycle={nCycleAtLeast}"
-    "+ext=.csv.gz",
-    compression="gzip",
-    index=False,
-)
-
 print("trait data ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
@@ -656,6 +591,71 @@ for trait, group in df.groupby("trait value"):
 
 df.to_csv(
     "a=traits"
+    f"+flavor={genomeFlavor}"
+    f"+seed={globalSeed}"
+    f"+ncycle={nCycleAtLeast}"
+    "+ext=.csv.gz",
+    compression="gzip",
+    index=False,
+)
+
+print("genome values ========================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
+
+runner.memcpy_d2h(
+    out_tensors_u32.ravel(),
+    runner.get_id("genome"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    nWav,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+data = out_tensors_u32
+genome_bytes = [
+    inner.view(np.uint8).tobytes() for outer in data for inner in outer
+]
+genome_ints = [
+    int.from_bytes(genome, byteorder="big") for genome in genome_bytes
+]
+
+# display genome values
+assert len(genome_ints) == nRow * nCol
+for word in range(nWav):
+    print(f"---------------------------------------------- genome word {word}")
+    print([inner[word] for outer in data for inner in outer][:100])
+
+print("------------------------------------------------ genome binary strings")
+for genome_int in genome_ints[:100]:
+    print(np.binary_repr(genome_int, width=nWav * wavSize))
+
+print("--------------------------------------------------- genome hex strings")
+for genome_int in genome_ints[:100]:
+    print(np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4))
+
+# prevent polars from reading as int64 and overflowing
+genome_hex = (
+    np.base_repr(genome_int, base=16).zfill(nWav * wavSize // 4)
+    for genome_int in genome_ints
+)
+
+# save genome values to a file
+df = pd.DataFrame(
+    {
+        "bitfield": genome_hex,
+        "tile": whoami_data.flat,
+        "row": whereami_y_data.flat,
+        "col": whereami_x_data.flat,
+        **metadata,
+    },
+)
+df.to_csv(
+    "a=genomes"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
