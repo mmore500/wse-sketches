@@ -9,9 +9,11 @@ import subprocess
 import sys
 import tempfile
 
-
+print("- setting up temp dir")
 # need to add polars to Cerebras python
 temp_dir = tempfile.mkdtemp()
+print(f"  - {temp_dir=}")
+print("- installing polars")
 for attempt in range(4):
     try:
         subprocess.check_call([
@@ -26,12 +28,18 @@ for attempt in range(4):
         print(f"retrying {attempt=}...")
 else:
     raise e
+print(f"- extending sys path with temp dir {temp_dir=}")
 sys.path.append(temp_dir)
 
+print("- importing third-party dependencies")
 import numpy as np
+print("  - numpy")
 import polars as pl
+print("  - polars")
 from scipy import stats as sps
+print("  - scipy")
 
+print("- importing cerebras depencencies")
 from cerebras.sdk.runtime.sdkruntimepybind import (
     SdkRuntime,
     MemcpyDataType,
@@ -46,7 +54,7 @@ def add_bool_arg(parser, name, default=False):
     group.add_argument("--no-" + name, dest=name, action="store_false")
     parser.set_defaults(**{name: default})
 
-
+print("- reading env variables")
 # number of rows, columns, and genome words
 nCol = int(os.getenv("ASYNC_GA_NCOL", 3))
 nRow = int(os.getenv("ASYNC_GA_NROW", 3))
@@ -54,11 +62,13 @@ nWav = int(os.getenv("ASYNC_GA_NWAV", 4))
 nTrait = int(os.getenv("ASYNC_GA_NTRAIT", 1))
 print(f"{nCol=}, {nRow=}, {nWav=}, {nTrait=}")
 
+print("- setting global variables")
 wavSize = 32  # number of bits in a wavelet
 tscSizeWords = 3  # number of 16-bit values in 48-bit timestamp values
 tscSizeWords += tscSizeWords % 2  # make even multiple of 32-bit words
 tscTicksPerSecond = 850 * 10**6  # 850 MHz
 
+print("- configuring argparse")
 parser = argparse.ArgumentParser()
 parser.add_argument("--name", help="the test compile output dir", default="out")
 add_bool_arg(parser, "suptrace", default=True)
@@ -66,6 +76,7 @@ parser.add_argument("--cmaddr", help="IP:port for CS system")
 parser.add_argument(
     "--genomeFlavor", help="specify what genome source is used", default=""
 )
+print("- parsing arguments")
 args = parser.parse_args()
 
 print("args =================================================================")
