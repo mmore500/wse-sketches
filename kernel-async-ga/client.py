@@ -183,26 +183,6 @@ runner.memcpy_d2h(
 whereami_y_data = out_tensors_u32.copy()
 print(whereami_y_data[:20,:20])
 
-print("fitness =============================================================")
-memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
-out_tensors_f32 = np.zeros((nCol, nRow), np.float32)
-
-runner.memcpy_d2h(
-    out_tensors_f32.ravel(),
-    runner.get_id("fitness"),
-    0,  # x0
-    0,  # y0
-    nCol,  # width
-    nRow,  # height
-    1,  # num wavelets
-    streaming=False,
-    data_type=memcpy_dtype,
-    order=MemcpyOrder.ROW_MAJOR,
-    nonblock=False,
-)
-data = out_tensors_f32.copy()
-print(data[:20,:20])
-
 print("trait data ===========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nTrait), np.uint32)
@@ -288,6 +268,26 @@ df.write_parquet(
 )
 del df, traitCounts_data, traitCycles_data, traitValues_data
 
+print("fitness =============================================================")
+memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
+out_tensors_f32 = np.zeros((nCol, nRow), np.float32)
+
+runner.memcpy_d2h(
+    out_tensors_f32.ravel(),
+    runner.get_id("fitness"),
+    0,  # x0
+    0,  # y0
+    nCol,  # width
+    nRow,  # height
+    1,  # num wavelets
+    streaming=False,
+    data_type=memcpy_dtype,
+    order=MemcpyOrder.ROW_MAJOR,
+    nonblock=False,
+)
+fitness_data = out_tensors_f32.copy()
+print(fitness_data[:20,:20])
+
 print("genome values ========================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
 out_tensors_u32 = np.zeros((nCol, nRow, nWav), np.uint32)
@@ -336,6 +336,7 @@ genome_hex = (
 # save genome values to a file
 df = pl.DataFrame({
     "bitfield": pl.Series(genome_hex, dtype=pl.Utf8),
+    "fitness": pl.Series(fitness_data.ravel(), dtype=pl.Float32),
     "tile": pl.Series(whoami_data.ravel(), dtype=pl.UInt32),
     "row": pl.Series(whereami_y_data.ravel(), dtype=pl.UInt16),
     "col": pl.Series(whereami_x_data.ravel(), dtype=pl.UInt16),
@@ -352,7 +353,7 @@ df.write_parquet(
     "+ext=.pqt",
     compression="lz4",
 )
-del df, genome_ints, genome_bytes, genome_hex
+del df, fitness_data, genome_ints, genome_bytes, genome_hex
 
 print("cycle counter =======================================================")
 memcpy_dtype = MemcpyDataType.MEMCPY_32BIT
