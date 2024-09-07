@@ -674,7 +674,7 @@ print(f"{np.mean(tsc_cyns)=} {np.std(tsc_cyns)=} {sps.sem(tsc_cyns)=}")
 print("perf ================================================================")
 # save performance metrics to a file
 df = pl.DataFrame({
-    "tsc ticks": pl.Series(tsc_ticks, dtype=pl.UInt32),
+    "tsc ticks": pl.Series(tsc_ticks, dtype=pl.UInt64),
     "tsc seconds": pl.Series(tsc_sec, dtype=pl.Float32),
     "tsc seconds per cycle": pl.Series(tsc_cysec, dtype=pl.Float32),
     "tsc cycle hertz": pl.Series(tsc_cyhz, dtype=pl.Float32),
@@ -682,8 +682,8 @@ df = pl.DataFrame({
     "recv sum": pl.Series(recvSum, dtype=pl.UInt32),
     "send sum": pl.Series(sendSum, dtype=pl.UInt32),
     "cycle count": pl.Series(cycle_counts, dtype=pl.UInt32),
-    "tsc start": pl.Series(tscStart_ints, dtype=pl.UInt32),
-    "tsc end": pl.Series(tscEnd_ints, dtype=pl.UInt32),
+    "tsc start": pl.Series(tscStart_ints, dtype=pl.UInt64),
+    "tsc end": pl.Series(tscEnd_ints, dtype=pl.UInt64),
     "send N": pl.Series(sendN.ravel(), dtype=pl.UInt32),
     "send S": pl.Series(sendS.ravel(), dtype=pl.UInt32),
     "send E": pl.Series(sendE.ravel(), dtype=pl.UInt32),
