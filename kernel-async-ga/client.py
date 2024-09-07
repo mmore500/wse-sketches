@@ -1,27 +1,37 @@
 print("kernel-async-ga/client.py ############################################")
 print("######################################################################")
 import argparse
+import atexit
 from collections import Counter
 import json
 import os
 import uuid
+import shutil
 import subprocess
 import sys
-import tempfile
 
 print("- setting up temp dir")
 # need to add polars to Cerebras python
-temp_dir = tempfile.mkdtemp()
+temp_dir = f"tmp/{uuid.uuid4()}"
+os.makedirs(temp_dir, exist_ok=True)
+atexit.register(shutil.rmtree, temp_dir, ignore_errors=True)
 print(f"  - {temp_dir=}")
 print("- installing polars")
 for attempt in range(4):
     try:
-        subprocess.check_call([
-            "pip",
-            "install",
-            f"--target={temp_dir}",
-            "polars==1.6.0",
-        ])
+        subprocess.check_call(
+            [
+                "pip",
+                "install",
+                f"--target={temp_dir}",
+                f"--no-cache-dir",
+                "polars==1.6.0",
+            ],
+            env={
+                **os.environ,
+                "TMPDIR": temp_dir,
+            },
+        )
         break
     except subprocess.CalledProcessError as e:
         print(e)
