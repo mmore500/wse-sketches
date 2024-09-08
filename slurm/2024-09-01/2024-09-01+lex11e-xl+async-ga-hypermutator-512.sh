@@ -81,7 +81,7 @@ echo "ASYNC_GA_FABRIC_DIMS ${ASYNC_GA_FABRIC_DIMS}"
 export ASYNC_GA_ARCH_FLAG="--arch=wse2"
 echo "ASYNC_GA_ARCH_FLAG ${ASYNC_GA_ARCH_FLAG}"
 
-export ASYNC_GA_GENOME_FLAVOR="genome_hypermutator_capped=4xl"
+export ASYNC_GA_GENOME_FLAVOR="genome_hypermutator_capped5xl"
 echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-1}"
 echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
