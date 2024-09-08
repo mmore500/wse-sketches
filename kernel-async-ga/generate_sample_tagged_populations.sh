@@ -23,6 +23,5 @@ for cmd in "export ASYNC_GA_GLOBAL_SEED=1 ASYNC_GA_NCYCLE_AT_LEAST=25" \
 
 done
 
-gunzip *.gz
-find a=genomes+flavor=${ASYNC_GA_GENOME_FLAVOR}+*.csv \
+find a=genomes+flavor=${ASYNC_GA_GENOME_FLAVOR}+*.pqt \
   | python3 -m joinem "a=concatenated_genomes+flavor=${ASYNC_GA_GENOME_FLAVOR}+ext=.csv"
