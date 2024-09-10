@@ -38,7 +38,7 @@ git checkout "${WSE_SKETCHES_REVISION}"
 cd -
 
 echo "begin work loop ========================================================"
-seed=0
+seed=100
 export ASYNC_GA_NCOL=729
 echo "ASYNC_GA_NCOL ${ASYNC_GA_NCOL}"
 
