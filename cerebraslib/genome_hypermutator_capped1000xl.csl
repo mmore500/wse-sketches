@@ -23,11 +23,18 @@ const sb = 0.1;
 const sd = 0.1;
 const Ub = 0.000001;
 const Ud = 0.0001;
+const benCap = 1000;
 
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
     const mutator_strength = @as(f32, _ptr_mutator(genome).*);
-    const num_ben = opscalar.poisson32(Ub * mutator_strength);
+    const ben_count = (_ptr_netbencount(genome).* + @as(i16, _ptr_delcount(genome).*));
+    var num_avail = @as(i16, benCap - ben_count);
+    var num_ben: i16 = 0;
+    while (num_avail > 0) {
+        num_avail -= 1;
+        num_ben += @as(i16, opscalar.p(Ub * mutator_strength));
+    }
     const num_del = opscalar.poisson32(Ud * mutator_strength);
 
     _ptr_netbencount(genome).* += @as(i16, num_ben) - @as(i16, num_del);
@@ -52,7 +59,7 @@ fn elapse_inheritance_of(genome: genomePtr_t) void {
 }
 
 fn calc_fitness_of(genome: genomePtr_t) f32 {
-    return math.min(@as(f32, _ptr_netbencount(genome).*), 1000.0);
+    return @as(f32, _ptr_netbencount(genome).*);
 }
 
 fn get_trait_value(genome: genomePtr_t) u32 {
