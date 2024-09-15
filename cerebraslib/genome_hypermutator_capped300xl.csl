@@ -28,12 +28,16 @@ const benCap = 300;
 // internal functions =========================================================
 fn _apply_mutation(genome: genomePtr_t) void {
     const mutator_strength = @as(f32, _ptr_mutator(genome).*);
-    const ben_count = (_ptr_netbencount(genome).* + @as(i16, _ptr_delcount(genome).*));
+    var ben_count = (_ptr_netbencount(genome).* + @as(i16, _ptr_delcount(genome).*));
     var num_avail = @as(i16, benCap - ben_count);
     var num_ben: i16 = 0;
     while (num_avail > 0) {
         num_avail -= 1;
         num_ben += @as(i16, opscalar.p(Ub * mutator_strength));
+    }
+    while (ben_count > 0) { // allow reversions of beneficial mutatoins
+        ben_count -= 1;
+        num_ben -= @as(i16, opscalar.p(Ub * mutator_strength));
     }
     const num_del = opscalar.poisson32(Ud * mutator_strength);
 
