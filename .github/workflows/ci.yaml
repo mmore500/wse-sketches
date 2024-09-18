@@ -47,7 +47,7 @@ jobs:
         run: ls -1 /tmp/a=benchmark-zig-hsurf+policy=*+ext=.csv | python3 -m joinem /tmp/a=benchmark-zig-hsurf+ext=.csv
 
       - name: Upload output as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark-zig-hsurf
           path: /tmp/a=benchmark-zig-hsurf+ext=.csv
@@ -321,13 +321,13 @@ jobs:
           submodules: 'recursive'
       - run: (make -C tex/ || (cat tex/*.log && false))
       - name: Upload output as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: manuscript
           path: tex/${{ github.event.repository.name }}-draft.pdf
       - run: (make -C tex-access-proposal/ || (cat tex-access-proposal/*.log && false))
       - name: Upload output as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: access-proposal
           path: tex-access-proposal/${{ github.event.repository.name }}-draft.pdf
