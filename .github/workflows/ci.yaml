@@ -188,7 +188,7 @@ jobs:
         run: ./kernel-async-ga/generate_sample_tagged_populations.sh
 
       - name: Upload output as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sample-tagged-populations
           path: ./kernel-async-ga/a=concatenated_genomes+flavor=genome_hsurftiltedsticky_tagged+ext=.csv
