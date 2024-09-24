@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 
+
 print("- setting up temp dir")
 # need to add polars to Cerebras python
 temp_dir = f"tmp/{uuid.uuid4()}"
@@ -56,6 +57,28 @@ from cerebras.sdk.runtime.sdkruntimepybind import (
     MemcpyOrder,
 )  # pylint: disable=no-name-in-module
 
+print("- defining helper functions")
+def write_parquet_verbose(df: pl.DataFrame, file_name: str) -> None:
+    print(f"saving df to {file_name=}")
+    print(f"- {df.shape=}")
+
+    df.write_parquet(file_name, compression="lz4")
+    print("- write_parquet complete")
+    
+    file_size_mb = os.path.getsize(file_name) / (1024 * 1024)
+    print(f"- saved file size: {file_size_mb:.2f} MB")
+    
+    lazy_frame = pl.scan_parquet(file_name)
+    print("- LazyFrame describe:")
+    print(lazy_frame.describe())
+    
+    original_row_count = df.shape[0]
+    lazy_row_count = lazy_frame.select(pl.count()).collect().item()
+    assert lazy_row_count == original_row_count, (
+        f"Row count mismatch between original and lazy frames: "
+        f"{original_row_count=}, {lazy_row_count=}"
+    )
+    print("- verbose save complete!")
 
 # adapted from https://stackoverflow.com/a/31347222/17332200
 def add_bool_arg(parser, name, default=False):
@@ -279,13 +302,13 @@ for trait, group in df.group_by("trait value"):
         group["trait count"].sum()
     )
 
-df.write_parquet(
+write_parquet_verbose(
+    df,
     "a=traits"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
     "+ext=.pqt",
-    compression="lz4",
 )
 del df, traitCounts_data, traitCycles_data, traitValues_data
 
@@ -366,13 +389,13 @@ df = pl.DataFrame({
     for key, (value, dtype) in metadata.items()
 ])
 
-df.write_parquet(
+write_parquet_verbose(
+    df,
     "a=genomes"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
     "+ext=.pqt",
-    compression="lz4",
 )
 del df, fitness_data, genome_ints, genome_bytes, genome_hex
 
@@ -700,13 +723,13 @@ df.with_columns([
     pl.lit(value, dtype=dtype).alias(key)
     for key, (value, dtype) in metadata.items()
 ])
-df.write_parquet(
+write_parquet_verbose(
+    df,
     "a=perf"
     f"+flavor={genomeFlavor}"
     f"+seed={globalSeed}"
     f"+ncycle={nCycleAtLeast}"
     "+ext=.pqt",
-    compression="lz4",
 )
 del df, tsc_ticks, tsc_sec, tsc_cysec, tsc_cyhz, tsc_cyns, tscStart_ints, tscEnd_ints
 
