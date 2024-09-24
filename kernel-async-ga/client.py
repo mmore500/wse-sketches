@@ -280,7 +280,7 @@ runner.memcpy_d2h(
     nonblock=False,
 )
 traitValues_data = out_tensors.copy()
-print("traitValues_data", Counter(traitValues_data.ravel()))
+print("traitValues_data", str(Counter(traitValues_data.ravel()))[:500])
 
 # save trait data values to a file
 df = pl.DataFrame({
