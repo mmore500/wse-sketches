@@ -111,7 +111,7 @@ genomeFlavor = args.genomeFlavor or "unknown"
 
 # save genome values to a file
 metadata = {
-    "genomeFlavor": (genomeFlavor, pl.Utf8),
+    "genomeFlavor": (genomeFlavor, pl.Categorical),
     "globalSeed": (globalSeed, pl.UInt32),
     "nCol": (nCol, pl.UInt16),
     "nRow": (nRow, pl.UInt16),
@@ -124,7 +124,7 @@ metadata = {
     "tournSize": (tournSize, pl.Float32),
     "msec": (msecAtLeast, pl.Float32),
     "tsc": (tscAtLeast, pl.UInt64),
-    "replicate": (str(uuid.uuid4()), pl.Utf8),
+    "replicate": (str(uuid.uuid4()), pl.Categorical),
 }
 print(metadata)
 
