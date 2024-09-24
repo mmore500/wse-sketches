@@ -4,6 +4,8 @@
 #SBATCH --time=4:00:00
 #SBATCH --cpus-per-task=28
 #SBATCH --output="/jet/home/%u/joblog/id=%j+ext=.txt"
+#SBATCH --mail-user=mawni4ah2o@pomail.net
+#SBATCH --mail-type=FAIL,TIME_LIMIT
 
 set -e
 
