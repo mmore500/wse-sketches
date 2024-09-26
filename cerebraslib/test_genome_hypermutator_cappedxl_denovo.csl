@@ -1,6 +1,6 @@
 const random = @import_module("<random>");
 
-const genome = @import_module("cerebraslib/genome_hypermutator_cappedxl.csl");
+const genome = @import_module("cerebraslib/genome_hypermutator_cappedxl_denovo.csl");
 
 fn test_elapse_inheritance_of() void {
     var g = @zeros(genome.genome_t);
@@ -9,7 +9,7 @@ fn test_elapse_inheritance_of() void {
 
 fn test_calc_fitness_of() void {
     var g = @zeros(genome.genome_t);
-    @assert(genome.calc_fitness_of(&g) == 0);
+    @assert(genome.calc_fitness_of(&g) == 0.0);
 }
 
 fn test_initialize_one() void {
