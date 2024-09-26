@@ -1,0 +1,77 @@
+// memory layout ===============================================================
+// byte 0 NETBENCOUNT (i16, 2 bytes)
+// byte 1
+// byte 2 MUTATOR (u8, 1 byte)
+// byte 3 DELCOUNT (u8, 1 byte)
+// TOTAL: 5 words -> 20 bytes
+
+// module imports =============================================================
+const math = @import_module("<math>");
+const random = @import_module("<random>");
+
+const bitmanip = @import_module("cerebraslib/bitmanip.csl");
+const opscalar = @import_module("cerebraslib/opscalar.csl");
+const tilted = @import_module("cerebraslib/dstream_tilted.csl");
+
+// module config specs ========================================================
+const gSize: u16 = 1;
+const genome_t = [gSize]u32;
+const genomePtr_t = [*]u32;
+const nTraitVals: u16 = 2;
+
+const sb = 0.1;
+const sd = 0.1;
+const Ub = 0.000001;
+const Ud = 0.0001;
+const benCap = 1;
+
+// internal functions =========================================================
+fn _apply_mutation(genome: genomePtr_t) void {
+    const mutator_strength = @as(f32, _ptr_mutator(genome).*);
+    var ben_count = (_ptr_netbencount(genome).* + @as(i16, _ptr_delcount(genome).*));
+    const num_ben = math.min(
+        @as(i16, opscalar.poisson32(Ub * mutator_strength)),
+        benCap - ben_count, // num available beneficial mutations
+    );
+    const num_del = opscalar.poisson32(Ud * mutator_strength);
+
+    _ptr_netbencount(genome).* += @as(i16, num_ben) - @as(i16, num_del);
+    _ptr_delcount(genome).* += @as(u8, num_del);
+
+    if (opscalar.p(Ub)) {
+        _ptr_mutator(genome).* = 100;
+    }
+}
+
+fn _ptr_netbencount(genome: genomePtr_t) *i16 {
+    return &@ptrcast([*]i16, genome)[0];
+}
+
+fn _ptr_delcount(genome: genomePtr_t) *u8 {
+    return &@ptrcast([*]u8, genome)[3];
+}
+
+fn _ptr_mutator(genome: genomePtr_t) *u8 {
+    return &@ptrcast([*]u8, genome)[2];
+}
+
+// public API =================================================================
+fn elapse_inheritance_of(genome: genomePtr_t) void {
+    _apply_mutation(genome);
+}
+
+fn calc_fitness_of(genome: genomePtr_t) f32 {
+    return @as(f32, _ptr_netbencount(genome).*);
+}
+
+fn get_trait_value(genome: genomePtr_t) u32 {
+    return @as(u32, _ptr_mutator(genome).* == 100);
+}
+
+fn initialize_one(genome: genomePtr_t) void {
+    const gHalfWords: u16 = gSize * 2;
+    bitmanip.randomize(@ptrcast([*]u16, genome), gHalfWords);
+    _ptr_netbencount(genome).* = 0;
+    _ptr_delcount(genome).* = 0;
+    _ptr_mutator(genome).* = 1;
+}
