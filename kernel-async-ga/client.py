@@ -64,14 +64,14 @@ def write_parquet_verbose(df: pl.DataFrame, file_name: str) -> None:
 
     df.write_parquet(file_name, compression="lz4")
     print("- write_parquet complete")
-    
+
     file_size_mb = os.path.getsize(file_name) / (1024 * 1024)
     print(f"- saved file size: {file_size_mb:.2f} MB")
-    
+
     lazy_frame = pl.scan_parquet(file_name)
     print("- LazyFrame describe:")
     print(lazy_frame.describe())
-    
+
     original_row_count = df.shape[0]
     lazy_row_count = lazy_frame.select(pl.count()).collect().item()
     assert lazy_row_count == original_row_count, (
