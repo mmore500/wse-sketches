@@ -125,7 +125,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --output="/mnt/home/%u/joblog/id=%j+ext=.txt"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
 #SBATCH --mail-type=FAIL,TIME_LIMIT
-#SBATCH --account=beacon,devolab,ecode
+#SBATCH --account=beacon
 
 set -e
 
@@ -188,7 +188,7 @@ python3.10 -m uv pip install \
     'cupy-cuda12x==13.3.0' \
     'numpy==1.*' \
     'pandas==1.*' \
-    'polars==1.*' \
+    'polars==1.6.*' \
     'pyarrow==15.*' \
     'scipy==1.*' \
     'tqdm==4.*'
