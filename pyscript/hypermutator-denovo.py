@@ -110,7 +110,8 @@ metadata = {
 print(metadata)
 
 print("do run ===============================================================")
-# TODO
+from pylib._hypermutator_denovo import run
+run()
 
 print("whoami ===============================================================")
 out_tensors = np.zeros((nCol, nRow), np.uint32)
