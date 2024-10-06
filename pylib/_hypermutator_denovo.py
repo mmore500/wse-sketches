@@ -116,10 +116,14 @@ def run(
     genomes[:, :, 0] |= pop_del[::tile_pop_size].reshape(n_row, n_col)
     genomes[:, :, 0] <<= 8
     genomes[:, :, 0] |= pop_ben[::tile_pop_size].reshape(n_row, n_col)
-    genomes = np.array(genomes)
+    if not xp is np:
+        genomes = genomes.get()
 
-    fitnesses = pop_ben[::tile_pop_size] - pop_del[::tile_pop_size]
-    fitnesses = np.array(fitnesses.reshape(n_row, n_col))
+    fitnesses = (
+        pop_ben[::tile_pop_size] - pop_del[::tile_pop_size]
+    ).reshape(n_row, n_col)
+    if not xp is np:
+        fitnesses = fitnesses.get()
 
     trait1 = (pop_mutator != 1).reshape(-1, tile_pop_size).sum(axis=1)
     assert (trait1 <= tile_pop_size).all()
@@ -132,7 +136,8 @@ def run(
         ),
         axis=-1,
     )
-    traits_counts = np.array(traits_counts)
+    if not xp is np:
+        traits_counts =  traits_counts.get()
 
     trait_values = np.stack(
         (
@@ -147,8 +152,10 @@ def run(
             last_seen0.reshape(n_row, n_col),
             last_seen1.reshape(n_row, n_col),
         ),
-    axis=-1)
-    last_seen_ = np.array(last_seen_)
+        axis=-1,
+    )
+    if not xp is np:
+        last_seen_ = last_seen_.get()
 
     mgrid = np.mgrid[0:n_row, 0:n_col]
     whereami_x, whereami_y = mgrid
