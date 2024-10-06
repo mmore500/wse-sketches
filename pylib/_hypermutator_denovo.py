@@ -145,15 +145,13 @@ def run(
     assert (trait1 <= tile_pop_size).all()
     trait0 = tile_pop_size - trait1
     assert (trait0 <= tile_pop_size).all()
-    traits_counts = xp.stack(
+    traits_counts = np.stack(
         (
             reshape(trait0),
             reshape(trait1),
         ),
         axis=-1,
     )
-    if not xp is np:
-        traits_counts =  traits_counts.get()
 
     trait_values = np.stack(
         (
