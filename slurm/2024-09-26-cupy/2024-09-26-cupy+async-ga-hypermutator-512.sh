@@ -40,10 +40,10 @@ cd -
 
 echo "begin work loop ========================================================"
 seed=0
-export ASYNC_GA_NCOL=729
+export ASYNC_GA_NCOL=81
 echo "ASYNC_GA_NCOL ${ASYNC_GA_NCOL}"
 
-export ASYNC_GA_NROW=729
+export ASYNC_GA_NROW=81
 echo "ASYNC_GA_NROW ${ASYNC_GA_NROW}"
 
 for config in \
