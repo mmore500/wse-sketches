@@ -116,7 +116,7 @@ cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --gpus=v100:1
+#SBATCH --gpus=a100:1
 #SBATCH --mem=32G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/id=%j+ext=.txt"
