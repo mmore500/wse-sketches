@@ -74,7 +74,7 @@ def run(
 
 
     def select() -> None:
-        pop_tourns = xp.floor(rng.random() + tourn_size).astype(xp.uint8)
+        pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
         assert 1 <= pop_tourns <= 2
 
         tc1 = xp.arange(pop_size, dtype=xp.uint32)
