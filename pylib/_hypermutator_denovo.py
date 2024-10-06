@@ -74,14 +74,13 @@ def run(
         pop_del[:] += rng.poisson(pdel * pop_mutator, pop_size)
 
 
+    tc1 = xp.arange(pop_size, dtype=xp.uint32)
+
+    group_min = tc1 - tc1 % sub_size
+    group_max = group_min + sub_size
     def select() -> None:
         pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
         assert 1 <= pop_tourns <= 2
-
-        tc1 = xp.arange(pop_size, dtype=xp.uint32)
-
-        group_min = tc1 - tc1 % sub_size
-        group_max = group_min + sub_size
 
         tc2 = rng.randint(group_min, group_max, dtype=xp.uint32)
         tc2[pop_tourns == 1] = tc1[pop_tourns == 1]
