@@ -69,15 +69,15 @@ def run(
             targets = rng_.choice(pop_size, nmut, replace=False)
             pop_mutator[targets] = 100
 
-        pop_ben[:] += rng.poisson(pben * pop_mutator, pop_size)
+        pop_ben[:] += rng.poisson(pben * pop_mutator)
         pop_ben[pop_ben > n_ben] = n_ben
-        pop_del[:] += rng.poisson(pdel * pop_mutator, pop_size)
+        pop_del[:] += rng.poisson(pdel * pop_mutator)
 
 
     tc1 = xp.arange(pop_size, dtype=xp.uint32)
 
-    group_min = tc1 - tc1 % sub_size
-    group_max = group_min + sub_size
+    group_min = tc1 - tc1 % (sub_size * tile_pop_size)
+    group_max = group_min + sub_size * tile_pop_size
     def select() -> None:
         pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
         assert 1 <= pop_tourns <= 2
