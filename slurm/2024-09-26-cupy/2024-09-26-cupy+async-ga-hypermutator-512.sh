@@ -82,7 +82,7 @@ echo "ASYNC_GA_FABRIC_DIMS ${ASYNC_GA_FABRIC_DIMS}"
 export ASYNC_GA_ARCH_FLAG="--arch=wse2"
 echo "ASYNC_GA_ARCH_FLAG ${ASYNC_GA_ARCH_FLAG}"
 
-export ASYNC_GA_GENOME_FLAVOR="genome_hypermutator_capped2xl_denovo_poisson"
+export ASYNC_GA_GENOME_FLAVOR="genome_cupy_${NBEN}xl_denovo_poisson"
 echo "ASYNC_GA_GENOME_FLAVOR ${ASYNC_GA_GENOME_FLAVOR}"
 export ASYNC_GA_NWAV="${ASYNC_GA_NWAV:-1}"
 echo "ASYNC_GA_NWAV ${ASYNC_GA_NWAV}"
@@ -209,7 +209,10 @@ def get_gpu_info():
     else:
         print("No GPU found or CuPy is not properly set up!")
 
-get_gpu_info()
+try:
+    get_gpu_info()
+except Exception as e:
+    print(e)
 EOF_
 
 echo "execute kernel program -------------------------------------------------"
