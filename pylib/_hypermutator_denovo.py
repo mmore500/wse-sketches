@@ -48,6 +48,7 @@ def run(
     n_ben: int,
 ):
     rng = xp.random.RandomState(seed)
+    rng_ = np.random.RandomState(seed)
 
     pop_size = n_col * n_row * tile_pop_size
     pop_mutator = xp.ones(pop_size, dtype=xp.uint8)
@@ -64,7 +65,7 @@ def run(
     def mutate() -> None:
         nmut = rng.binomial(pop_size, pben)
         if nmut:
-            targets = rng.choice(pop_size, nmut, replace=False)
+            targets = rng_.choice(pop_size, nmut, replace=False)
             pop_mutator[targets] = 100
 
         pop_ben[:] += rng.poisson(pben * pop_mutator, pop_size)
