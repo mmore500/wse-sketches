@@ -146,10 +146,12 @@ module purge || :
 module load Python/3.10.8 CUDA/12.3.0 || :
 echo "python3.10 \$(which python3.10)"
 echo "python3.10 --version \$(python3.10 --version)"
-MODULE_PATH="/opt/software-current/2023.06/x86_64/generic/software/CUDA/12.3.0/lib64/"
+MODULE_PATH="/opt/software-current/2023.06/x86_64/generic/software/CUDA/12.3.0/"
 echo "MODULE_PATH \${MODULE_PATH}"
-export LD_LIBRARY_PATH="\${MODULE_PATH}:\${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="\${MODULE_PATH}/lib64:\${LD_LIBRARY_PATH}"
 echo "LD_LIBRARY_PATH \${LD_LIBRARY_PATH}"
+export C_INCLUDE_PATH="\${MODULE_PATH}/include:\${C_INCLUDE_PATH}"
+export CPLUS_INCLUDE_PATH="\${MODULE_PATH}/include:\${CPLUS_INCLUDE_PATH}"
 
 echo "initialization telemetry -----------------------------------------------"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
