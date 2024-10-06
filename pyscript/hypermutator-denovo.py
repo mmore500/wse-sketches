@@ -2,7 +2,6 @@
 print("pyscript/hypermutator-denovo.py ######################################")
 print("######################################################################")
 from collections import Counter
-import json
 import os
 import uuid
 
@@ -89,6 +88,7 @@ tournSize = (
     / int(os.environ["ASYNC_GA_TOURNSIZE_DENOMINATOR"])
 )
 genomeFlavor = os.environ["ASYNC_GA_GENOME_FLAVOR"]
+nBen = int(os.environ["NBEN"])
 
 # save genome values to a file
 metadata = {
@@ -106,45 +106,56 @@ metadata = {
     "msec": (msecAtLeast, pl.Float32),
     "tsc": (tscAtLeast, pl.UInt64),
     "replicate": (str(uuid.uuid4()), pl.Categorical),
+    "nBen": (nBen, pl.UInt8),
 }
 print(metadata)
 
 print("do run ===============================================================")
 from pylib._hypermutator_denovo import run
-run()
+res = run(
+    n_col=nCol,
+    n_row=nRow,
+    n_row_subgrid=nRowSubgrid,
+    n_col_subgrid=nColSubgrid,
+    tile_pop_size=tilePopSize,
+    n_gen=nCycleAtLeast,
+    seed=globalSeed,
+    tourn_size=tournSize,
+    n_ben=nBen,
+)
 
 print("whoami ===============================================================")
 out_tensors = np.zeros((nCol, nRow), np.uint32)
-# TODO
 whoami_data = out_tensors.copy()
+whoami_data[:,:] = res["whoami"]
 print(whoami_data[:20,:20])
 
 print("whereami x ===========================================================")
 out_tensors = np.zeros((nCol, nRow), np.uint32)
-# TODO
 whereami_x_data = out_tensors.copy()
+whereami_x_data[:,:] = res["whereami_x"]
 print(whereami_x_data[:20,:20])
 
 print("whereami y ===========================================================")
 out_tensors = np.zeros((nCol, nRow), np.uint32)
-# TODO
 whereami_y_data = out_tensors.copy()
+whereami_y_data[:,:] = res["whereami_y"]
 print(whereami_y_data[:20,:20])
 
 print("trait data ===========================================================")
 out_tensors = np.zeros((nCol, nRow, nTrait), np.uint32)
-# TODO
 traitCounts_data = out_tensors.copy()
+traitCounts_data[:,:,:] = res["trait_counts"]
 print("traitCounts_data", Counter(traitCounts_data.ravel()))
 
 out_tensors = np.zeros((nCol, nRow, nTrait), np.uint32)
-# TODO
 traitCycles_data = out_tensors.copy()
+traitCycles_data[:,:,:] = res["last_seen"]
 print("traitCycles_data", Counter(traitCycles_data.ravel()))
 
 out_tensors = np.zeros((nCol, nRow, nTrait), np.uint32)
-# TODO
 traitValues_data = out_tensors.copy()
+traitValues_data[:,:,:] = res["trait_values"]
 print("traitValues_data", str(Counter(traitValues_data.ravel()))[:500])
 
 # save trait data values to a file
@@ -179,14 +190,14 @@ del df, traitCounts_data, traitCycles_data, traitValues_data
 
 print("fitness =============================================================")
 out_tensors = np.zeros((nCol, nRow), np.float32)
-# TODO
 fitness_data = out_tensors.copy()
+fitness_data[:,:] = res["fitnesses"]
 print(fitness_data[:20,:20])
 
 print("genome values ========================================================")
 out_tensors = np.zeros((nCol, nRow, nWav), np.uint32)
-# TODO
 genome_data = out_tensors.copy()
+genome_data[:,:,:] = res["genomes"]
 genome_bytes = [
     inner.view(np.uint8).tobytes() for outer in genome_data for inner in outer
 ]
@@ -332,12 +343,12 @@ print(tsc_ticks[:100])
 print(f"{np.mean(tsc_ticks)=} {np.std(tsc_ticks)=} {sps.sem(tsc_ticks)=}")
 
 print("-------------------------------------------------------------- seconds")
-tsc_sec = [diff / tscTicksPerSecond for diff in tsc_ticks]
+tsc_sec = [res["elapsed_ns"] * (10 ** -9)] * (nRow * nCol)
 print(tsc_sec[:100])
 print(f"{np.mean(tsc_sec)=} {np.std(tsc_sec)=} {sps.sem(tsc_sec)=}")
 
 print("---------------------------------------------------- seconds per cycle")
-tsc_cysec = [sec / ncy for (sec, ncy) in zip(tsc_sec, cycle_counts)]
+tsc_cysec = [sec / nCycleAtLeast for sec in tsc_sec]
 print(tsc_cysec[:100])
 print(f"{np.mean(tsc_cysec)=} {np.std(tsc_cysec)=} {sps.sem(tsc_cysec)=}")
 
