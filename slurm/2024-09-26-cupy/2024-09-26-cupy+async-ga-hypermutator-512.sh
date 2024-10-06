@@ -143,7 +143,7 @@ echo "date \$(date)"
 
 echo "module setup -----------------------------------------------------------"
 module purge || :
-module load Python/3.10.8 CUDA/12.2.0 || :
+module load Python/3.10.8 CUDA/12.3.0 || :
 echo "python3.10 \$(which python3.10)"
 echo "python3.10 --version \$(python3.10 --version)"
 
