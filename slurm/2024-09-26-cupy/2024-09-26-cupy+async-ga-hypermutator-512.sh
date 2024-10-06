@@ -194,6 +194,7 @@ python3.10 -m pip install --upgrade pip setuptools wheel
 python3.10 -m pip install --upgrade uv
 python3.10 -m uv pip install \
     'cupy-cuda12x==13.3.0' \
+    'more_itertools==10.*' \
     'numpy==1.*' \
     'pandas==1.*' \
     'polars==1.6.*' \
