@@ -10,7 +10,7 @@ echo "NBEN ${NBEN}"
 
 echo "SLURM_ARRAY_TASK_ID ${SLURM_ARRAY_TASK_ID}"
 
-WSE_SKETCHES_REVISION="c00d75baba5ada3b7170ec600e7b0de8214e0c08"
+WSE_SKETCHES_REVISION="94244c738e738de8fc21107d8dbf31522a955424"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
 WORKDIR="${HOME}/scratch/2024-09-26-cupy/nben=${NBEN}+async-ga-hypermutator-512"
@@ -51,10 +51,7 @@ for config in \
     "export ASYNC_GA_NCOL_SUBGRID=3 ASYNC_GA_NROW_SUBGRID=3 NREP=1" \
     "export ASYNC_GA_NCOL_SUBGRID=9 ASYNC_GA_NROW_SUBGRID=9 NREP=1" \
     "export ASYNC_GA_NCOL_SUBGRID=27 ASYNC_GA_NROW_SUBGRID=27 NREP=1" \
-    "export ASYNC_GA_NCOL_SUBGRID=81 ASYNC_GA_NROW_SUBGRID=81 NREP=1" \
-    "export ASYNC_GA_NCOL_SUBGRID=243 ASYNC_GA_NROW_SUBGRID=243 NREP=1" \
-    "export ASYNC_GA_NCOL_SUBGRID=729 ASYNC_GA_NROW_SUBGRID=729 NREP=9" \
-    "export ASYNC_GA_NCOL_SUBGRID=0 ASYNC_GA_NROW_SUBGRID=0 NREP=9 ASYNC_GA_NCOL=750 ASYNC_GA_NROW=994" \
+    "export ASYNC_GA_NCOL_SUBGRID=81 ASYNC_GA_NROW_SUBGRID=81 NREP=9" \
 ; do
 eval "${config}"
 echo "ASYNC_GA_NCOL ${ASYNC_GA_NCOL}"
@@ -194,6 +191,7 @@ python3.10 -m pip install --upgrade pip setuptools wheel
 python3.10 -m pip install --upgrade uv
 python3.10 -m uv pip install \
     'cupy-cuda12x==13.3.0' \
+    'more_itertools==10.*' \
     'numpy==1.*' \
     'pandas==1.*' \
     'polars==1.6.*' \

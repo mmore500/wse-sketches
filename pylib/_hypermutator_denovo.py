@@ -3,6 +3,7 @@ import os
 import sys
 import time
 
+import more_itertools as mit
 import numpy as np
 import numpy as xp
 try:
@@ -73,14 +74,13 @@ def run(
         pop_del[:] += rng.poisson(pdel * pop_mutator, pop_size)
 
 
+    tc1 = xp.arange(pop_size, dtype=xp.uint32)
+
+    group_min = tc1 - tc1 % sub_size
+    group_max = group_min + sub_size
     def select() -> None:
         pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
         assert 1 <= pop_tourns <= 2
-
-        tc1 = xp.arange(pop_size, dtype=xp.uint32)
-
-        group_min = tc1 - tc1 % sub_size
-        group_max = group_min + sub_size
 
         tc2 = rng.randint(group_min, group_max, dtype=xp.uint32)
         tc2[pop_tourns == 1] = tc1[pop_tourns == 1]
@@ -99,6 +99,23 @@ def run(
         last_seen0[trait < tile_pop_size] = generation
         last_seen1[trait > 0] = generation
 
+    def reshape(x: np.ndarray) -> np.ndarray:
+        n_sub_row = n_row // n_row_subgrid
+        n_sub_col = n_col // n_col_subgrid
+        n_sub = n_sub_row * n_sub_col
+        sub_size = n_col_subgrid * n_row_subgrid
+
+        assert x.size == n_sub * sub_size
+
+        arrs = np.array_split(x.ravel(), n_sub, axis=0)
+        assert len(arrs) == n_sub
+        arrs = [arr.reshape(n_row_subgrid, n_col_subgrid) for arr in arrs]
+
+        chunks = [[*chunk] for chunk in mit.chunked(arrs, n_sub_col)]
+        assert len(chunks) == n_sub_row
+
+        return np.block(chunks)
+
     start_time = time.perf_counter_ns()
     for generation in tq.tqdm(range(n_gen)):
         mutate()
@@ -109,19 +126,19 @@ def run(
     elapsed_ns = end_time - start_time
 
     genomes = xp.zeros((n_row, n_col, 1), dtype=xp.int32)
-    genomes[:, :, 0] = pop_founder[::tile_pop_size].reshape(n_row, n_col)
+    genomes[:, :, 0] = reshape(pop_founder[::tile_pop_size])
     genomes[:, :, 0] <<= 8
-    genomes[:, :, 0] |= pop_mutator[::tile_pop_size].reshape(n_row, n_col)
+    genomes[:, :, 0] |= reshape(pop_mutator[::tile_pop_size])
     genomes[:, :, 0] <<= 8
-    genomes[:, :, 0] |= pop_del[::tile_pop_size].reshape(n_row, n_col)
+    genomes[:, :, 0] |= reshape(pop_del[::tile_pop_size])
     genomes[:, :, 0] <<= 8
-    genomes[:, :, 0] |= pop_ben[::tile_pop_size].reshape(n_row, n_col)
+    genomes[:, :, 0] |= reshape(pop_ben[::tile_pop_size])
     if not xp is np:
         genomes = genomes.get()
 
-    fitnesses = (
+    fitnesses = reshape(
         pop_ben[::tile_pop_size] - pop_del[::tile_pop_size]
-    ).reshape(n_row, n_col)
+    )
     if not xp is np:
         fitnesses = fitnesses.get()
 
@@ -131,8 +148,8 @@ def run(
     assert (trait0 <= tile_pop_size).all()
     traits_counts = xp.stack(
         (
-            trait0.reshape(n_row, n_col),
-            trait1.reshape(n_row, n_col),
+            reshape(trait0),
+            reshape(trait1),
         ),
         axis=-1,
     )
@@ -141,16 +158,16 @@ def run(
 
     trait_values = np.stack(
         (
-            np.zeros(n_row * n_col).reshape(n_row, n_col),
-            np.ones(n_row * n_col).reshape(n_row, n_col),
+            reshape(np.zeros(n_row * n_col)),
+            reshape(np.ones(n_row * n_col)),
         ),
         axis=-1,
     )
 
     last_seen_ = xp.stack(
         (
-            last_seen0.reshape(n_row, n_col),
-            last_seen1.reshape(n_row, n_col),
+            reshape(last_seen0),
+            reshape(last_seen1),
         ),
         axis=-1,
     )
