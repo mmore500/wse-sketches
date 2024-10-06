@@ -112,7 +112,6 @@ def run(
         arrs = [arr.reshape(n_row_subgrid, n_col_subgrid) for arr in arrs]
 
         chunks = [[*chunk] for chunk in mit.chunked(arrs, n_sub_col)]
-        print(chunks)
         assert len(chunks) == n_sub_row
 
         return np.block(chunks)
