@@ -76,8 +76,8 @@ def run(
 
     tc1 = xp.arange(pop_size, dtype=xp.uint32)
 
-    group_min = tc1 - tc1 % sub_size
-    group_max = group_min + sub_size
+    group_min = tc1 - tc1 % (sub_size * tile_pop_size)
+    group_max = group_min + sub_size * tile_pop_size
     def select() -> None:
         pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
         assert 1 <= pop_tourns <= 2
