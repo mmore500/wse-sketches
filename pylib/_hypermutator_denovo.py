@@ -114,7 +114,7 @@ def run(
         chunks = [[*chunk] for chunk in mit.chunked(arrs, n_sub_col)]
         assert len(chunks) == n_sub_row
 
-        return np.block(chunks)
+        return xp.block(chunks)
 
     start_time = time.perf_counter_ns()
     for generation in tq.tqdm(range(n_gen)):
