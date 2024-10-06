@@ -152,6 +152,7 @@ export LD_LIBRARY_PATH="\${MODULE_PATH}/lib64:\${LD_LIBRARY_PATH}"
 echo "LD_LIBRARY_PATH \${LD_LIBRARY_PATH}"
 export C_INCLUDE_PATH="\${MODULE_PATH}/include:\${C_INCLUDE_PATH}"
 export CPLUS_INCLUDE_PATH="\${MODULE_PATH}/include:\${CPLUS_INCLUDE_PATH}"
+export CPATH="\${MODULE_PATH}/include:\${CPATH}"
 
 echo "initialization telemetry -----------------------------------------------"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
