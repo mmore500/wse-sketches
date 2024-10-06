@@ -63,7 +63,7 @@ def run(
     sub_size = n_col_subgrid * n_row_subgrid
 
     def mutate() -> None:
-        nmut = rng.binomial(pop_size, pben)
+        nmut = rng_.binomial(pop_size, pben)
         if nmut:
             targets = rng_.choice(pop_size, nmut, replace=False)
             pop_mutator[targets] = 100
