@@ -100,6 +100,9 @@ def run(
         last_seen1[trait > 0] = generation
 
     def reshape(x: np.ndarray) -> np.ndarray:
+        if not isinstance(x, np.ndarray):
+            x = x.get()
+
         n_sub_row = n_row // n_row_subgrid
         n_sub_col = n_col // n_col_subgrid
         n_sub = n_sub_row * n_sub_col
@@ -114,7 +117,7 @@ def run(
         chunks = [[*chunk] for chunk in mit.chunked(arrs, n_sub_col)]
         assert len(chunks) == n_sub_row
 
-        return xp.block(chunks)
+        return np.block(chunks)
 
     start_time = time.perf_counter_ns()
     for generation in tq.tqdm(range(n_gen)):
@@ -125,7 +128,7 @@ def run(
     end_time = time.perf_counter_ns()
     elapsed_ns = end_time - start_time
 
-    genomes = xp.zeros((n_row, n_col, 1), dtype=xp.int32)
+    genomes = np.zeros((n_row, n_col, 1), dtype=np.int32)
     genomes[:, :, 0] = reshape(pop_founder[::tile_pop_size])
     genomes[:, :, 0] <<= 8
     genomes[:, :, 0] |= reshape(pop_mutator[::tile_pop_size])
@@ -133,14 +136,10 @@ def run(
     genomes[:, :, 0] |= reshape(pop_del[::tile_pop_size])
     genomes[:, :, 0] <<= 8
     genomes[:, :, 0] |= reshape(pop_ben[::tile_pop_size])
-    if not xp is np:
-        genomes = genomes.get()
 
     fitnesses = reshape(
         pop_ben[::tile_pop_size] - pop_del[::tile_pop_size]
     )
-    if not xp is np:
-        fitnesses = fitnesses.get()
 
     trait1 = (pop_mutator != 1).reshape(-1, tile_pop_size).sum(axis=1)
     assert (trait1 <= tile_pop_size).all()
@@ -164,15 +163,13 @@ def run(
         axis=-1,
     )
 
-    last_seen_ = xp.stack(
+    last_seen_ = np.stack(
         (
             reshape(last_seen0),
             reshape(last_seen1),
         ),
         axis=-1,
     )
-    if not xp is np:
-        last_seen_ = last_seen_.get()
 
     mgrid = np.mgrid[0:n_row, 0:n_col]
     whereami_x, whereami_y = mgrid
