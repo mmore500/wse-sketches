@@ -11,7 +11,7 @@ try:
     import cupy
 
     if cupy.cuda.is_available():
-        xp = cupy
+        xp = cupy  # noqa: F811
 except Exception:
     pass
 import pandas as pd
