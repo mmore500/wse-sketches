@@ -67,10 +67,7 @@ def run(
     sub_size = n_col_subgrid * n_row_subgrid
 
     def mutate() -> None:
-        nmut = rng_.binomial(pop_size, pben)
-        if nmut:
-            targets = rng_.choice(pop_size, nmut, replace=False)
-            pop_mutator[targets] = 100
+        pop_mutator[rng.rand() < pben] = 100
 
         pop_ben[:] += rng.poisson(pben * pop_mutator)
         pop_ben[pop_ben > n_ben] = n_ben
