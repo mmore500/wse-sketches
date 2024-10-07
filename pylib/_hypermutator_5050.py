@@ -6,10 +6,12 @@ import time
 import more_itertools as mit
 import numpy as np
 import numpy as xp
+
 try:
     import cupy
+
     if cupy.cuda.is_available():
-        xp = cupy
+        xp = cupy  # noqa: F811
 except Exception:
     pass
 import pandas as pd
@@ -37,6 +39,7 @@ print(
 pben = 0.000001
 pdel = 0.0001
 
+
 def run(
     n_col: int,
     n_row: int,
@@ -58,7 +61,6 @@ def run(
         targets = rng_.choice(pop_size, nmut, replace=False)
         pop_mutator[targets] = 100
 
-
     pop_ben = xp.zeros(pop_size, dtype=xp.int8)
     pop_del = xp.zeros(pop_size, dtype=xp.int8)
     pop_founder = xp.arange(pop_size, dtype=xp.int32)
@@ -74,11 +76,11 @@ def run(
         pop_ben[pop_ben > n_ben] = n_ben
         pop_del[:] += rng.poisson(pdel * pop_mutator)
 
-
     tc1 = xp.arange(pop_size, dtype=xp.uint32)
 
     group_min = tc1 - tc1 % (sub_size * tile_pop_size)
     group_max = group_min + sub_size * tile_pop_size
+
     def select() -> None:
         pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
         assert 1 <= pop_tourns <= 2
@@ -138,9 +140,7 @@ def run(
     genomes[:, :, 0] <<= 8
     genomes[:, :, 0] |= reshape(pop_ben[::tile_pop_size])
 
-    fitnesses = reshape(
-        pop_ben[::tile_pop_size] - pop_del[::tile_pop_size]
-    )
+    fitnesses = reshape(pop_ben[::tile_pop_size] - pop_del[::tile_pop_size])
 
     trait1 = (pop_mutator != 1).reshape(-1, tile_pop_size).sum(axis=1)
     assert (trait1 <= tile_pop_size).all()
