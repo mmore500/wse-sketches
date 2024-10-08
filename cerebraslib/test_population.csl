@@ -22,7 +22,15 @@ fn test_get_population_word() void { population._get_population_word(0); }
 
 fn test_get_swap_word() void { population._get_swap_word(0); }
 
-fn test_sample_one_tournament() void { population._sample_one_tournament(); }
+fn test_sample_one_tournament() void {
+    population._sample_one_tournament();
+    var i: f32 = 1.1;
+    @assert(@as(i32, i) == 1);
+    i = 1.9;
+    @assert(@as(i32, i) == 1);
+    i = 2.1;
+    @assert(@as(i32, i) == 2);
+}
 
 fn test_scale_by_genome_words() void { population._scale_by_genome_words(0); }
 
