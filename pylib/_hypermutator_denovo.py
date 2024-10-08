@@ -52,7 +52,6 @@ def run(
     n_ben: int,
 ):
     rng = xp.random.RandomState(seed)
-    rng_ = np.random.RandomState(seed)
 
     pop_size = n_col * n_row * tile_pop_size
     pop_mutator = xp.ones(pop_size, dtype=xp.uint8)
