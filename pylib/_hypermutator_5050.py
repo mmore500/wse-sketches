@@ -52,14 +52,10 @@ def run(
     n_ben: int,
 ):
     rng = xp.random.RandomState(seed)
-    rng_ = np.random.RandomState(seed)
 
     pop_size = n_col * n_row * tile_pop_size
     pop_mutator = xp.ones(pop_size, dtype=xp.uint8)
-    nmut = rng_.binomial(pop_size, 0.5)
-    if nmut:
-        targets = rng_.choice(pop_size, nmut, replace=False)
-        pop_mutator[targets] = 100
+    pop_mutator[rng.rand(pop_size) < 0.5] = 100
 
     pop_ben = xp.zeros(pop_size, dtype=xp.int8)
     pop_del = xp.zeros(pop_size, dtype=xp.int8)
