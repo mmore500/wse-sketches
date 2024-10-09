@@ -10,7 +10,7 @@ echo "NBEN ${NBEN}"
 
 echo "SLURM_ARRAY_TASK_ID ${SLURM_ARRAY_TASK_ID}"
 
-WSE_SKETCHES_REVISION="fc8ba45ad5ace1412a3daea2afb9be3d999aefb0"
+WSE_SKETCHES_REVISION="56fe4d77bad897da110af00ed89c4e7d58b938ce"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
 WORKDIR="${HOME}/scratch/2024-10-09-cupy-denovo-spatial/nben=${NBEN}+async-ga-hypermutator-512"
