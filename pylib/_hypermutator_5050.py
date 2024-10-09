@@ -174,7 +174,7 @@ def run(
 
     whoami = np.arange(n_row * n_col).reshape(n_row, n_col)
 
-    return {  # TODO fix layout
+    return {
         "whereami_x": whereami_x,
         "whereami_y": whereami_y,
         "whoami": whoami,
