@@ -66,7 +66,7 @@ def run(
     sub_size = n_col_subgrid * n_row_subgrid
 
     def mutate() -> None:
-        pop_mutator[rng.rand() < pben] = 100
+        pop_mutator[rng.rand(pop_size) < pben] = 100
 
         pop_ben[:] += rng.poisson(pben * pop_mutator)
         pop_ben[pop_ben > n_ben] = n_ben
@@ -174,7 +174,7 @@ def run(
 
     whoami = np.arange(n_row * n_col).reshape(n_row, n_col)
 
-    return {  # TODO fix layout
+    return {
         "whereami_x": whereami_x,
         "whereami_y": whereami_y,
         "whoami": whoami,
