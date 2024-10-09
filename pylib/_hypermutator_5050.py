@@ -82,8 +82,10 @@ def run(
     del tc0
 
     def select() -> None:
-        pop_tourns = xp.floor(rng.rand() + tourn_size).astype(xp.uint8)
-        assert 1 <= pop_tourns <= 2
+        pop_tourns = xp.floor(
+            rng.rand(pop_size) + tourn_size
+        ).astype(xp.uint8)
+        # assert (xp.clip(pop_tourns, 1, 2) == pop_tourns).all()
 
         tc1 = rng.randint(group_min, group_max, dtype=xp.uint32)
         tc2 = rng.randint(group_min, group_max, dtype=xp.uint32)
