@@ -78,9 +78,7 @@ def run(
     del tc0
 
     def select() -> None:
-        pop_tourns = xp.floor(
-            rng.rand(pop_size) + tourn_size
-        ).astype(xp.uint8)
+        pop_tourns = xp.floor(rng.rand(pop_size) + tourn_size).astype(xp.uint8)
         # assert (xp.clip(pop_tourns, 1, 2) == pop_tourns).all()
 
         tc1 = rng.randint(group_min, group_max, dtype=xp.uint32)
@@ -100,9 +98,7 @@ def run(
     migrate_min = tcm - tcm % (tile_pop_size * sub_size)
     migrate_max = migrate_min + tile_pop_size * sub_size
 
-    tcm[
-        xp.arange(pop_size, dtype=xp.int32) % tile_pop_size == 0
-    ] -= 1
+    tcm[xp.arange(pop_size, dtype=xp.int32) % tile_pop_size == 0] -= 1
     tcm[
         xp.arange(pop_size, dtype=xp.int32) % tile_pop_size == tile_pop_size - 1
     ] += 1
@@ -115,7 +111,6 @@ def run(
         pop_del[:] = pop_del[tcm]
         pop_mutator[:] = pop_mutator[tcm]
         pop_founder[:] = pop_founder[tcm]
-
 
     def last_seen(generation: int) -> None:
         trait = (pop_mutator != 1).reshape(-1, tile_pop_size).sum(axis=1)
