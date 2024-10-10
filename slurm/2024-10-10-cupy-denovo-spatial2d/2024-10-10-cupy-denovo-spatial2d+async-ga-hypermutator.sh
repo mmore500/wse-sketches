@@ -251,7 +251,7 @@ echo "ASYNC_GA_TOURNSIZE_NUMERATOR \${ASYNC_GA_TOURNSIZE_NUMERATOR}"
 echo "ASYNC_GA_TOURNSIZE_DENOMINATOR \${ASYNC_GA_TOURNSIZE_DENOMINATOR}"
 echo "NBEN \${NBEN}"
 
-./pyscript/hypermutator-denovo-spatial.py
+./pyscript/hypermutator-denovo-spatial2d.py
 
 echo "cleanup ----------------------------------------------------------------"
 rm -rf ./env
