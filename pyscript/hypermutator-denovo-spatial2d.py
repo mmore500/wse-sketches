@@ -117,7 +117,7 @@ metadata = {
 print(metadata)
 
 print("do run ===============================================================")
-from pylib._hypermutator_denovo_spatial import run
+from pylib._hypermutator_denovo_spatial2d import run
 
 res = run(
     n_col=nCol,

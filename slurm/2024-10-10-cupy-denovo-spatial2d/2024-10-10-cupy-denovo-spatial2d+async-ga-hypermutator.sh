@@ -10,7 +10,7 @@ echo "NBEN ${NBEN}"
 
 echo "SLURM_ARRAY_TASK_ID ${SLURM_ARRAY_TASK_ID}"
 
-WSE_SKETCHES_REVISION="ce0f8d23470e41ff47deedd64bd860ce57f14221"
+WSE_SKETCHES_REVISION="f8f20a01b5ec699b946018efc42ee1daa20726df"
 echo "WSE_SKETCHES_REVISION ${WSE_SKETCHES_REVISION}"
 
 WORKDIR="${HOME}/scratch/2024-10-10-cupy-denovo-spatial2d/nben=${NBEN}+async-ga-hypermutator-512"
@@ -251,7 +251,7 @@ echo "ASYNC_GA_TOURNSIZE_NUMERATOR \${ASYNC_GA_TOURNSIZE_NUMERATOR}"
 echo "ASYNC_GA_TOURNSIZE_DENOMINATOR \${ASYNC_GA_TOURNSIZE_DENOMINATOR}"
 echo "NBEN \${NBEN}"
 
-./pyscript/hypermutator-denovo-spatial.py
+./pyscript/hypermutator-denovo-spatial2d.py
 
 echo "cleanup ----------------------------------------------------------------"
 rm -rf ./env
