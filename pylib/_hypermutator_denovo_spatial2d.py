@@ -98,61 +98,61 @@ def run(
         pop_founder[:] = pop_founder[tc_win]
 
     arange = xp.arange(pop_size, dtype=xp.int32)
-    tcm = arange
+    tcm = arange.copy()
     migrate_min = tcm - tcm % (tile_pop_size * sub_size)
     migrate_max = migrate_min + tile_pop_size * sub_size
 
     tcm[arange % tile_pop_size == 0] -= 1
     tcm[arange % tile_pop_size == tile_pop_size - 1] += 1
 
-    row_num = (arange - group_min) // (tile_pop_size * n_col)
-    col_num = ((arange - group_min) // tile_pop_size) % n_col
-
     if n_col_subgrid > 2 and n_row_subgrid > 2:
+        sub_row_num = (arange - migrate_min) // (tile_pop_size * n_col_subgrid)
+        sub_col_num = ((arange - migrate_min) // tile_pop_size) % n_col_subgrid
+
         # FORWARD
         # even rows
         tcm[
             (arange % tile_pop_size == 1)
-            & (row_num % 2 == 0)
-            & (col_num % n_col_subgrid > 0)
-            & (col_num % n_col_subgrid < n_col_subgrid - 1)
+            & (sub_row_num % 2 == 0)
+            & (sub_col_num > 0)
+            & (sub_col_num < n_col_subgrid - 1)
         ] += np.tile(
-            np.arange(n_col_subgrid * 2 - 3, 0, -2),
-            n_row_subgrid * n_sub
+            np.arange(n_col_subgrid * 2 - 3, 1, -2),
+            ((n_row_subgrid + 1) // 2) * n_sub
         ) * tile_pop_size
 
         # odd rows
         tcm[
             (arange % tile_pop_size == 1)
-            & (row_num % 2 == 1)
-            & (col_num % n_col_subgrid > 0)
-            & (col_num % n_col_subgrid < n_col_subgrid - 1)
+            & (sub_row_num % 2 == 1)
+            & (sub_col_num > 0)
+            & (sub_col_num < n_col_subgrid - 1)
         ] -= np.tile(
-            np.arange(n_col_subgrid * 2 - 3, 0, -2),
-            n_row_subgrid * n_sub
+            np.arange(n_col_subgrid * 2 - 3, 1, -2),
+            (n_row_subgrid // 2) * n_sub
         ) * tile_pop_size
 
         # BACKWARD
         # odd rows
         tcm[
             (arange % tile_pop_size == 2)
-            &   (row_num % 2 == 1)
-            & (   col_num % n_col_subgrid > 0)
-            & (col_num % n_col_subgrid < n_col_subgrid - 1)
+            &   (sub_row_num % 2 == 1)
+            & (sub_col_num > 0)
+            & (sub_col_num < n_col_subgrid - 1)
         ] += np.tile(
-            np.arange(3, n_col_subgrid * 2 - 1, 2),
-            n_row_subgrid * n_sub
+            np.arange(3, n_col_subgrid * 2 - 2, 2),
+            (n_row_subgrid // 2) * n_sub
         ) * tile_pop_size
 
         # even rows
         tcm[
             (arange % tile_pop_size == 2)
-            & (row_num % 2 == 0)
-            & (col_num % n_col_subgrid > 0)
-            & (col_num % n_col_subgrid < n_col_subgrid - 1)
+            & (sub_row_num % 2 == 0)
+            & (sub_col_num > 0)
+            & (sub_col_num < n_col_subgrid - 1)
         ] -= np.tile(
-            np.arange(3, n_col_subgrid * 2 - 1, 2),
-            n_row_subgrid * n_sub
+            np.arange(3, n_col_subgrid * 2 - 2, 2),
+            ((n_row_subgrid + 1) // 2) * n_sub
         ) * tile_pop_size
 
 
