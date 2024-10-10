@@ -33,9 +33,10 @@ echo "setup SOURCEDIR ========================================================"
 SOURCEDIR="/tmp/${WSE_SKETCHES_REVISION}-${SLURM_JOB_ID}"
 echo "SOURCEDIR ${SOURCEDIR}"
 rm -rf "${SOURCEDIR}"
-git clone https://github.com/mmore500/wse-sketches.git "${SOURCEDIR}" --single-branch -b cupy || git clone https://github.com/mmore500/wse-sketches.git "${SOURCEDIR}" --single-branch
+# git clone https://github.com/mmore500/wse-sketches.git "${SOURCEDIR}" --single-branch -b cupy || git clone https://github.com/mmore500/wse-sketches.git "${SOURCEDIR}" --single-branch
+cp -r ../../../wse-sketches "${SOURCEDIR}"
 cd "${SOURCEDIR}"
-git checkout "${WSE_SKETCHES_REVISION}"
+# git checkout "${WSE_SKETCHES_REVISION}"
 cd -
 
 echo "begin work loop ========================================================"
