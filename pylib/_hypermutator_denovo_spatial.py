@@ -106,7 +106,9 @@ def run(
     tcm[tcm >= migrate_max] = migrate_min[tcm >= migrate_max]
     tcm[tcm < migrate_min] = migrate_max[tcm < migrate_min] - 1
 
-    assert set(tcm) == set(range(pop_size))
+    assert set(
+        tcm.get() if not isinstance(tcm, np.ndarray) else tcm
+    ) == set(range(pop_size))
 
     def migrate() -> None:
         pop_ben[:] = pop_ben[tcm]
