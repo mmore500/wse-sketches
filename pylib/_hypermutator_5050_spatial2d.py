@@ -115,20 +115,25 @@ def run(
             (arange % tile_pop_size == 1)
             & (sub_row_num % 2 == 0)
             & (sub_col_num < n_col_subgrid - 1)
-        ] += xp.tile(
-            xp.arange(n_col_subgrid * 2 - 1, 1, -2),
-            ((n_row_subgrid + 1) // 2) * n_sub
-        ) * tile_pop_size
+        ] += (
+            xp.tile(
+                xp.arange(n_col_subgrid * 2 - 1, 1, -2),
+                ((n_row_subgrid + 1) // 2) * n_sub,
+            )
+            * tile_pop_size
+        )
 
         # odd rows
         tcm[
             (arange % tile_pop_size == 1)
             & (sub_row_num % 2 == 1)
             & (sub_col_num > 0)
-        ] -= xp.tile(
-            xp.arange(3, n_col_subgrid * 2, 2),
-            (n_row_subgrid // 2) * n_sub
-        ) * tile_pop_size
+        ] -= (
+            xp.tile(
+                xp.arange(3, n_col_subgrid * 2, 2), (n_row_subgrid // 2) * n_sub
+            )
+            * tile_pop_size
+        )
 
         # BACKWARD
         # odd rows
@@ -136,28 +141,33 @@ def run(
             (arange % tile_pop_size == 2)
             & (sub_row_num % 2 == 1)
             & (sub_col_num < n_col_subgrid - 1)
-        ] += xp.tile(
-            xp.arange(n_col_subgrid * 2 - 1, 1, -2),
-            (n_row_subgrid // 2) * n_sub
-        ) * tile_pop_size
+        ] += (
+            xp.tile(
+                xp.arange(n_col_subgrid * 2 - 1, 1, -2),
+                (n_row_subgrid // 2) * n_sub,
+            )
+            * tile_pop_size
+        )
 
         # even rows
         tcm[
             (arange % tile_pop_size == 2)
             & (sub_row_num % 2 == 0)
             & (sub_col_num > 0)
-        ] -= xp.tile(
-            xp.arange(3, n_col_subgrid * 2, 2),
-            ((n_row_subgrid + 1) // 2) * n_sub
-        ) * tile_pop_size
-
+        ] -= (
+            xp.tile(
+                xp.arange(3, n_col_subgrid * 2, 2),
+                ((n_row_subgrid + 1) // 2) * n_sub,
+            )
+            * tile_pop_size
+        )
 
     tcm[tcm >= migrate_max] = arange[tcm >= migrate_max]
     tcm[tcm < migrate_min] = arange[tcm < migrate_min]
 
-    assert set(
-        tcm.get() if not isinstance(tcm, np.ndarray) else tcm
-    ) == set(range(pop_size))
+    assert set(tcm.get() if not isinstance(tcm, np.ndarray) else tcm) == set(
+        range(pop_size)
+    )
 
     def migrate() -> None:
         pop_ben[:] = pop_ben[tcm]
