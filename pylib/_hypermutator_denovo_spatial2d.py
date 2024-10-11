@@ -114,10 +114,9 @@ def run(
         tcm[
             (arange % tile_pop_size == 1)
             & (sub_row_num % 2 == 0)
-            & (sub_col_num > 0)
             & (sub_col_num < n_col_subgrid - 1)
         ] += xp.tile(
-            xp.arange(n_col_subgrid * 2 - 3, 1, -2),
+            xp.arange(n_col_subgrid * 2 - 1, 1, -2),
             ((n_row_subgrid + 1) // 2) * n_sub
         ) * tile_pop_size
 
@@ -126,9 +125,8 @@ def run(
             (arange % tile_pop_size == 1)
             & (sub_row_num % 2 == 1)
             & (sub_col_num > 0)
-            & (sub_col_num < n_col_subgrid - 1)
         ] -= xp.tile(
-            xp.arange(n_col_subgrid * 2 - 3, 1, -2),
+            xp.arange(3, n_col_subgrid * 2, 2),
             (n_row_subgrid // 2) * n_sub
         ) * tile_pop_size
 
@@ -136,11 +134,10 @@ def run(
         # odd rows
         tcm[
             (arange % tile_pop_size == 2)
-            &   (sub_row_num % 2 == 1)
-            & (sub_col_num > 0)
+            & (sub_row_num % 2 == 1)
             & (sub_col_num < n_col_subgrid - 1)
         ] += xp.tile(
-            xp.arange(3, n_col_subgrid * 2 - 2, 2),
+            xp.arange(n_col_subgrid * 2 - 1, 1, -2),
             (n_row_subgrid // 2) * n_sub
         ) * tile_pop_size
 
@@ -149,9 +146,8 @@ def run(
             (arange % tile_pop_size == 2)
             & (sub_row_num % 2 == 0)
             & (sub_col_num > 0)
-            & (sub_col_num < n_col_subgrid - 1)
         ] -= xp.tile(
-            xp.arange(3, n_col_subgrid * 2 - 2, 2),
+            xp.arange(3, n_col_subgrid * 2, 2),
             ((n_row_subgrid + 1) // 2) * n_sub
         ) * tile_pop_size
 
