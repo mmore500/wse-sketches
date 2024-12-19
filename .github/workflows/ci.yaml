@@ -112,39 +112,51 @@ jobs:
       - name: Test Apptainer
         run: |
           apptainer --version
+          sudo "$(which apptainer)" exec docker://busybox:latest echo "Hello from Singularity and Docker!"
 
       - name: Set up SDK
-        run: |
-          mkdir -p ~/cerebras/bin
-          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
-          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            mkdir -p ~/cerebras/bin
+            curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+            echo "$HOME/cerebras/bin" >> $GITHUB_PATH
         env:
           CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
 
       - name: Test SDK
         run: |
-          cslc -h
-          csdb --help
-          cs_python -h
-          cs_readelf -h
-          sdk_debug_shell --help
+          sudo env PATH=$PATH cslc -h
+          sudo env PATH=$PATH csdb --help
+          sudo env PATH=$PATH cs_python -h
+          sudo env PATH=$PATH cs_readelf -h
+          sudo env PATH=$PATH sdk_debug_shell --help
           echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test self-driving
         run: |
-          ./kernel-self-driving/compile.sh
-          ./kernel-self-driving/execute.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON \
+            ./kernel-self-driving/compile.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON \
+            ./kernel-self-driving/execute.sh
 
       - name: Test memcpy
         run: |
-          ./kernel-test-memcpy/compile.sh
-          ./kernel-test-memcpy/execute.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON \
+            ./kernel-test-memcpy/compile.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON  \
+            ./kernel-test-memcpy/execute.sh
 
       - name: Test async-ga, genome_frozenliteral
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral"
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_bitdrift
         run: |
@@ -152,41 +164,62 @@ jobs:
           export ASYNC_GA_NCYCLE_AT_LEAST=0
           export ASYNC_GA_MSEC_AT_LEAST=0
           export ASYNC_GA_TSC_AT_LEAST=1000
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_hsurftiltedsticky
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_hsurftiltedsticky"
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_purifyingonly
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingonly"
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_purifyingplus
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingplus"
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_purifyingstripped
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingstripped"
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_hypermutator
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_hypermutator"
-          ./kernel-async-ga/compile.sh
-          ./kernel-async-ga/execute.sh
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/compile.sh
+          sudo -E \
+            ./kernel-async-ga/execute.sh
 
       - name: Generate sample tagged populations
-        run: ./kernel-async-ga/generate_sample_tagged_populations.sh
+        run: |
+          export CSLC CS_PYTHON PATH
+          sudo -E \
+            ./kernel-async-ga/generate_sample_tagged_populations.sh
 
       - name: Upload output as artifact
         uses: actions/upload-artifact@v4
@@ -230,28 +263,35 @@ jobs:
       - name: Test Apptainer
         run: |
           apptainer --version
+          sudo "$(which apptainer)" exec docker://busybox:latest echo "Hello from Singularity and Docker!"
 
       - name: Set up SDK
-        run: |
-          mkdir -p ~/cerebras/bin
-          curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
-          echo "$HOME/cerebras/bin" >> $GITHUB_PATH
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            mkdir -p ~/cerebras/bin
+            curl -L "${CEREBRAS_SDK_URL}" | tar -xzv -C ~/cerebras/bin
+            echo "$HOME/cerebras/bin" >> $GITHUB_PATH
         env:
           CEREBRAS_SDK_URL: ${{ secrets.CEREBRAS_SDK_URL }}
 
       - name: Test SDK
         run: |
-          cslc -h
-          csdb --help
-          cs_python -h
-          cs_readelf -h
-          sdk_debug_shell --help
+          sudo env PATH=$PATH cslc -h
+          sudo env PATH=$PATH csdb --help
+          sudo env PATH=$PATH cs_python -h
+          sudo env PATH=$PATH cs_readelf -h
+          sudo env PATH=$PATH sdk_debug_shell --help
           echo "SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE ${SINGULARITYENV_CSL_SUPPRESS_SIMFAB_TRACE}"
 
       - name: Test cerebraslib
         run: |
-          ./kernel-test-cerebraslib/compile.sh
-          ./kernel-test-cerebraslib/execute.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON \
+            ./kernel-test-cerebraslib/compile.sh
+          sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON \
+            ./kernel-test-cerebraslib/execute.sh
 
   binder:
     runs-on: ubuntu-latest
