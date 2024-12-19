@@ -153,9 +153,9 @@ jobs:
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral"
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_bitdrift
@@ -165,60 +165,60 @@ jobs:
           export ASYNC_GA_MSEC_AT_LEAST=0
           export ASYNC_GA_TSC_AT_LEAST=1000
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_hsurftiltedsticky
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_hsurftiltedsticky"
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_purifyingonly
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingonly"
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_purifyingplus
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingplus"
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_purifyingstripped
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingstripped"
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Test async-ga, genome_hypermutator
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_hypermutator"
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/execute.sh
 
       - name: Generate sample tagged populations
         run: |
           export CSLC CS_PYTHON PATH
-          sudo -E \
+          sudo -E env PATH=$PATH \
             ./kernel-async-ga/generate_sample_tagged_populations.sh
 
       - name: Upload output as artifact
