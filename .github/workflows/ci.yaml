@@ -149,9 +149,40 @@ jobs:
           sudo env PATH=$PATH CSLC=$CSLC CS_PYTHON=$CS_PYTHON  \
             ./kernel-test-memcpy/execute.sh
 
-      - name: Test async-ga, genome_frozenliteral
+      - name: Test async-ga, genome_frozenliteral1
         run: |
-          export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral"
+          export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral1"
+          export ASYNC_GA_NWAV=1
+          export CSLC CS_PYTHON PATH
+          sudo -E env PATH=$PATH \
+            ./kernel-async-ga/compile.sh
+          sudo -E env PATH=$PATH \
+            ./kernel-async-ga/execute.sh
+
+      - name: Test async-ga, genome_frozenliteral2
+        run: |
+          export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral2"
+          export ASYNC_GA_NWAV=2
+          export CSLC CS_PYTHON PATH
+          sudo -E env PATH=$PATH \
+            ./kernel-async-ga/compile.sh
+          sudo -E env PATH=$PATH \
+            ./kernel-async-ga/execute.sh
+
+      - name: Test async-ga, genome_frozenliteral3
+        run: |
+          export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral3"
+          export ASYNC_GA_NWAV=3
+          export CSLC CS_PYTHON PATH
+          sudo -E env PATH=$PATH \
+            ./kernel-async-ga/compile.sh
+          sudo -E env PATH=$PATH \
+            ./kernel-async-ga/execute.sh
+
+      - name: Test async-ga, genome_frozenliteral4
+        run: |
+          export ASYNC_GA_GENOME_FLAVOR="genome_frozenliteral4"
+          export ASYNC_GA_NWAV=4
           export CSLC CS_PYTHON PATH
           sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
