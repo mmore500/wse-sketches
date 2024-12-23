@@ -82,7 +82,7 @@ jobs:
     if: ${{ github.event.repository.name == 'wse-sketches-mirror' }}
     strategy:
       matrix:
-        nwav: [1, 2, 3, 4, 5]
+        nwav: [1, 2, 3, 4, 5, 6, 7]
       fail-fast: false
     env:
       CSLC: cslc

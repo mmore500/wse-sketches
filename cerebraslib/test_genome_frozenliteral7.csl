@@ -1,0 +1,39 @@
+const random = @import_module("<random>");
+
+const genome_frozenliteral7 = @import_module("cerebraslib/genome_frozenliteral7.csl", .{
+    .peId = 0,
+});
+
+fn test_elapse_inheritance_of() void {
+    var genome = @zeros(genome_frozenliteral7.genome_t);
+    genome_frozenliteral7.initialize_one(&genome);
+    genome_frozenliteral7.elapse_inheritance_of(&genome);
+    @assert(genome_frozenliteral7._validate(&genome));
+}
+
+fn test_calc_fitness_of() void {
+    var genome = @zeros(genome_frozenliteral7.genome_t);
+    genome_frozenliteral7.initialize_one(&genome);
+    @assert(genome_frozenliteral7.calc_fitness_of(&genome) == 0.0);
+}
+
+fn test_get_trait_value() void {
+    var g = @zeros(genome_frozenliteral7.genome_t);
+    @assert(genome_frozenliteral7.get_trait_value(&g) == 0);
+    @assert(
+        genome_frozenliteral7.get_trait_value(&g)
+        < genome_frozenliteral7.nTraitVals
+    );
+}
+
+fn test_initialize_one() void {
+    var genome = @zeros(genome_frozenliteral7.genome_t);
+    genome_frozenliteral7.initialize_one(&genome);
+    @assert(genome_frozenliteral7._validate(&genome));
+}
+
+fn do_test() void {
+    test_calc_fitness_of();
+    test_elapse_inheritance_of();
+    test_initialize_one();
+}
