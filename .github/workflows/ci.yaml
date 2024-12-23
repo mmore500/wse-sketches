@@ -161,6 +161,7 @@ jobs:
       - name: Test async-ga, genome_bitdrift
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_bitdrift"
+          export ASYNC_GA_NWAV=3
           export ASYNC_GA_NCYCLE_AT_LEAST=0
           export ASYNC_GA_MSEC_AT_LEAST=0
           export ASYNC_GA_TSC_AT_LEAST=1000
@@ -173,6 +174,7 @@ jobs:
       - name: Test async-ga, genome_hsurftiltedsticky
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_hsurftiltedsticky"
+          export ASYNC_GA_NWAV=3
           export CSLC CS_PYTHON PATH
           sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
@@ -182,6 +184,7 @@ jobs:
       - name: Test async-ga, genome_purifyingonly
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingonly"
+          export ASYNC_GA_NWAV=4
           export CSLC CS_PYTHON PATH
           sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
@@ -191,6 +194,7 @@ jobs:
       - name: Test async-ga, genome_purifyingplus
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingplus"
+          export ASYNC_GA_NWAV=4
           export CSLC CS_PYTHON PATH
           sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
@@ -200,6 +204,7 @@ jobs:
       - name: Test async-ga, genome_purifyingstripped
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_purifyingstripped"
+          export ASYNC_GA_NWAV=1
           export CSLC CS_PYTHON PATH
           sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
@@ -209,6 +214,7 @@ jobs:
       - name: Test async-ga, genome_hypermutator
         run: |
           export ASYNC_GA_GENOME_FLAVOR="genome_hypermutator"
+          export ASYNC_GA_NWAV=5
           export CSLC CS_PYTHON PATH
           sudo -E env PATH=$PATH \
             ./kernel-async-ga/compile.sh
