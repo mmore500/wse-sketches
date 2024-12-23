@@ -1,0 +1,41 @@
+// memory layout ===============================================================
+// byte 0 BITFIELD (8 bytes)
+// byte 1
+// byte 2
+// byte 3
+// byte 4
+// byte 5
+// byte 6
+// byte 7
+// TOTAL: 2 words -> 8 bytes
+
+// module config specs ========================================================
+const gSize: u16 = 2;
+const genome_t = [gSize]u32;
+const genomePtr_t = [*]u32;
+const nTraitVals: u16 = 1;
+
+const val1: u32 = 1692398096;
+const val2: u32 = 2816128869;
+
+fn _validate(genome: genomePtr_t) bool {
+    return (genome[0] == val1) and (genome[1] == val2);
+}
+
+// public API =================================================================
+fn elapse_inheritance_of(genome: genomePtr_t) void {
+    @assert(_validate(genome));
+}
+
+fn calc_fitness_of(genome: genomePtr_t) f32 {
+    @assert(_validate(genome));
+    return 0.0;
+}
+
+fn get_trait_value(genome: genomePtr_t) u32 { return 0; }
+
+fn initialize_one(genome: genomePtr_t) void {
+    genome[0] = val1;
+    genome[1] = val2;
+    @assert(_validate(genome));
+}
